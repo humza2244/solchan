@@ -41,11 +41,10 @@ const CreateCommunity = () => {
     e.preventDefault()
     setError('')
     
-    // TEMPORARY: Skip user check for testing
-    // if (!user) {
-    //   setError('You must be signed in to create a community')
-    //   return
-    // }
+    if (!user) {
+      setError('You must be signed in to create a community')
+      return
+    }
 
     if (contractAddress.length < 20) {
       setError('Invalid contract address')
@@ -55,8 +54,13 @@ const CreateCommunity = () => {
     setLoading(true)
 
     try {
-      // TEMPORARY: Mock token for testing
-      const token = 'mock-token-for-testing'
+      const token = getAccessToken()
+      
+      if (!token) {
+        setError('Authentication token not found. Please sign in again.')
+        setLoading(false)
+        return
+      }
       
       // Step 1: Create the community
       const communityResponse = await axios.post(

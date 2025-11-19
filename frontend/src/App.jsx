@@ -7,16 +7,16 @@ import SignUp from './pages/SignUp.jsx'
 import CreateCommunity from './pages/CreateCommunity.jsx'
 import Community from './pages/Community.jsx'
 
-// Protected route component - TEMPORARILY DISABLED FOR TESTING
+// Protected route component - requires authentication
 function ProtectedRoute({ children }) {
-  // TEMPORARY: Skip auth check for testing
-  return children
-  
-  /* ORIGINAL CODE - UNCOMMENT WHEN READY
   const { user, loading } = useAuth()
   
   if (loading) {
-    return <div>Loading...</div>
+    return (
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+        <p>Loading...</p>
+      </div>
+    )
   }
   
   if (!user) {
@@ -24,7 +24,6 @@ function ProtectedRoute({ children }) {
   }
   
   return children
-  */
 }
 
 function App() {

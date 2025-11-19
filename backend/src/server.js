@@ -79,19 +79,11 @@ app.get('/api/health', async (req, res) => {
 // WebSocket connection handling with authentication
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id)
-  
-  // TEMPORARY: Mock user for testing - auto-authenticate all sockets
-  let authenticatedUserId = '00000000-0000-0000-0000-000000000001'
-  console.log('⚠️  USING MOCK AUTH FOR WEBSOCKET')
 
-  // Authenticate socket connection (currently bypassed for testing)
+  let authenticatedUserId = null
+
+  // Authenticate socket connection
   socket.on('authenticate', async (token) => {
-    // TEMPORARY: Just accept any token for testing
-    authenticatedUserId = '00000000-0000-0000-0000-000000000001'
-    socket.emit('authenticated', { userId: authenticatedUserId })
-    console.log('⚠️  Socket authentication bypassed for testing')
-    
-    /* ORIGINAL AUTH CODE - UNCOMMENT WHEN READY
     try {
       const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
       
@@ -107,7 +99,6 @@ io.on('connection', (socket) => {
       console.error('Socket authentication error:', error)
       socket.emit('auth-error', { message: 'Authentication failed' })
     }
-    */
   })
 
   // Join a community room
@@ -115,8 +106,8 @@ io.on('connection', (socket) => {
     try {
       socket.join(communityId)
       console.log(`User ${socket.id} joined community: ${communityId}`)
-      
-      // Send recent messages to the newly connected user
+    
+    // Send recent messages to the newly connected user
       const messages = await getMessages(communityId, 50)
       socket.emit('messages', messages.map(m => m.toJSON()))
     } catch (error) {
@@ -131,15 +122,14 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} left community: ${communityId}`)
   })
 
-  // Handle new message (requires authentication - TEMPORARILY BYPASSED)
+  // Handle new message (requires authentication)
   socket.on('new-message', async (data) => {
     const { communityId, content, author } = data
     
-    // TEMPORARY: Skip auth check for testing
-    // if (!authenticatedUserId) {
-    //   socket.emit('error', { message: 'Authentication required to send messages' })
-    //   return
-    // }
+    if (!authenticatedUserId) {
+      socket.emit('error', { message: 'Authentication required to send messages' })
+      return
+    }
     
     if (!communityId || !content) {
       socket.emit('error', { message: 'Community ID and content are required' })
@@ -199,7 +189,7 @@ const startServer = async () => {
     }
     
     // Start server
-    httpServer.listen(PORT, () => {
+httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`)
       console.log(`🔌 WebSocket server ready`)
       console.log(`📊 Database connected`)

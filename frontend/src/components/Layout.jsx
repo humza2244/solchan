@@ -20,7 +20,7 @@ const Layout = ({ children }) => {
             {user ? (
               <>
                 <span className="nav-user">
-                  {user.email}
+                  {user.user_metadata?.username || user.email}
                 </span>
                 <span className="nav-separator">-</span>
                 <button onClick={handleSignOut} className="nav-button">

@@ -97,11 +97,10 @@ const Community = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault()
     
-    // TEMPORARY: Skip user check for testing
-    // if (!user) {
-    //   alert('You must be signed in to send messages')
-    //   return
-    // }
+    if (!user) {
+      alert('You must be signed in to send messages')
+      return
+    }
     
     if (!newMessage.trim() || sending) {
       return
@@ -110,12 +109,15 @@ const Community = () => {
     try {
       setSending(true)
       
+      // Get username from user metadata, fallback to email
+      const username = user.user_metadata?.username || user.email || 'Anonymous'
+      
       // Send via WebSocket for real-time
       if (socket) {
         socket.emit('new-message', {
           communityId: id,
           content: newMessage.trim(),
-          author: name.trim() || 'Anonymous',
+          author: username,
         })
       }
       
@@ -188,46 +190,48 @@ const Community = () => {
         )}
       </div>
 
-      {/* Post Form - TEMPORARILY ALWAYS SHOWN FOR TESTING */}
-      <div className="post-form-container">
-        <form onSubmit={handleSendMessage} className="post-form">
-          <div className="form-row">
-            <div className="form-label">Name</div>
-            <div className="form-input-group">
-              <div className="form-input-group-wrapper">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="form-input"
-                  placeholder="Anonymous"
+      {/* Post Form - Only show if user is signed in */}
+      {user ? (
+        <div className="post-form-container">
+          <form onSubmit={handleSendMessage} className="post-form">
+            <div className="form-row">
+              <div className="form-label">Posting as</div>
+              <div className="form-input-group">
+                <div className="form-input-group-wrapper">
+                  <span style={{ padding: '6px', fontSize: '13px', color: '#0F0C5D', fontWeight: 'bold' }}>
+                    {user.user_metadata?.username || user.email}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-label">Comment</div>
+              <div className="form-input-group">
+                <textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  className="form-textarea"
+                  placeholder="Enter your message..."
+                  required
+                  disabled={sending}
                 />
               </div>
             </div>
-          </div>
-          <div className="form-row">
-            <div className="form-label">Comment</div>
-            <div className="form-input-group">
-              <textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                className="form-textarea"
-                placeholder="Enter your message..."
-                required
-                disabled={sending}
-              />
+            <div className="form-row">
+              <div className="form-label"></div>
+              <div className="form-input-group">
+                <button type="submit" disabled={sending} className="post-button">
+                  {sending ? 'Posting...' : 'Post'}
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="form-row">
-            <div className="form-label"></div>
-            <div className="form-input-group">
-              <button type="submit" disabled={sending} className="post-button">
-                {sending ? 'Posting...' : 'Post'}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      ) : (
+        <div className="post-form-container" style={{ textAlign: 'center', padding: '20px' }}>
+          <p>You must be <a href="/signin">signed in</a> to post messages.</p>
+        </div>
+      )}
     </div>
   )
 }
