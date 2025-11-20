@@ -1544,3 +1544,134 @@ a:hover {
   margin-bottom: 3px;
   text-align: center;
 }
+
+/* KOTH Horizontal Layout - Compact */
+.koth-section-horizontal {
+  margin: 15px auto;
+  max-width: 400px;
+}
+
+.koth-card-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #FFD700;
+  padding: 10px;
+  border: 2px solid #DAA520;
+  text-decoration: none;
+  color: #000;
+}
+
+.koth-card-horizontal:hover {
+  background: #FFC700;
+}
+
+.koth-image-horizontal {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border: 2px solid #B7C5D9;
+  flex-shrink: 0;
+}
+
+.koth-info-horizontal {
+  flex: 1;
+  text-align: left;
+}
+
+.koth-badge {
+  font-size: 11px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 2px;
+}
+
+.koth-name-horizontal {
+  font-size: 14px;
+  font-weight: bold;
+  color: #0F0C5D;
+}
+
+.koth-coin-horizontal {
+  font-size: 11px;
+  color: #000;
+  margin: 2px 0;
+}
+
+.koth-stats-horizontal {
+  font-size: 10px;
+  color: #666;
+}
+
+/* Floating Search - Clean */
+.search-floating {
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.search-floating .search-form {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-input-floating {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid #B7C5D9;
+  background: #FFF;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.search-input-floating:focus {
+  outline: none;
+  border-color: #0F0C5D;
+}
+
+.search-btn-floating {
+  padding: 8px 16px;
+  font-size: 13px;
+  background: #AF0A0F;
+  color: #FFF;
+  border: 1px solid #800000;
+  cursor: pointer;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.search-btn-floating:hover:not(:disabled) {
+  background: #CC1105;
+}
+
+.search-btn-floating:disabled {
+  background: #CCC;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Fix container widths - make normal */
+.home {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.recent-communities {
+  background: transparent;
+  border: none;
+  padding: 10px 0;
+  margin-bottom: 15px;
+}
+
+.recent-communities h2 {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.communities-subtitle {
+  font-size: 12px;
+  margin-bottom: 15px;
+}

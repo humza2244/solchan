@@ -86,30 +86,6 @@ const Home = () => {
         <h1>solchan</h1>
       </div>
 
-      {/* KOTH - King of the Hill (Top community in last 15 min) */}
-      {popularCommunities.length > 0 && (
-        <div className="koth-section">
-          <h3>👑 KOTH - King of the Hill</h3>
-          <p className="koth-subtitle">Most active in the last 15 minutes</p>
-          <Link to={`/community/${popularCommunities[0].id}`} className="koth-card">
-            {popularCommunities[0].imageUrl && (
-              <img 
-                src={popularCommunities[0].imageUrl} 
-                alt={popularCommunities[0].coinName}
-                className="koth-image"
-              />
-            )}
-            <div className="koth-info">
-              <div className="koth-name">{popularCommunities[0].ticker}</div>
-              <div className="koth-coin">{popularCommunities[0].coinName}</div>
-              <div className="koth-stats">
-                {popularCommunities[0].recentMessageCount || 0} messages
-              </div>
-            </div>
-          </Link>
-        </div>
-      )}
-
       {/* Create Community Button */}
       <div className="create-community-container">
         <Link to="/create-community" className="create-community-btn">
@@ -117,25 +93,47 @@ const Home = () => {
         </Link>
       </div>
 
-      {/* Search */}
-      <div className="search-box">
-        <h2>Search Communities</h2>
+      {/* KOTH - King of the Hill - Horizontal */}
+      {popularCommunities.length > 0 && (
+        <div className="koth-section-horizontal">
+          <Link to={`/community/${popularCommunities[0].id}`} className="koth-card-horizontal">
+            {popularCommunities[0].imageUrl && (
+              <img 
+                src={popularCommunities[0].imageUrl} 
+                alt={popularCommunities[0].coinName}
+                className="koth-image-horizontal"
+              />
+            )}
+            <div className="koth-info-horizontal">
+              <div className="koth-badge">👑 KOTH</div>
+              <div className="koth-name-horizontal">{popularCommunities[0].ticker}</div>
+              <div className="koth-coin-horizontal">{popularCommunities[0].coinName}</div>
+              <div className="koth-stats-horizontal">
+                {popularCommunities[0].recentMessageCount || 0} msgs
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
+
+      {/* Search - Floating */}
+      <div className="search-floating">
         <form onSubmit={handleSearch} className="search-form">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by ticker or contract address..."
-            className="ca-input"
+            placeholder="Search by ticker or CA..."
+            className="search-input-floating"
           />
-          <button type="submit" className="search-btn" disabled={searching}>
-            {searching ? 'Searching...' : 'Search'}
+          <button type="submit" className="search-btn-floating" disabled={searching}>
+            {searching ? '...' : 'Search'}
           </button>
           {searchResults.length > 0 && (
             <button 
               type="button" 
               onClick={clearSearch} 
-              className="search-btn"
+              className="search-btn-floating"
               style={{ background: '#666' }}
             >
               Clear
