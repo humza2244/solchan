@@ -769,8 +769,10 @@ body {
 /* Post Form (4chan style) */
 .post-form-container {
   margin-top: 20px;
+  margin-bottom: 60px; /* Space for fixed footer */
   background: #EEF2FF;
   padding: 10px;
+  max-width: 600px; /* Limit width like 4chan */
 }
 
 .post-form {
@@ -1076,17 +1078,27 @@ a:hover {
 
 /* Footer */
 .footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background-color: #EEF2FF;
   border-top: 1px solid #B7C5D9;
   padding: 10px 0;
-  margin-top: 20px;
   text-align: center;
   color: #000;
   font-size: 12px;
+  z-index: 100;
 }
 
 .footer p {
   margin: 0;
+}
+
+/* Add padding to bottom of main content so footer doesn't cover it */
+.main {
+  min-height: calc(100vh - 150px);
+  padding: 10px 0 50px 0; /* Added bottom padding for fixed footer */
 }
 
 /* Create Community Section */

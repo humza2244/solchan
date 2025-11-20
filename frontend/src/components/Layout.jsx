@@ -30,7 +30,7 @@ const Layout = ({ children }) => {
       </main>
       <footer className="footer">
         <div className="container">
-          <p>&copy; 2024 solchan</p>
+          <p>&copy; 2025 solchan</p>
         </div>
       </footer>
     </div>
