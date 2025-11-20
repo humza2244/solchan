@@ -19,6 +19,8 @@ const Layout = ({ children }) => {
           <nav className="nav">
             <Link to="/" onClick={handleHomeClick}>Home</Link>
             <span className="nav-divider">|</span>
+            <Link to="/create-community" className="nav-link">Create a Community</Link>
+            <span className="nav-divider">|</span>
             <span className="nav-ca">CA: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
           </nav>
         </div>

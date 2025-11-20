@@ -1603,25 +1603,24 @@ a:hover {
   color: #666;
 }
 
-/* Search with Gray Container */
+/* Search with Gray Container - FULL WIDTH */
 .search-floating {
   background: #D6DAF0;
   border: 1px solid #B7C5D9;
   padding: 15px;
-  margin: 20px auto;
-  max-width: 700px;
+  margin: 20px 0;
+  width: 100%;
 }
 
 .search-floating .search-form {
   display: flex;
+  flex-direction: row;
   gap: 8px;
-  justify-content: center;
   align-items: stretch;
 }
 
 .search-input-floating {
   flex: 1;
-  min-width: 400px;
   padding: 10px 15px;
   font-size: 14px;
   border: 1px solid #B7C5D9;
@@ -1643,6 +1642,7 @@ a:hover {
   cursor: pointer;
   font-weight: bold;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .search-btn-floating:hover:not(:disabled) {
@@ -1720,4 +1720,75 @@ a:hover {
 .recent-communities h2 {
   font-size: 16px;
   margin-bottom: 5px;
+}
+
+/* What is solchan? Container - 4chan style */
+.what-is-solchan {
+  background: #D6DAF0;
+  border: 1px solid #B7C5D9;
+  margin: 20px 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.what-is-header {
+  background: #E5989B;
+  border-bottom: 1px solid #800000;
+  padding: 5px 10px;
+  text-align: center;
+}
+
+.what-is-header h2 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #800000;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.what-is-content {
+  padding: 15px;
+  background: #D6DAF0;
+}
+
+.what-is-content p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #000;
+  margin: 0;
+  text-align: left;
+}
+
+/* Navigation Link */
+.nav-link {
+  text-decoration: none;
+  color: #0000EE;
+  font-weight: normal;
+}
+
+.nav-link:visited {
+  color: #CC1105;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+/* Make recent-communities full width */
+.recent-communities {
+  background: #D6DAF0;
+  border: 1px solid #B7C5D9;
+  padding: 15px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Home container adjustments */
+.home {
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
 }

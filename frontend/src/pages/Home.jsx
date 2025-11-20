@@ -84,21 +84,23 @@ const Home = () => {
       {/* Logo */}
       <div className="home-logo">
         <h1>solchan</h1>
-        <p className="home-description">
-          solchan is a simple image-based bulletin board for memecoin communities. 
-          Search for any cryptocurrency by its ticker or contract address to join an existing 
-          community or create a new one. Each coin gets its own dedicated board where holders 
-          can chat in real-time, share alpha, discuss price movements, and engage in unfiltered 
-          discussion about their investments. No registration required - just search for a coin 
-          and start posting!
-        </p>
       </div>
 
-      {/* Create Community Button */}
-      <div className="create-community-container">
-        <Link to="/create-community" className="create-community-btn">
-          [Create a Community]
-        </Link>
+      {/* What is solchan? - 4chan style */}
+      <div className="what-is-solchan">
+        <div className="what-is-header">
+          <h2>What is solchan?</h2>
+        </div>
+        <div className="what-is-content">
+          <p>
+            solchan is a simple image-based bulletin board for memecoin communities. 
+            Search for any cryptocurrency by its ticker or contract address to join an existing 
+            community or create a new one. Each coin gets its own dedicated board where holders 
+            can chat in real-time, share alpha, discuss price movements, and engage in unfiltered 
+            discussion about their investments. No registration required - just search for a coin 
+            and start posting!
+          </p>
+        </div>
       </div>
 
       {/* KOTH - King of the Hill - Horizontal */}
