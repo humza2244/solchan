@@ -23,11 +23,26 @@ const Community = () => {
 
   useEffect(() => {
     // Connect socket (no auth needed - anonymous)
+    console.log('🔌 Connecting to WebSocket...')
     const socketInstance = connectSocket()
+    
+    socketInstance.on('connect', () => {
+      console.log('✅ WebSocket connected! Socket ID:', socketInstance.id)
+    })
+    
+    socketInstance.on('connect_error', (error) => {
+      console.error('❌ WebSocket connection error:', error)
+    })
+    
+    socketInstance.on('disconnect', (reason) => {
+      console.warn('🔌 WebSocket disconnected:', reason)
+    })
+    
     setSocket(socketInstance)
 
     return () => {
       if (socketInstance) {
+        console.log('👋 Leaving community:', id)
         socketInstance.emit('leave-community', id)
       }
     }
@@ -173,6 +188,7 @@ const Community = () => {
     e.preventDefault()
     
     if (!newMessage.trim() || sending) {
+      console.warn('⚠️ Cannot send: empty message or already sending')
       return
     }
 
@@ -181,17 +197,30 @@ const Community = () => {
       
       // Send via WebSocket for real-time
       if (socket) {
+        console.log('📤 Sending message via WebSocket:', {
+          communityId: id,
+          contentLength: newMessage.trim().length,
+          author: name.trim() || 'Anonymous',
+          socketConnected: socket.connected,
+          socketId: socket.id
+        })
+        
         socket.emit('new-message', {
           communityId: id,
           content: newMessage.trim(),
           author: name.trim() || 'Anonymous',
         })
+        
+        console.log('✅ Message emitted to server')
+      } else {
+        console.error('❌ Socket not available!')
+        alert('Connection error. Please refresh the page.')
       }
       
       // Clear inputs
       setNewMessage('')
     } catch (error) {
-      console.error('Error sending message:', error)
+      console.error('❌ Error sending message:', error)
     } finally {
       setSending(false)
     }
