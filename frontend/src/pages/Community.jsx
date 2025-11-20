@@ -18,6 +18,8 @@ const Community = () => {
   const [sending, setSending] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [socket, setSocket] = useState(null)
+  const [hoveredPost, setHoveredPost] = useState(null)
+  const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     // Connect socket (no auth needed - anonymous)
@@ -105,6 +107,59 @@ const Community = () => {
       socket.off('error', handleError)
     }
   }, [socket])
+
+  // Parse message content for reply links (>>postNumber)
+  const parseMessageContent = (content) => {
+    const replyRegex = />>(\d+)/g
+    const parts = []
+    let lastIndex = 0
+    let match
+
+    while ((match = replyRegex.exec(content)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push({
+          type: 'text',
+          content: content.slice(lastIndex, match.index)
+        })
+      }
+      
+      // Add the reply link
+      parts.push({
+        type: 'reply',
+        postNumber: parseInt(match[1]),
+        content: match[0]
+      })
+      
+      lastIndex = match.index + match[0].length
+    }
+    
+    // Add remaining text
+    if (lastIndex < content.length) {
+      parts.push({
+        type: 'text',
+        content: content.slice(lastIndex)
+      })
+    }
+    
+    return parts.length > 0 ? parts : [{ type: 'text', content }]
+  }
+
+  const handleReplyClick = (postNumber) => {
+    setNewMessage((prev) => (prev ? `${prev}\n>>${postNumber}\n` : `>>${postNumber}\n`))
+  }
+
+  const handleReplyHover = (postNumber, event) => {
+    const quotedMessage = messages.find(m => m.postNumber === postNumber)
+    if (quotedMessage) {
+      setHoveredPost(quotedMessage)
+      setHoverPosition({ x: event.clientX, y: event.clientY })
+    }
+  }
+
+  const handleReplyLeave = () => {
+    setHoveredPost(null)
+  }
 
   const handleSendMessage = async (e) => {
     e.preventDefault()
@@ -201,23 +256,75 @@ const Community = () => {
             <p>No messages yet. Be the first to post!</p>
           </div>
         ) : (
-          displayedMessages.map((message) => (
-            <div key={message.id} className="post">
-              <input type="checkbox" className="post-checkbox" />
-              <div className="post-content">
-                <div className="post-header">
-                  <span className="post-name">{message.username || message.author || 'Anonymous'}</span>
-                  <span className="post-date">
-                    {new Date(message.createdAt).toLocaleString()}
-                  </span>
-                  <span className="post-number">No. {message.postNumber}</span>
-                </div>
-                <div className="post-body">
-                  <p className="post-text">{message.content}</p>
+          displayedMessages.map((message) => {
+            const parsedContent = parseMessageContent(message.content)
+            
+            return (
+              <div key={message.id} className="post">
+                <input type="checkbox" className="post-checkbox" />
+                <div className="post-content">
+                  <div className="post-header">
+                    <span className="post-name">{message.username || message.author || 'Anonymous'}</span>
+                    <span className="post-date">
+                      {new Date(message.createdAt).toLocaleString()}
+                    </span>
+                    <span 
+                      className="post-number"
+                      onClick={() => handleReplyClick(message.postNumber)}
+                      style={{ cursor: 'pointer' }}
+                      title="Click to reply"
+                    >
+                      No. {message.postNumber}
+                    </span>
+                  </div>
+                  <div className="post-body">
+                    <p className="post-text">
+                      {parsedContent.map((part, idx) => {
+                        if (part.type === 'reply') {
+                          return (
+                            <span
+                              key={idx}
+                              className="reply-link"
+                              onClick={() => handleReplyClick(part.postNumber)}
+                              onMouseEnter={(e) => handleReplyHover(part.postNumber, e)}
+                              onMouseLeave={handleReplyLeave}
+                            >
+                              {part.content}
+                            </span>
+                          )
+                        }
+                        return <span key={idx}>{part.content}</span>
+                      })}
+                    </p>
+                  </div>
                 </div>
               </div>
+            )
+          })
+        )}
+        
+        {/* Hover Preview for Quoted Messages */}
+        {hoveredPost && (
+          <div 
+            className="quote-preview"
+            style={{
+              position: 'fixed',
+              left: `${hoverPosition.x + 10}px`,
+              top: `${hoverPosition.y + 10}px`,
+              zIndex: 9999
+            }}
+          >
+            <div className="post-header">
+              <span className="post-name">{hoveredPost.username || hoveredPost.author || 'Anonymous'}</span>
+              <span className="post-date">
+                {new Date(hoveredPost.createdAt).toLocaleString()}
+              </span>
+              <span className="post-number">No. {hoveredPost.postNumber}</span>
             </div>
-          ))
+            <div className="post-body">
+              <p className="post-text">{hoveredPost.content}</p>
+            </div>
+          </div>
         )}
       </div>
 

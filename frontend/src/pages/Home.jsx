@@ -47,9 +47,9 @@ const Home = () => {
         })
         setPopularCommunities(popularResponse.data)
         
-        // Fetch new communities (12 newest)
+        // Fetch new communities (12 newest) - explicitly use recent query
         const newResponse = await axios.get(`${API_BASE_URL}/communities`, {
-          params: { limit: 12 }
+          params: { recent: true, limit: 12 }
         })
         setNewCommunities(newResponse.data)
       } catch (error) {
@@ -159,7 +159,43 @@ const Home = () => {
         </div>
       ) : (
         <>
-          {/* Popular Communities */}
+          {/* Top #1 Community - Highlighted */}
+          {popularCommunities.length > 0 && (
+            <div className="top-community-highlight">
+              <h2>🏆 Most Active Community</h2>
+              <Link
+                to={`/community/${popularCommunities[0].id}`}
+                className="top-community-card"
+              >
+                {popularCommunities[0].imageUrl && (
+                  <img 
+                    src={popularCommunities[0].imageUrl} 
+                    alt={popularCommunities[0].coinName}
+                    className="top-community-image"
+                  />
+                )}
+                <div className="top-community-info">
+                  <div className="top-community-name">
+                    {popularCommunities[0].ticker} - {popularCommunities[0].coinName}
+                  </div>
+                  <div className="community-ca">
+                    {popularCommunities[0].contractAddress.slice(0, 10)}...{popularCommunities[0].contractAddress.slice(-6)}
+                  </div>
+                  {popularCommunities[0].description && (
+                    <div className="top-community-desc">
+                      {popularCommunities[0].description}
+                    </div>
+                  )}
+                  <div className="community-stats" style={{ marginTop: 10 }}>
+                    {popularCommunities[0].messageCount} messages • {popularCommunities[0].uniqueUsersCount} users
+                    {popularCommunities[0].recentMessageCount && ` • ${popularCommunities[0].recentMessageCount} in 24h`}
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
+
+          {/* Popular Communities (Top 3) */}
           {popularCommunities.length > 0 && (
             <div className="recent-communities">
               <h2>Popular Communities</h2>
