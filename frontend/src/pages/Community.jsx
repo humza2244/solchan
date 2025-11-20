@@ -10,10 +10,14 @@ const Community = () => {
   const { id } = useParams()
   const [community, setCommunity] = useState(null)
   const [messages, setMessages] = useState([])
+  const [displayedMessages, setDisplayedMessages] = useState([])
+  const [messagesPerPage] = useState(50)
+  const [showingCount, setShowingCount] = useState(50)
   const [newMessage, setNewMessage] = useState('')
   const [name, setName] = useState('Anonymous')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const { user, getAccessToken } = useAuth()
   const [socket, setSocket] = useState(null)
 
@@ -44,7 +48,11 @@ const Community = () => {
         setLoading(true)
         const response = await axios.get(`${API_BASE_URL}/communities/${id}`)
         setCommunity(response.data.community)
-        setMessages(response.data.messages || [])
+        const allMessages = response.data.messages || []
+        setMessages(allMessages)
+        
+        // Show last 50 messages initially (most recent)
+        setShowingCount(messagesPerPage)
         
         // Join WebSocket room for this community
         if (socket) {
@@ -60,7 +68,20 @@ const Community = () => {
     if (id) {
       loadCommunity()
     }
-  }, [id, socket])
+  }, [id, socket, messagesPerPage])
+
+  // Update displayed messages when messages or showingCount changes
+  useEffect(() => {
+    if (messages.length === 0) {
+      setDisplayedMessages([])
+      return
+    }
+    
+    // Show the most recent X messages (they're already in chronological order from API)
+    const totalMessages = messages.length
+    const startIndex = Math.max(0, totalMessages - showingCount)
+    setDisplayedMessages(messages.slice(startIndex))
+  }, [messages, showingCount])
 
   // Listen for real-time messages
   useEffect(() => {
@@ -76,7 +97,8 @@ const Community = () => {
     }
 
     const handleMessages = (msgs) => {
-      setMessages(msgs || [])
+      const allMessages = msgs || []
+      setMessages(allMessages)
     }
 
     const handleError = (error) => {
@@ -162,12 +184,39 @@ const Community = () => {
 
       {/* Messages */}
       <div className="messages-section">
-        {messages.length === 0 ? (
+        {/* Load More Button */}
+        {messages.length > showingCount && (
+          <div style={{ textAlign: 'center', margin: '20px 0' }}>
+            <button
+              onClick={() => {
+                setLoadingMore(true)
+                setTimeout(() => {
+                  setShowingCount(prev => Math.min(prev + messagesPerPage, messages.length))
+                  setLoadingMore(false)
+                }, 300)
+              }}
+              disabled={loadingMore}
+              style={{
+                padding: '8px 16px',
+                background: '#D6DAF0',
+                color: '#0000EE',
+                border: '1px solid #B7C5D9',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: 'bold'
+              }}
+            >
+              {loadingMore ? 'Loading...' : `Load Earlier Messages (${messages.length - showingCount} more)`}
+            </button>
+          </div>
+        )}
+
+        {displayedMessages.length === 0 ? (
           <div className="no-posts">
             <p>No messages yet. Be the first to post!</p>
           </div>
         ) : (
-          messages.map((message) => (
+          displayedMessages.map((message) => (
             <div key={message.id} className="post">
               <input type="checkbox" className="post-checkbox" />
               <div className="post-content">

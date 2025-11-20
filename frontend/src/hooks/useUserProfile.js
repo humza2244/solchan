@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 
@@ -9,11 +9,12 @@ export const useUserProfile = () => {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const hasFetched = useRef(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user) {
-        setProfile(null)
+      // Only fetch once per user session
+      if (!user || hasFetched.current) {
         setLoading(false)
         return
       }
@@ -25,6 +26,7 @@ export const useUserProfile = () => {
         if (!token) {
           setProfile(null)
           setLoading(false)
+          hasFetched.current = true
           return
         }
 
@@ -36,17 +38,22 @@ export const useUserProfile = () => {
         
         setProfile(response.data)
         setError(null)
+        hasFetched.current = true
       } catch (err) {
-        // If 404, user doesn't have a profile yet (signed up before username feature)
-        if (err.response?.status === 404) {
-          console.log('User profile not found - user may need to set username')
+        // Silently handle errors - just show email instead
+        if (err.response?.status === 404 || err.response?.status === 401) {
+          // User doesn't have profile or auth failed - use email
           setProfile(null)
-          setError(null) // Don't treat this as an error
+          setError(null)
         } else {
-          console.error('Error fetching user profile:', err)
-          setError(err)
+          // Only log unexpected errors once
+          if (!hasFetched.current) {
+            console.warn('Could not fetch user profile')
+          }
           setProfile(null)
+          setError(null)
         }
+        hasFetched.current = true
       } finally {
         setLoading(false)
       }
