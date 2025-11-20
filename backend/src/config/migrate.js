@@ -9,7 +9,8 @@ const __dirname = path.dirname(__filename)
 
 // Read schema files
 const schemaV2SQL = fs.readFileSync(path.join(__dirname, 'schema_v2.sql'), 'utf8')
-const schemaV3SQL = fs.readFileSync(path.join(__dirname, 'schema_v3_usernames.sql'), 'utf8')
+// Use safe schema that doesn't drop existing data
+const schemaV3SQL = fs.readFileSync(path.join(__dirname, 'schema_safe.sql'), 'utf8')
 const schemaSQL = schemaV2SQL + '\n\n' + schemaV3SQL
 
 export const migrate = async () => {
