@@ -150,10 +150,15 @@ const Community = () => {
   }
 
   const handleReplyHover = (postNumber, event) => {
-    const quotedMessage = messages.find(m => m.postNumber === postNumber)
+    // Convert to integer for comparison
+    const targetPostNumber = parseInt(postNumber)
+    const quotedMessage = messages.find(m => parseInt(m.postNumber) === targetPostNumber)
+    
     if (quotedMessage) {
       setHoveredPost(quotedMessage)
       setHoverPosition({ x: event.clientX, y: event.clientY })
+    } else {
+      console.log('Message not found for post number:', targetPostNumber, 'Available:', messages.map(m => m.postNumber))
     }
   }
 
