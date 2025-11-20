@@ -28,7 +28,7 @@ body {
 
 .header .container {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
 }
 
@@ -1227,7 +1227,7 @@ a:hover {
   font-weight: bold;
   color: #000;
   margin-bottom: 10px;
-  text-align: left;
+  text-align: center;
 }
 
 .top-community-card {
@@ -1603,23 +1603,27 @@ a:hover {
   color: #666;
 }
 
-/* Floating Search - Clean */
+/* Search with Gray Container */
 .search-floating {
+  background: #D6DAF0;
+  border: 1px solid #B7C5D9;
+  padding: 15px;
   margin: 20px auto;
-  max-width: 600px;
+  max-width: 700px;
 }
 
 .search-floating .search-form {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
 }
 
 .search-input-floating {
   flex: 1;
-  padding: 8px 12px;
-  font-size: 13px;
+  min-width: 400px;
+  padding: 10px 15px;
+  font-size: 14px;
   border: 1px solid #B7C5D9;
   background: #FFF;
   font-family: Arial, Helvetica, sans-serif;
@@ -1631,8 +1635,8 @@ a:hover {
 }
 
 .search-btn-floating {
-  padding: 8px 16px;
-  font-size: 13px;
+  padding: 10px 20px;
+  font-size: 14px;
   background: #AF0A0F;
   color: #FFF;
   border: 1px solid #800000;
@@ -1660,10 +1664,10 @@ a:hover {
 }
 
 .recent-communities {
-  background: transparent;
-  border: none;
-  padding: 10px 0;
-  margin-bottom: 15px;
+  background: #D6DAF0;
+  border: 1px solid #B7C5D9;
+  padding: 15px;
+  margin-bottom: 20px;
 }
 
 .recent-communities h2 {

@@ -105,7 +105,7 @@ const Home = () => {
               />
             )}
             <div className="koth-info-horizontal">
-              <div className="koth-badge">👑 KOTH</div>
+              <div className="koth-badge">KOTH</div>
               <div className="koth-name-horizontal">{popularCommunities[0].ticker}</div>
               <div className="koth-coin-horizontal">{popularCommunities[0].coinName}</div>
               <div className="koth-stats-horizontal">
@@ -185,7 +185,7 @@ const Home = () => {
           {/* Trending Communities (Top 3) */}
           {popularCommunities.length > 0 && (
             <div className="recent-communities">
-              <h2>🔥 Trending Communities</h2>
+              <h2>Trending Communities</h2>
               <p className="communities-subtitle">Most active in the past 24 hours</p>
               <div className="communities-list">
                 {popularCommunities.map((community) => (
