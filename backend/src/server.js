@@ -87,7 +87,9 @@ app.get('/api/health', async (req, res) => {
 
 // WebSocket connection handling with authentication
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id)
+  console.log('🔌 User connected:', socket.id)
+  console.log('   Transport:', socket.conn.transport.name)
+  console.log('   Origin:', socket.handshake.headers.origin)
 
   let authenticatedUserId = null
 
@@ -115,13 +117,14 @@ io.on('connection', (socket) => {
   socket.on('join-community', async (communityId) => {
     try {
       socket.join(communityId)
-      console.log(`User ${socket.id} joined community: ${communityId}`)
+      console.log(`🚪 User ${socket.id} joined community: ${communityId}`)
     
     // Send recent messages to the newly connected user
       const messages = await getMessages(communityId, 50)
+      console.log(`📬 Sending ${messages.length} messages to ${socket.id}`)
       socket.emit('messages', messages.map(m => m.toJSON()))
     } catch (error) {
-      console.error('Error joining community:', error)
+      console.error('❌ Error joining community:', error)
       socket.emit('error', { message: 'Failed to load messages' })
     }
   })
@@ -175,8 +178,13 @@ io.on('connection', (socket) => {
   })
 
   // Handle disconnect
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id)
+  socket.on('disconnect', (reason) => {
+    console.log('🔌 User disconnected:', socket.id, 'Reason:', reason)
+  })
+  
+  // Log all events for debugging
+  socket.onAny((eventName, ...args) => {
+    console.log(`📡 Event received: ${eventName}`, args.length > 0 ? `with ${args.length} arg(s)` : '')
   })
 })
 
