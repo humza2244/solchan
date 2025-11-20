@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useUserProfile } from '../hooks/useUserProfile'
 
 const Layout = ({ children }) => {
   const { user, signOut } = useAuth()
-  const { profile } = useUserProfile()
+  // TEMP: Disable profile fetching until Railway auth is fixed
+  // const { profile } = useUserProfile()
+  const profile = null
 
   const handleSignOut = async () => {
     if (window.confirm('Are you sure you want to sign out?')) {
