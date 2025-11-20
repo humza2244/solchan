@@ -37,9 +37,16 @@ export const useUserProfile = () => {
         setProfile(response.data)
         setError(null)
       } catch (err) {
-        console.error('Error fetching user profile:', err)
-        setError(err)
-        setProfile(null)
+        // If 404, user doesn't have a profile yet (signed up before username feature)
+        if (err.response?.status === 404) {
+          console.log('User profile not found - user may need to set username')
+          setProfile(null)
+          setError(null) // Don't treat this as an error
+        } else {
+          console.error('Error fetching user profile:', err)
+          setError(err)
+          setProfile(null)
+        }
       } finally {
         setLoading(false)
       }

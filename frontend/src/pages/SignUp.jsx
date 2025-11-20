@@ -116,8 +116,6 @@ const SignUp = () => {
               placeholder="Choose a unique username"
               minLength={3}
               maxLength={50}
-              pattern="[a-zA-Z0-9_-]+"
-              title="Username can only contain letters, numbers, underscores, and hyphens"
             />
             <small style={{ fontSize: '11px', color: '#666' }}>
               3-50 characters. Letters, numbers, underscores, and hyphens only.

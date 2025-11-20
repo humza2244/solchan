@@ -32,22 +32,22 @@ const Home = () => {
     }
   }
 
-  // Load popular communities on mount
+  // Load all communities on mount
   useEffect(() => {
-    const loadPopularCommunities = async () => {
+    const loadCommunities = async () => {
       try {
         setLoading(true)
         const response = await axios.get(`${API_BASE_URL}/communities`, {
-          params: { popular: true, limit: 50 }
+          params: { limit: 50 }
         })
         setPopularCommunities(response.data)
       } catch (error) {
-        console.error('Error loading popular communities:', error)
+        console.error('Error loading communities:', error)
       } finally {
         setLoading(false)
       }
     }
-    loadPopularCommunities()
+    loadCommunities()
   }, [])
 
   // Show communities (search results or popular)
@@ -99,16 +99,16 @@ const Home = () => {
       {/* Communities List */}
       {loading ? (
         <div className="recent-communities">
-          <h2>{searchResults.length > 0 ? 'Search Results' : 'Popular Communities'}</h2>
+          <h2>{searchResults.length > 0 ? 'Search Results' : 'All Communities'}</h2>
           <p>Loading...</p>
         </div>
       ) : communitiesToShow.length > 0 ? (
         <div className="recent-communities">
-          <h2>{searchResults.length > 0 ? 'Search Results' : 'Popular Communities'}</h2>
+          <h2>{searchResults.length > 0 ? 'Search Results' : 'All Communities'}</h2>
           <p className="communities-subtitle">
             {searchResults.length > 0 
               ? `Found ${communitiesToShow.length} communities` 
-              : 'Most active in the past 24 hours'}
+              : `Showing ${communitiesToShow.length} communities`}
           </p>
           <div className="communities-list">
             {communitiesToShow.map((community) => (
@@ -145,9 +145,9 @@ const Home = () => {
         </div>
       ) : (
         <div className="recent-communities">
-          <h2>{searchResults.length > 0 ? 'Search Results' : 'Popular Communities'}</h2>
+          <h2>{searchQuery ? 'Search Results' : 'All Communities'}</h2>
           <p>
-            {searchQuery ? 'No communities found. Try a different search!' : 'No active communities yet. Be the first to create one!'}
+            {searchQuery ? 'No communities found. Try a different search!' : 'No communities yet. Be the first to create one!'}
           </p>
         </div>
       )}
