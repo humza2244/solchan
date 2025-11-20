@@ -1,12 +1,23 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 const Layout = ({ children }) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleHomeClick = (e) => {
+    if (location.pathname === '/') {
+      // If already on home, force reload to clear any state
+      e.preventDefault()
+      window.location.href = '/'
+    }
+  }
+
   return (
     <div className="layout">
       <header className="header">
         <div className="container">
           <nav className="nav">
-            <Link to="/">Home</Link>
+            <Link to="/" onClick={handleHomeClick}>Home</Link>
           </nav>
         </div>
       </header>

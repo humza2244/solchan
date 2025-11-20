@@ -30,6 +30,11 @@ const Home = () => {
     }
   }
 
+  const clearSearch = () => {
+    setSearchQuery('')
+    setSearchResults([])
+  }
+
   // Load popular and new communities on mount
   useEffect(() => {
     const loadCommunities = async () => {
@@ -95,6 +100,16 @@ const Home = () => {
             <button type="submit" className="search-btn" disabled={searching}>
               {searching ? 'Searching...' : 'Search'}
             </button>
+            {searchResults.length > 0 && (
+              <button 
+                type="button" 
+                onClick={clearSearch} 
+                className="search-btn"
+                style={{ marginLeft: '8px', background: '#666' }}
+              >
+                Clear
+              </button>
+            )}
           </div>
         </form>
       </div>
