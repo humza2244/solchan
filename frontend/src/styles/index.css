@@ -237,6 +237,7 @@ body {
   border: 1px solid #B7C5D9;
   padding: 10px;
   margin-bottom: 15px;
+  text-align: center;
 }
 
 .search-box h2 {
@@ -449,7 +450,7 @@ body {
 }
 
 .create-community-container {
-  text-align: left;
+  text-align: center;
   margin: 20px 0;
 }
 
@@ -1410,4 +1411,134 @@ a:hover {
   padding: 10px;
   max-width: 600px;
   margin-left: 0;
+}
+
+/* KOTH - King of the Hill Section */
+.koth-section {
+  background: #FFD700;
+  border: 2px solid #DAA520;
+  padding: 15px;
+  margin: 20px auto;
+  max-width: 300px;
+  text-align: center;
+}
+
+.koth-section h3 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+  margin: 0 0 5px 0;
+}
+
+.koth-subtitle {
+  font-size: 11px;
+  color: #666;
+  margin: 0 0 10px 0;
+}
+
+.koth-card {
+  display: block;
+  background: #FFF;
+  padding: 10px;
+  text-decoration: none;
+  color: #000;
+  border: 1px solid #DAA520;
+}
+
+.koth-card:hover {
+  background: #FFFACD;
+}
+
+.koth-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 2px solid #B7C5D9;
+  margin-bottom: 8px;
+}
+
+.koth-info {
+  text-align: center;
+}
+
+.koth-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #0F0C5D;
+}
+
+.koth-coin {
+  font-size: 13px;
+  color: #000;
+  margin: 3px 0;
+}
+
+.koth-stats {
+  font-size: 11px;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* Community Cards - Image First Layout */
+.community-item {
+  background: #E5E9F0;
+  padding: 10px;
+  border: 1px solid #B7C5D9;
+  cursor: pointer;
+  text-align: center;
+}
+
+.community-item img {
+  width: 100%;
+  max-width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border: 2px solid #B7C5D9;
+  margin: 0 auto 10px auto;
+  display: block;
+}
+
+.community-item:hover {
+  background: #D6DAF0;
+}
+
+.community-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.community-ca {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: bold;
+  color: #0F0C5D;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.community-stats {
+  font-size: 11px;
+  color: #34345C;
+  text-align: center;
+}
+
+/* Center search on home */
+.home .search-box h2 {
+  text-align: center;
+}
+
+/* Home layout centering */
+.home .recent-communities h2,
+.home .communities-subtitle {
+  text-align: center;
+}
+
+/* Community coin name styling */
+.community-coin-name {
+  font-size: 12px;
+  color: #000;
+  margin-bottom: 5px;
+  text-align: center;
 }

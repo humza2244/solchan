@@ -86,6 +86,30 @@ const Home = () => {
         <h1>solchan</h1>
       </div>
 
+      {/* KOTH - King of the Hill (Top community in last 15 min) */}
+      {popularCommunities.length > 0 && (
+        <div className="koth-section">
+          <h3>👑 KOTH - King of the Hill</h3>
+          <p className="koth-subtitle">Most active in the last 15 minutes</p>
+          <Link to={`/community/${popularCommunities[0].id}`} className="koth-card">
+            {popularCommunities[0].imageUrl && (
+              <img 
+                src={popularCommunities[0].imageUrl} 
+                alt={popularCommunities[0].coinName}
+                className="koth-image"
+              />
+            )}
+            <div className="koth-info">
+              <div className="koth-name">{popularCommunities[0].ticker}</div>
+              <div className="koth-coin">{popularCommunities[0].coinName}</div>
+              <div className="koth-stats">
+                {popularCommunities[0].recentMessageCount || 0} messages
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
+
       {/* Create Community Button */}
       <div className="create-community-container">
         <Link to="/create-community" className="create-community-btn">
@@ -104,21 +128,19 @@ const Home = () => {
             placeholder="Search by ticker or contract address..."
             className="ca-input"
           />
-          <div className="search-actions">
-            <button type="submit" className="search-btn" disabled={searching}>
-              {searching ? 'Searching...' : 'Search'}
+          <button type="submit" className="search-btn" disabled={searching}>
+            {searching ? 'Searching...' : 'Search'}
+          </button>
+          {searchResults.length > 0 && (
+            <button 
+              type="button" 
+              onClick={clearSearch} 
+              className="search-btn"
+              style={{ background: '#666' }}
+            >
+              Clear
             </button>
-            {searchResults.length > 0 && (
-              <button 
-                type="button" 
-                onClick={clearSearch} 
-                className="search-btn"
-                style={{ marginLeft: '8px', background: '#666' }}
-              >
-                Clear
-              </button>
-            )}
-          </div>
+          )}
         </form>
       </div>
 
@@ -145,20 +167,15 @@ const Home = () => {
                     <img 
                       src={community.imageUrl} 
                       alt={community.coinName}
-                      style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4, marginBottom: 8 }}
                     />
                   )}
-                  <div className="community-name">{community.ticker} - {community.coinName}</div>
+                  <div className="community-name">{community.ticker}</div>
+                  <div className="community-coin-name">{community.coinName}</div>
                   <div className="community-ca">
                     {community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}
                   </div>
-                  {community.description && (
-                    <div style={{ fontSize: 11, color: '#666', marginTop: 5 }}>
-                      {community.description.slice(0, 100)}{community.description.length > 100 ? '...' : ''}
-                    </div>
-                  )}
                   <div className="community-stats">
-                    {community.messageCount} messages • {community.uniqueUsersCount} users
+                    {community.messageCount} msgs • {community.uniqueUsersCount} users
                   </div>
                 </div>
               </Link>
@@ -167,46 +184,10 @@ const Home = () => {
         </div>
       ) : (
         <>
-          {/* Top #1 Community - Highlighted */}
-          {popularCommunities.length > 0 && (
-            <div className="top-community-highlight">
-              <h2>🏆 Most Active Community</h2>
-              <Link
-                to={`/community/${popularCommunities[0].id}`}
-                className="top-community-card"
-              >
-                {popularCommunities[0].imageUrl && (
-                  <img 
-                    src={popularCommunities[0].imageUrl} 
-                    alt={popularCommunities[0].coinName}
-                    className="top-community-image"
-                  />
-                )}
-                <div className="top-community-info">
-                  <div className="top-community-name">
-                    {popularCommunities[0].ticker} - {popularCommunities[0].coinName}
-                  </div>
-                  <div className="community-ca">
-                    {popularCommunities[0].contractAddress.slice(0, 10)}...{popularCommunities[0].contractAddress.slice(-6)}
-                  </div>
-                  {popularCommunities[0].description && (
-                    <div className="top-community-desc">
-                      {popularCommunities[0].description}
-                    </div>
-                  )}
-                  <div className="community-stats" style={{ marginTop: 10 }}>
-                    {popularCommunities[0].messageCount} messages • {popularCommunities[0].uniqueUsersCount} users
-                    {popularCommunities[0].recentMessageCount && ` • ${popularCommunities[0].recentMessageCount} in 24h`}
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )}
-
-          {/* Popular Communities (Top 3) */}
+          {/* Trending Communities (Top 3) */}
           {popularCommunities.length > 0 && (
             <div className="recent-communities">
-              <h2>Popular Communities</h2>
+              <h2>🔥 Trending Communities</h2>
               <p className="communities-subtitle">Most active in the past 24 hours</p>
               <div className="communities-list">
                 {popularCommunities.map((community) => (
@@ -220,20 +201,15 @@ const Home = () => {
                         <img 
                           src={community.imageUrl} 
                           alt={community.coinName}
-                          style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4, marginBottom: 8 }}
                         />
                       )}
-                      <div className="community-name">{community.ticker} - {community.coinName}</div>
+                      <div className="community-name">{community.ticker}</div>
+                      <div className="community-coin-name">{community.coinName}</div>
                       <div className="community-ca">
                         {community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}
                       </div>
-                      {community.description && (
-                        <div style={{ fontSize: 11, color: '#666', marginTop: 5 }}>
-                          {community.description.slice(0, 100)}{community.description.length > 100 ? '...' : ''}
-                        </div>
-                      )}
                       <div className="community-stats">
-                        {community.messageCount} messages • {community.uniqueUsersCount} users
+                        {community.messageCount} msgs • {community.uniqueUsersCount} users
                         {community.recentMessageCount && ` • ${community.recentMessageCount} in 24h`}
                       </div>
                     </div>
@@ -260,20 +236,15 @@ const Home = () => {
                         <img 
                           src={community.imageUrl} 
                           alt={community.coinName}
-                          style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4, marginBottom: 8 }}
                         />
                       )}
-                      <div className="community-name">{community.ticker} - {community.coinName}</div>
+                      <div className="community-name">{community.ticker}</div>
+                      <div className="community-coin-name">{community.coinName}</div>
                       <div className="community-ca">
                         {community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}
                       </div>
-                      {community.description && (
-                        <div style={{ fontSize: 11, color: '#666', marginTop: 5 }}>
-                          {community.description.slice(0, 100)}{community.description.length > 100 ? '...' : ''}
-                        </div>
-                      )}
                       <div className="community-stats">
-                        {community.messageCount} messages • {community.uniqueUsersCount} users
+                        {community.messageCount} msgs • {community.uniqueUsersCount} users
                       </div>
                     </div>
                   </Link>
