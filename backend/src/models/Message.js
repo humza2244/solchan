@@ -2,7 +2,8 @@
 export class Message {
   constructor(data) {
     this.id = data.id || Date.now().toString()
-    this.postNumber = data.post_number || data.postNumber || parseInt(this.id)
+    // Ensure postNumber is always an integer
+    this.postNumber = parseInt(data.post_number || data.postNumber) || parseInt(this.id) || Date.now()
     this.communityId = data.community_id || data.communityId
     this.content = data.content
     this.userId = data.user_id || data.userId || null

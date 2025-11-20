@@ -80,6 +80,7 @@ const Community = () => {
     if (!socket) return
 
     const handleMessage = (message) => {
+      console.log('Received new message via WebSocket:', message)
       setMessages((prev) => {
         if (prev.some(msg => msg.id === message.id)) {
           return prev
@@ -90,10 +91,12 @@ const Community = () => {
 
     const handleMessages = (msgs) => {
       const allMessages = msgs || []
+      console.log('Received messages batch:', allMessages.length)
       setMessages(allMessages)
     }
 
     const handleError = (error) => {
+      console.error('WebSocket error:', error)
       alert(error.message || 'An error occurred')
     }
 
