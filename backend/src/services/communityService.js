@@ -120,17 +120,25 @@ export const getPopularCommunities = async (limit = 50) => {
   })
 }
 
-// Get messages for a community
+// Get messages for a community with usernames
 export const getMessages = async (communityId, limit = 100) => {
   const result = await query(
-    `SELECT * FROM messages 
-     WHERE community_id = $1 
-     ORDER BY created_at DESC 
+    `SELECT 
+      m.*,
+      up.username
+     FROM messages m
+     LEFT JOIN user_profiles up ON m.user_id = up.user_id
+     WHERE m.community_id = $1 
+     ORDER BY m.created_at DESC 
      LIMIT $2`,
     [communityId, limit]
   )
   
-  return result.rows.map(row => new Message(row)).reverse()
+  return result.rows.map(row => {
+    const message = new Message(row)
+    message.username = row.username || null
+    return message
+  }).reverse()
 }
 
 // Add message to a community

@@ -172,7 +172,7 @@ const Community = () => {
               <input type="checkbox" className="post-checkbox" />
               <div className="post-content">
                 <div className="post-header">
-                  <span className="post-name">{message.author}</span>
+                  <span className="post-name">{message.username || message.author || 'Anonymous'}</span>
                   <span className="post-date">
                     {new Date(message.createdAt).toLocaleString()}
                   </span>
@@ -187,23 +187,9 @@ const Community = () => {
         )}
       </div>
 
-      {/* Post Form - TEMPORARILY ALWAYS SHOWN FOR TESTING */}
+      {/* Post Form */}
       <div className="post-form-container">
         <form onSubmit={handleSendMessage} className="post-form">
-          <div className="form-row">
-            <div className="form-label">Name</div>
-            <div className="form-input-group">
-              <div className="form-input-group-wrapper">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="form-input"
-                  placeholder="Anonymous"
-                />
-              </div>
-            </div>
-          </div>
           <div className="form-row">
             <div className="form-label">Comment</div>
             <div className="form-input-group">

@@ -7,8 +7,10 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Read NEW schema file (communities instead of coins)
-const schemaSQL = fs.readFileSync(path.join(__dirname, 'schema_v2.sql'), 'utf8')
+// Read schema files
+const schemaV2SQL = fs.readFileSync(path.join(__dirname, 'schema_v2.sql'), 'utf8')
+const schemaV3SQL = fs.readFileSync(path.join(__dirname, 'schema_v3_usernames.sql'), 'utf8')
+const schemaSQL = schemaV2SQL + '\n\n' + schemaV3SQL
 
 export const migrate = async () => {
   try {

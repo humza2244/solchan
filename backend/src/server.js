@@ -7,7 +7,9 @@ import { Server } from 'socket.io'
 import rateLimit from 'express-rate-limit'
 import communityRoutes from './routes/communityRoutes.js'
 import coinRoutes from './routes/coinRoutes.js'
+import userProfileRoutes from './routes/userProfileRoutes.js'
 import { getCommunityById, getMessages, addMessage } from './services/communityService.js'
+import { getUserProfile } from './services/userProfileService.js'
 import { connectDatabase, query } from './config/database.js'
 import { migrate } from './config/migrate.js'
 import { invalidatePopularCoinsCache } from './utils/cache.js'
@@ -56,6 +58,7 @@ app.use('/api/', limiter)
 // Routes
 app.use('/api/communities', communityRoutes)
 app.use('/api/coins', coinRoutes) // Keep for backwards compatibility
+app.use('/api/profile', userProfileRoutes)
 
 // Health check with database status
 app.get('/api/health', async (req, res) => {
@@ -149,6 +152,12 @@ io.on('connection', (socket) => {
         content: content.trim(),
         author: author || 'Anonymous',
       }, authenticatedUserId)
+      
+      // Fetch username for the authenticated user
+      const userProfile = await getUserProfile(authenticatedUserId)
+      if (userProfile) {
+        message.username = userProfile.username
+      }
       
       // Invalidate popular communities cache
       invalidatePopularCoinsCache()

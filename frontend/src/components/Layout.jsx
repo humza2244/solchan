@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useUserProfile } from '../hooks/useUserProfile'
 
 const Layout = ({ children }) => {
   const { user, signOut } = useAuth()
+  const { profile } = useUserProfile()
 
   const handleSignOut = async () => {
     if (window.confirm('Are you sure you want to sign out?')) {
@@ -20,7 +22,7 @@ const Layout = ({ children }) => {
             {user ? (
               <>
                 <span className="nav-user">
-                  {user.email}
+                  {profile?.username || user.email}
                 </span>
                 <span className="nav-separator">-</span>
                 <button onClick={handleSignOut} className="nav-button">
