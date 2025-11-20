@@ -143,10 +143,13 @@ export const getMessages = async (communityId, limit = 100) => {
 
 // Add message to a community
 export const addMessage = async (communityId, messageData, userId = null) => {
+  console.log('🔍 addMessage called with:', { communityId, userId, author: messageData.author, contentLength: messageData.content?.length })
+  
   const client = await getClient()
   
   try {
     await client.query('BEGIN')
+    console.log('🔄 Transaction started')
     
     // Verify community exists
     const communityCheck = await client.query(
@@ -155,8 +158,10 @@ export const addMessage = async (communityId, messageData, userId = null) => {
     )
     
     if (communityCheck.rows.length === 0) {
+      console.error('❌ Community not found:', communityId)
       throw new Error('Community not found')
     }
+    console.log('✅ Community exists:', communityCheck.rows[0].ticker)
     
     // Get the next post number for this community
     const postNumberResult = await client.query(
@@ -170,8 +175,10 @@ export const addMessage = async (communityId, messageData, userId = null) => {
     
     // If this is the first message, start from a base number
     if (postNumber === 1) {
-      postNumber = 1000000 + Date.now() % 1000000
+      postNumber = 1000000 + Math.floor(Date.now() % 1000000)
     }
+    
+    console.log('🔢 Post number assigned:', postNumber)
     
     // Insert message
     const messageResult = await client.query(
@@ -187,15 +194,24 @@ export const addMessage = async (communityId, messageData, userId = null) => {
       ]
     )
     
+    console.log('✅ Message inserted, ID:', messageResult.rows[0].id)
+    
     // Commit transaction
     await client.query('COMMIT')
+    console.log('✅ Transaction committed')
     
-    return new Message(messageResult.rows[0])
+    const message = new Message(messageResult.rows[0])
+    console.log('✅ Message object created:', message.toJSON())
+    
+    return message
   } catch (error) {
+    console.error('❌ Error in addMessage:', error)
     await client.query('ROLLBACK')
+    console.log('🔄 Transaction rolled back')
     throw error
   } finally {
     client.release()
+    console.log('🔓 Database client released')
   }
 }
 

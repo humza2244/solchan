@@ -134,34 +134,43 @@ io.on('connection', (socket) => {
 
   // Handle new message (anonymous - no auth required)
   socket.on('new-message', async (data) => {
+    console.log('📨 Received new-message event:', { communityId: data.communityId, contentLength: data.content?.length, author: data.author })
+    
     const { communityId, content, author } = data
     
     if (!communityId || !content) {
+      console.error('❌ Missing communityId or content')
       socket.emit('error', { message: 'Community ID and content are required' })
       return
     }
 
     // Validate content length
     if (content.trim().length === 0 || content.length > 5000) {
+      console.error('❌ Invalid content length:', content.length)
       socket.emit('error', { message: 'Message content must be between 1 and 5000 characters' })
       return
     }
 
     try {
+      console.log('💾 Attempting to save message to database...')
       // Add message (anonymous - no user ID)
       const message = await addMessage(communityId, {
         content: content.trim(),
         author: author || 'Anonymous',
       }, null)
       
+      console.log('✅ Message saved successfully:', message.toJSON())
+      
       // Invalidate popular communities cache
       invalidatePopularCoinsCache()
       
       // Broadcast to all users in the community room
       io.to(communityId).emit('message', message.toJSON())
+      console.log('📤 Message broadcasted to community:', communityId)
     } catch (error) {
-      console.error('Error handling new message:', error)
-      socket.emit('error', { message: 'Failed to send message' })
+      console.error('❌ Error handling new message:', error)
+      console.error('Error details:', error.message, error.stack)
+      socket.emit('error', { message: 'Failed to send message: ' + error.message })
     }
   })
 
