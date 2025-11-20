@@ -92,6 +92,8 @@ export const getAllCommunities = async (limit = 50) => {
 
 // Get popular communities
 export const getPopularCommunities = async (limit = 50) => {
+  console.log('🔍 getPopularCommunities called with limit:', limit)
+  
   const result = await query(
     `SELECT 
       c.*,
@@ -112,12 +114,18 @@ export const getPopularCommunities = async (limit = 50) => {
     [limit]
   )
   
-  return result.rows.map(row => {
+  console.log('📊 Popular communities found:', result.rows.length)
+  
+  const communities = result.rows.map(row => {
     const community = new Community(row)
     community.messages24h = parseInt(row.messages_24h) || 0
     community.popularityScore = community.getPopularityScore(community.messages24h)
     return community
   })
+  
+  console.log('✅ Returning popular communities:', communities.map(c => ({ id: c.id, ticker: c.ticker, messages24h: c.messages24h })))
+  
+  return communities
 }
 
 // Get messages for a community with usernames
