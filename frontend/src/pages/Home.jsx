@@ -84,6 +84,14 @@ const Home = () => {
       {/* Logo */}
       <div className="home-logo">
         <h1>solchan</h1>
+        <p className="home-description">
+          solchan is a simple image-based bulletin board for memecoin communities. 
+          Search for any cryptocurrency by its ticker or contract address to join an existing 
+          community or create a new one. Each coin gets its own dedicated board where holders 
+          can chat in real-time, share alpha, discuss price movements, and engage in unfiltered 
+          discussion about their investments. No registration required - just search for a coin 
+          and start posting!
+        </p>
       </div>
 
       {/* Create Community Button */}
@@ -151,7 +159,9 @@ const Home = () => {
       ) : searchResults.length > 0 ? (
         // Show search results
         <div className="recent-communities">
-          <h2>Search Results</h2>
+          <div className="section-header">
+            <h2>Search Results</h2>
+          </div>
           <p className="communities-subtitle">Found {searchResults.length} communities</p>
           <div className="communities-list">
             {searchResults.map((community) => (
@@ -185,7 +195,9 @@ const Home = () => {
           {/* Trending Communities (Top 3) */}
           {popularCommunities.length > 0 && (
             <div className="recent-communities">
-              <h2>Trending Communities</h2>
+              <div className="section-header">
+                <h2>Trending Communities</h2>
+              </div>
               <p className="communities-subtitle">Most active in the past 24 hours</p>
               <div className="communities-list">
                 {popularCommunities.map((community) => (
@@ -220,7 +232,9 @@ const Home = () => {
           {/* New Communities */}
           {newCommunities.length > 0 ? (
             <div className="recent-communities">
-              <h2>New Communities</h2>
+              <div className="section-header">
+                <h2>New Communities</h2>
+              </div>
               <p className="communities-subtitle">Recently created</p>
               <div className="communities-list">
                 {newCommunities.map((community) => (
