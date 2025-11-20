@@ -11,6 +11,7 @@ const Home = () => {
   const [newCommunities, setNewCommunities] = useState([])
   const [loading, setLoading] = useState(false)
   const [searching, setSearching] = useState(false)
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true)
 
   const handleSearch = async (e) => {
     e.preventDefault()
@@ -63,19 +64,26 @@ const Home = () => {
 
   return (
     <div className="home">
+      {/* Welcome Modal */}
+      {showWelcomeModal && (
+        <div className="modal-overlay" onClick={() => setShowWelcomeModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowWelcomeModal(false)}>
+              ✕
+            </button>
+            <h2>What is solchan?</h2>
+            <p>
+              <strong>solchan</strong> is an uncensored memecoin community platform. 
+              Create or join communities for any cryptocurrency. Chat live with holders, 
+              share alpha, and discuss your favorite memecoins. Pure chaos, zero moderation.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Logo */}
       <div className="home-logo">
         <h1>solchan</h1>
-      </div>
-
-      {/* What is solchan? */}
-      <div className="info-box">
-        <h2>What is solchan?</h2>
-        <p>
-          <strong>solchan</strong> is an uncensored memecoin community platform. 
-          Create or join communities for any cryptocurrency. Chat live with holders, 
-          share alpha, and discuss your favorite memecoins. Pure chaos, zero moderation.
-        </p>
       </div>
 
       {/* Create Community Button */}
