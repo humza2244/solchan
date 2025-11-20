@@ -19,8 +19,13 @@ const CreateCommunity = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setError('Image file is too large (max 5MB)')
+      // Check file size (between 50KB and 2MB)
+      if (file.size < 50 * 1024) {
+        setError('Image is too small (minimum 50KB)')
+        return
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        setError('Image is too large (maximum 2MB)')
         return
       }
       
@@ -28,16 +33,39 @@ const CreateCommunity = () => {
         setError('Please select an image file')
         return
       }
+
+      // Check image dimensions
+      const img = new Image()
+      img.onload = () => {
+        if (img.width < 200 || img.height < 200) {
+          setError('Image dimensions too small (minimum 200x200px)')
+          setImage(null)
+          setImagePreview(null)
+          return
+        }
+        if (img.width > 2000 || img.height > 2000) {
+          setError('Image dimensions too large (maximum 2000x2000px)')
+          setImage(null)
+          setImagePreview(null)
+          return
+        }
+        setError('')
+      }
+      img.src = URL.createObjectURL(file)
       
       setImage(file)
       setImagePreview(URL.createObjectURL(file))
-      setError('')
     }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (!image) {
+      setError('Community image is required')
+      return
+    }
 
     if (contractAddress.length < 20) {
       setError('Invalid contract address')

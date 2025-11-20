@@ -11,7 +11,15 @@ const Home = () => {
   const [newCommunities, setNewCommunities] = useState([])
   const [loading, setLoading] = useState(false)
   const [searching, setSearching] = useState(false)
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true)
+  const [showWelcomeModal, setShowWelcomeModal] = useState(() => {
+    // Only show modal if user hasn't seen it before
+    return !localStorage.getItem('hasSeenWelcome')
+  })
+
+  const handleCloseModal = () => {
+    setShowWelcomeModal(false)
+    localStorage.setItem('hasSeenWelcome', 'true')
+  }
 
   const handleSearch = async (e) => {
     e.preventDefault()
@@ -66,10 +74,10 @@ const Home = () => {
     <div className="home">
       {/* Welcome Modal */}
       {showWelcomeModal && (
-        <div className="modal-overlay" onClick={() => setShowWelcomeModal(false)}>
+        <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowWelcomeModal(false)}>
-              ✕
+            <button className="modal-close" onClick={handleCloseModal}>
+              X
             </button>
             <h2>What is solchan?</h2>
             <p>
@@ -105,7 +113,8 @@ const Home = () => {
 
       {/* KOTH - King of the Hill - Horizontal */}
       {popularCommunities.length > 0 && (
-        <div className="koth-section-horizontal">
+        <div className="koth-wrapper">
+          <h3 className="koth-title">King of the Hill</h3>
           <Link to={`/community/${popularCommunities[0].id}`} className="koth-card-horizontal">
             {popularCommunities[0].imageUrl && (
               <img 
@@ -115,7 +124,6 @@ const Home = () => {
               />
             )}
             <div className="koth-info-horizontal">
-              <div className="koth-badge">KOTH</div>
               <div className="koth-name-horizontal">{popularCommunities[0].ticker}</div>
               <div className="koth-coin-horizontal">{popularCommunities[0].coinName}</div>
               <div className="koth-stats-horizontal">
@@ -123,6 +131,7 @@ const Home = () => {
               </div>
             </div>
           </Link>
+        </div>
         </div>
       )}
 

@@ -520,10 +520,10 @@ body {
   text-decoration: underline;
 }
 
-/* Create Community Form */
+/* Create Community Form - Compact */
 .create-community-page {
-  max-width: 600px;
-  margin: 40px auto;
+  max-width: 500px;
+  margin: 30px auto;
   padding: 20px;
   background: #EFEEE8;
   border: 1px solid #d9d9d9;
@@ -599,9 +599,8 @@ body {
 
 .communities-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  max-width: 900px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
   margin: 0 auto;
 }
 
@@ -1492,11 +1491,11 @@ a:hover {
 
 .community-item img {
   width: 100%;
-  max-width: 150px;
-  height: 150px;
+  max-width: 120px;
+  height: 120px;
   object-fit: cover;
   border: 2px solid #B7C5D9;
-  margin: 0 auto 10px auto;
+  margin: 0 auto 8px auto;
   display: block;
 }
 
@@ -1696,7 +1695,7 @@ a:hover {
   border: 1px solid #800000;
   padding: 5px 10px;
   margin: -15px -15px 10px -15px;
-  text-align: center;
+  text-align: left;
 }
 
 .section-header h2 {
@@ -1735,7 +1734,7 @@ a:hover {
   background: #E5989B;
   border-bottom: 1px solid #800000;
   padding: 5px 10px;
-  text-align: center;
+  text-align: left;
 }
 
 .what-is-header h2 {
@@ -1791,4 +1790,81 @@ a:hover {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 15px;
+}
+
+/* KOTH Wrapper and Title */
+.koth-wrapper {
+  margin: 15px auto;
+  max-width: 500px;
+}
+
+.koth-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #800000;
+  margin-bottom: 8px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Update KOTH card to not have badge inside */
+.koth-card-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #FFD700;
+  padding: 10px;
+  border: 2px solid #DAA520;
+  text-decoration: none;
+  color: #000;
+}
+
+/* Remove KOTH badge styles since we moved it out */
+.koth-badge {
+  display: none;
+}
+
+/* Create Community - Compact Form */
+.create-community-page h1 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #800000;
+}
+
+.community-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #000;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #666;
 }
