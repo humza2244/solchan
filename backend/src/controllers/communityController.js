@@ -25,12 +25,8 @@ export const createCommunityHandler = async (req, res) => {
       return res.status(400).json({ error: 'Invalid contract address' })
     }
     
-    // Get user ID from authenticated user
-    const userId = req.user?.id
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' })
-    }
+    // Anonymous creation (no auth required)
+    const userId = null
     
     // Create community
     const community = await createCommunity({
@@ -121,12 +117,8 @@ export const createMessageHandler = async (req, res) => {
       return res.status(400).json({ error: 'Message is too long (max 5000 characters)' })
     }
     
-    // Get user ID from authenticated user
-    const userId = req.user?.id
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' })
-    }
+    // Anonymous messaging (no auth required)
+    const userId = null
     
     // Add message
     const message = await addMessage(id, {

@@ -35,8 +35,8 @@ router.get('/', getAllCommunitiesHandler)
 // GET /api/communities/search - Search communities by ticker or CA
 router.get('/search', searchCommunitiesHandler)
 
-// POST /api/communities - Create a new community (requires auth)
-router.post('/', authenticateUser, createCommunityHandler)
+// POST /api/communities - Create a new community (anonymous)
+router.post('/', createCommunityHandler)
 
 // GET /api/communities/:id - Get community with messages
 router.get('/:id', getCommunityHandler)
@@ -44,11 +44,11 @@ router.get('/:id', getCommunityHandler)
 // GET /api/communities/:id/messages - Get messages for a community
 router.get('/:id/messages', getCommunityMessagesHandler)
 
-// POST /api/communities/:id/messages - Create a new message (requires auth)
-router.post('/:id/messages', authenticateUser, createMessageHandler)
+// POST /api/communities/:id/messages - Create a new message (anonymous)
+router.post('/:id/messages', createMessageHandler)
 
-// POST /api/communities/:id/image - Upload community image (requires auth)
-router.post('/:id/image', authenticateUser, upload.single('image'), uploadCommunityImageHandler)
+// POST /api/communities/:id/image - Upload community image (anonymous)
+router.post('/:id/image', upload.single('image'), uploadCommunityImageHandler)
 
 export default router
 

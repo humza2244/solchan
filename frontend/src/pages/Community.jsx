@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { connectSocket } from '../services/socket.js'
 import axios from 'axios'
 
@@ -18,28 +17,19 @@ const Community = () => {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
-  const { user, getAccessToken } = useAuth()
   const [socket, setSocket] = useState(null)
 
   useEffect(() => {
-    // Connect socket
+    // Connect socket (no auth needed - anonymous)
     const socketInstance = connectSocket()
     setSocket(socketInstance)
-
-    // Authenticate socket if user is logged in
-    if (user) {
-      const token = getAccessToken()
-      if (token) {
-        socketInstance.emit('authenticate', token)
-      }
-    }
 
     return () => {
       if (socketInstance) {
         socketInstance.emit('leave-community', id)
       }
     }
-  }, [user, id, getAccessToken])
+  }, [id])
 
   // Load community and messages
   useEffect(() => {
@@ -118,11 +108,6 @@ const Community = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault()
-    
-    if (!user) {
-      alert('You must be signed in to send messages')
-      return
-    }
     
     if (!newMessage.trim() || sending) {
       return

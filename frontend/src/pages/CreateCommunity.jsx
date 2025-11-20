@@ -15,7 +15,6 @@ const CreateCommunity = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   
-  const { getAccessToken, user } = useAuth()
   const navigate = useNavigate()
 
   const handleImageChange = (e) => {
@@ -40,11 +39,6 @@ const CreateCommunity = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    
-    if (!user) {
-      setError('You must be signed in to create a community')
-      return
-    }
 
     if (contractAddress.length < 20) {
       setError('Invalid contract address')
@@ -54,15 +48,7 @@ const CreateCommunity = () => {
     setLoading(true)
 
     try {
-      const token = getAccessToken()
-      
-      if (!token) {
-        setError('Authentication token not found. Please sign in again.')
-        setLoading(false)
-        return
-      }
-      
-      // Step 1: Create the community
+      // Step 1: Create the community (anonymous - no auth needed)
       const communityResponse = await axios.post(
         `${API_BASE_URL}/communities`,
         {
@@ -70,11 +56,6 @@ const CreateCommunity = () => {
           coinName: coinName.trim(),
           contractAddress: contractAddress.trim(),
           description: description.trim(),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       )
 
@@ -90,7 +71,6 @@ const CreateCommunity = () => {
           formData,
           {
             headers: {
-              Authorization: `Bearer ${token}`,
               'Content-Type': 'multipart/form-data',
             },
           }
@@ -104,15 +84,6 @@ const CreateCommunity = () => {
       setError(error.response?.data?.error || 'Failed to create community')
       setLoading(false)
     }
-  }
-
-  if (!user) {
-    return (
-      <div className="create-community">
-        <h2>Create a Community</h2>
-        <p>You must be <a href="/signin">signed in</a> to create a community.</p>
-      </div>
-    )
   }
 
   return (

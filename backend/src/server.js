@@ -132,14 +132,9 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} left community: ${communityId}`)
   })
 
-  // Handle new message (requires authentication)
+  // Handle new message (anonymous - no auth required)
   socket.on('new-message', async (data) => {
     const { communityId, content, author } = data
-    
-    if (!authenticatedUserId) {
-      socket.emit('error', { message: 'Authentication required to send messages' })
-      return
-    }
     
     if (!communityId || !content) {
       socket.emit('error', { message: 'Community ID and content are required' })
@@ -153,17 +148,11 @@ io.on('connection', (socket) => {
     }
 
     try {
-      // Add message
+      // Add message (anonymous - no user ID)
       const message = await addMessage(communityId, {
         content: content.trim(),
         author: author || 'Anonymous',
-      }, authenticatedUserId)
-      
-      // Fetch username for the authenticated user
-      const userProfile = await getUserProfile(authenticatedUserId)
-      if (userProfile) {
-        message.username = userProfile.username
-      }
+      }, null)
       
       // Invalidate popular communities cache
       invalidatePopularCoinsCache()
