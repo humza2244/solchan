@@ -176,14 +176,16 @@ const CreateCommunity = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="image">Community Image</label>
+          <label htmlFor="image">Community Image *</label>
           <input
             type="file"
             id="image"
             accept="image/*"
             onChange={handleImageChange}
             disabled={loading}
+            required
           />
+          <small>Required. Size: 50KB-2MB. Dimensions: 200x200px to 2000x2000px. Recommended: 500x500px square image.</small>
           {imagePreview && (
             <div className="image-preview">
               <img src={imagePreview} alt="Preview" />
