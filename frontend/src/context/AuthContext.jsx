@@ -44,16 +44,10 @@ export const AuthProvider = ({ children }) => {
     return { user: data.user, session: data.session, error }
   }
 
-  const signUp = async (email, password, username) => {
-    // Sign up with username stored in user metadata
+  const signUp = async (email, password) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          username: username,
-        },
-      },
     })
     return { user: data.user, session: data.session, error }
   }
@@ -83,3 +77,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   )
 }
+
+export default AuthContext

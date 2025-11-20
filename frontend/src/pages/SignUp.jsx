@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const SignUp = () => {
-  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -15,22 +14,6 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-
-    if (!username.trim()) {
-      setError('Username is required')
-      return
-    }
-
-    if (username.length < 3 || username.length > 20) {
-      setError('Username must be between 3 and 20 characters')
-      return
-    }
-
-    // Only allow alphanumeric and underscores
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      setError('Username can only contain letters, numbers, and underscores')
-      return
-    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
@@ -44,14 +27,14 @@ const SignUp = () => {
 
     setLoading(true)
 
-    const { error } = await signUp(email, password, username)
+    const { error } = await signUp(email, password)
 
     if (error) {
       setError(error.message)
       setLoading(false)
     } else {
       // Show success message or redirect
-      alert('Account created! You can now sign in.')
+      alert('Account created! Please check your email to verify your account.')
       navigate('/signin')
     }
   }
@@ -65,21 +48,6 @@ const SignUp = () => {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              minLength={3}
-              maxLength={20}
-              disabled={loading}
-              placeholder="anon123"
-            />
-          </div>
-
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input

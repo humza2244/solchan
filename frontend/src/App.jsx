@@ -7,14 +7,21 @@ import SignUp from './pages/SignUp.jsx'
 import CreateCommunity from './pages/CreateCommunity.jsx'
 import Community from './pages/Community.jsx'
 
-// Protected route component - requires authentication
+// Protected route component
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
   
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <p>Loading...</p>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '400px',
+        fontSize: '16px',
+        color: '#800000'
+      }}>
+        Loading...
       </div>
     )
   }
@@ -43,9 +50,23 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/community/:id" element={<Community />} />
+            <Route
+              path="/community/:id"
+              element={
+                <ProtectedRoute>
+                  <Community />
+                </ProtectedRoute>
+              }
+            />
             {/* Keep old route for backwards compatibility */}
-            <Route path="/coin/:contractAddress" element={<Community />} />
+            <Route
+              path="/coin/:contractAddress"
+              element={
+                <ProtectedRoute>
+                  <Community />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </Layout>
       </Router>

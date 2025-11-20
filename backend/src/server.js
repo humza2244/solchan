@@ -89,6 +89,7 @@ io.on('connection', (socket) => {
       
       if (error || !user) {
         socket.emit('auth-error', { message: 'Invalid authentication token' })
+        console.error('Socket auth failed:', error)
         return
       }
       
