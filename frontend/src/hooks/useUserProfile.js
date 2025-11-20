@@ -4,9 +4,6 @@ import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
 
-// Global flag to disable profile fetching if backend auth is broken
-let profileFetchingDisabled = false
-
 export const useUserProfile = () => {
   const { user, getAccessToken } = useAuth()
   const [profile, setProfile] = useState(null)
@@ -16,8 +13,8 @@ export const useUserProfile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      // Don't fetch if globally disabled or already fetched
-      if (!user || hasFetched.current || profileFetchingDisabled) {
+      // Only fetch once per user
+      if (!user || hasFetched.current) {
         setLoading(false)
         return
       }
@@ -37,28 +34,13 @@ export const useUserProfile = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          // Don't throw on error status
-          validateStatus: (status) => status < 500
         })
         
-        if (response.status === 200) {
-          setProfile(response.data)
-          setError(null)
-        } else if (response.status === 401) {
-          // Backend auth is broken - disable all future profile fetches
-          profileFetchingDisabled = true
-          setProfile(null)
-          setError(null)
-        } else {
-          // 404 or other - user just doesn't have profile
-          setProfile(null)
-          setError(null)
-        }
-        
+        setProfile(response.data)
+        setError(null)
         hasFetched.current = true
       } catch (err) {
-        // Network error or other issue - disable fetching
-        profileFetchingDisabled = true
+        // Silently fail - show email instead of username
         setProfile(null)
         setError(null)
         hasFetched.current = true
