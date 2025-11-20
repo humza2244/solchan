@@ -31,6 +31,12 @@ const io = new Server(httpServer, {
 
 const PORT = process.env.PORT || 5001
 
+// Trust proxy for Railway/production environments
+// This is required for rate limiting to work correctly behind a proxy
+if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
+  app.set('trust proxy', 1)
+}
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute

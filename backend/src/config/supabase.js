@@ -7,6 +7,10 @@ if (!supabaseUrl || !supabaseServiceKey) {
   console.error('❌ Missing Supabase configuration. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env')
   console.error('SUPABASE_URL:', supabaseUrl || 'NOT SET')
   console.error('SUPABASE_SERVICE_ROLE_KEY:', supabaseServiceKey ? 'SET' : 'NOT SET')
+} else {
+  console.log('✅ Supabase configuration loaded')
+  console.log('   URL:', supabaseUrl)
+  console.log('   Service Key:', supabaseServiceKey.substring(0, 20) + '...' + supabaseServiceKey.substring(supabaseServiceKey.length - 5))
 }
 
 // Create Supabase admin client (for server-side operations)

@@ -14,7 +14,13 @@ export const authenticateUser = async (req, res, next) => {
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
     
     if (error || !user) {
-      console.error('Token verification failed:', error)
+      console.error('Token verification failed:', {
+        error: error?.message || 'No user returned',
+        status: error?.status,
+        code: error?.code,
+        hasSupabaseClient: !!supabaseAdmin,
+        tokenPrefix: token?.substring(0, 20) + '...'
+      })
       return res.status(401).json({ error: 'Invalid or expired token' })
     }
     
