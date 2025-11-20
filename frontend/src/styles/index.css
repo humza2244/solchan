@@ -7,7 +7,7 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 13px;
-  background: linear-gradient(to bottom, #EEF2FF 0%, #F0E0D6 50%, #E6D5C3 100%);
+  background: linear-gradient(to bottom, #E6D5C3 0%, #F0E0D6 50%, #EEF2FF 100%);
   background-attachment: fixed;
   color: #000;
   line-height: 1.4;
@@ -424,6 +424,7 @@ body {
   font-weight: bold;
   color: #AF0A0F;
   margin-bottom: 10px;
+  text-align: left;
 }
 
 .communities-subtitle {
@@ -1533,9 +1534,14 @@ a:hover {
 }
 
 /* Home layout centering */
-.home .recent-communities h2,
 .home .communities-subtitle {
   text-align: center;
+}
+
+/* Section headers should always be left-aligned */
+.home .section-header h2,
+.home .recent-communities .section-header h2 {
+  text-align: left;
 }
 
 /* Community coin name styling */
@@ -1674,6 +1680,7 @@ a:hover {
 .recent-communities h2 {
   font-size: 18px;
   margin-bottom: 5px;
+  text-align: left;
 }
 
 .communities-subtitle {
@@ -1722,6 +1729,7 @@ a:hover {
 .recent-communities h2 {
   font-size: 16px;
   margin-bottom: 5px;
+  text-align: left;
 }
 
 /* What is solchan? Container - 4chan style */
