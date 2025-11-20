@@ -7,9 +7,11 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 13px;
-  background-color: #EEF2FF;
+  background: linear-gradient(to bottom, #EEF2FF 0%, #F0E0D6 50%, #E6D5C3 100%);
+  background-attachment: fixed;
   color: #000;
   line-height: 1.4;
+  min-height: 100vh;
 }
 
 .container {
@@ -1705,6 +1707,7 @@ a:hover {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: left;
 }
 
 /* Adjust community section for header */
@@ -1744,6 +1747,7 @@ a:hover {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: left;
 }
 
 .what-is-content {
