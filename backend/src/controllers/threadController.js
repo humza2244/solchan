@@ -6,7 +6,7 @@ import {
   addReply,
   getThreadWithPreview,
 } from '../services/threadService.js'
-import { supabaseAdmin } from '../config/supabase.js'
+import { uploadThreadImage, uploadReplyImage } from '../services/storageService.js'
 
 // Create a new thread
 export const createThreadHandler = async (req, res) => {
@@ -45,40 +45,22 @@ export const uploadThreadImageHandler = async (req, res) => {
       return res.status(400).json({ error: 'No image file provided' })
     }
 
-    if (!supabaseAdmin) {
-      return res.status(500).json({ error: 'Storage not configured' })
-    }
-
-    // Upload to Supabase Storage
-    const fileExt = req.file.originalname.split('.').pop()
-    const fileName = `thread_${threadId}_${Date.now()}.${fileExt}`
-    const filePath = `threads/${fileName}`
-
-    const { data, error } = await supabaseAdmin.storage
-      .from('community-images')
-      .upload(filePath, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false,
-      })
-
-    if (error) {
-      console.error('Supabase storage error:', error)
-      return res.status(500).json({ error: 'Failed to upload image' })
-    }
-
-    // Get public URL
-    const { data: urlData } = supabaseAdmin.storage
-      .from('community-images')
-      .getPublicUrl(filePath)
+    // Upload to Cloudflare R2
+    const publicUrl = await uploadThreadImage(
+      threadId,
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype
+    )
 
     // Update thread with image URL
     const { query } = await import('../config/database.js')
     await query(
       'UPDATE threads SET image_url = $1 WHERE id = $2',
-      [urlData.publicUrl, threadId]
+      [publicUrl, threadId]
     )
 
-    res.json({ imageUrl: urlData.publicUrl })
+    res.json({ imageUrl: publicUrl })
   } catch (error) {
     console.error('Error uploading thread image:', error)
     res.status(500).json({ error: 'Failed to upload image' })
@@ -164,40 +146,22 @@ export const uploadReplyImageHandler = async (req, res) => {
       return res.status(400).json({ error: 'No image file provided' })
     }
 
-    if (!supabaseAdmin) {
-      return res.status(500).json({ error: 'Storage not configured' })
-    }
-
-    // Upload to Supabase Storage
-    const fileExt = req.file.originalname.split('.').pop()
-    const fileName = `reply_${replyId}_${Date.now()}.${fileExt}`
-    const filePath = `replies/${fileName}`
-
-    const { data, error } = await supabaseAdmin.storage
-      .from('community-images')
-      .upload(filePath, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false,
-      })
-
-    if (error) {
-      console.error('Supabase storage error:', error)
-      return res.status(500).json({ error: 'Failed to upload image' })
-    }
-
-    // Get public URL
-    const { data: urlData } = supabaseAdmin.storage
-      .from('community-images')
-      .getPublicUrl(filePath)
+    // Upload to Cloudflare R2
+    const publicUrl = await uploadReplyImage(
+      replyId,
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype
+    )
 
     // Update reply with image URL
     const { query } = await import('../config/database.js')
     await query(
       'UPDATE replies SET image_url = $1 WHERE id = $2',
-      [urlData.publicUrl, replyId]
+      [publicUrl, replyId]
     )
 
-    res.json({ imageUrl: urlData.publicUrl })
+    res.json({ imageUrl: publicUrl })
   } catch (error) {
     console.error('Error uploading reply image:', error)
     res.status(500).json({ error: 'Failed to upload image' })

@@ -8,7 +8,7 @@ import {
   addMessage,
   updateCommunityInfo,
 } from '../services/communityService.js'
-import { supabaseAdmin } from '../config/supabase.js'
+import { uploadCommunityImage } from '../services/storageService.js'
 import { invalidatePopularCoinsCache } from '../utils/cache.js'
 
 // POST /api/communities - Create a new community (requires auth)
@@ -168,32 +168,19 @@ export const uploadCommunityImageHandler = async (req, res) => {
       return res.status(400).json({ error: 'No image file provided' })
     }
     
-    // Verify user owns this community or is admin
+    // Verify community exists
     const community = await getCommunityById(id)
     if (!community) {
       return res.status(404).json({ error: 'Community not found' })
     }
     
-    // Upload to Supabase Storage
-    const file = req.file
-    const fileName = `${id}-${Date.now()}.${file.originalname.split('.').pop()}`
-    
-    const { data, error } = await supabaseAdmin.storage
-      .from('community-images')
-      .upload(fileName, file.buffer, {
-        contentType: file.mimetype,
-        upsert: true,
-      })
-    
-    if (error) {
-      console.error('Supabase storage error:', error)
-      return res.status(500).json({ error: 'Failed to upload image' })
-    }
-    
-    // Get public URL
-    const { data: { publicUrl } } = supabaseAdmin.storage
-      .from('community-images')
-      .getPublicUrl(fileName)
+    // Upload to Cloudflare R2
+    const publicUrl = await uploadCommunityImage(
+      id,
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype
+    )
     
     // Update community with image URL
     const updatedCommunity = await updateCommunityInfo(id, { imageUrl: publicUrl })
