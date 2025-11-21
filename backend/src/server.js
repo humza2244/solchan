@@ -8,7 +8,9 @@ import rateLimit from 'express-rate-limit'
 import communityRoutes from './routes/communityRoutes.js'
 import coinRoutes from './routes/coinRoutes.js'
 import userProfileRoutes from './routes/userProfileRoutes.js'
+import threadRoutes from './routes/threadRoutes.js'
 import { getCommunityById, getMessages, addMessage } from './services/communityService.js'
+import { getThreadById, getRepliesByThread, addReply } from './services/threadService.js'
 import { getUserProfile } from './services/userProfileService.js'
 import { connectDatabase, query } from './config/database.js'
 import { migrate } from './config/migrate.js'
@@ -65,6 +67,7 @@ app.use('/api/', limiter)
 app.use('/api/communities', communityRoutes)
 app.use('/api/coins', coinRoutes) // Keep for backwards compatibility
 app.use('/api/profile', userProfileRoutes)
+app.use('/api', threadRoutes) // Thread routes (includes /communities/:id/threads and /threads/:id)
 
 // Health check with database status
 app.get('/api/health', async (req, res) => {
@@ -174,6 +177,70 @@ io.on('connection', (socket) => {
       console.error('❌ Error handling new message:', error)
       console.error('Error details:', error.message, error.stack)
       socket.emit('error', { message: 'Failed to send message: ' + error.message })
+    }
+  })
+
+  // Join a thread room
+  socket.on('join-thread', async (threadId) => {
+    try {
+      socket.join(`thread-${threadId}`)
+      console.log(`🧵 User ${socket.id} joined thread: ${threadId}`)
+      
+      // Send recent replies to the newly connected user
+      const replies = await getRepliesByThread(threadId, 1000)
+      console.log(`📬 Sending ${replies.length} replies to ${socket.id}`)
+      socket.emit('thread-replies', replies.map(r => r.toJSON()))
+    } catch (error) {
+      console.error('❌ Error joining thread:', error)
+      socket.emit('error', { message: 'Failed to load replies' })
+    }
+  })
+
+  // Leave a thread room
+  socket.on('leave-thread', (threadId) => {
+    socket.leave(`thread-${threadId}`)
+    console.log(`🧵 User ${socket.id} left thread: ${threadId}`)
+  })
+
+  // Handle new reply to a thread
+  socket.on('new-reply', async (data) => {
+    console.log('📨 Received new-reply event:', { threadId: data.threadId, contentLength: data.content?.length, author: data.author })
+    
+    const { threadId, content, author } = data
+    
+    if (!threadId || !content) {
+      console.error('❌ Missing threadId or content')
+      socket.emit('error', { message: 'Thread ID and content are required' })
+      return
+    }
+
+    // Validate content length
+    if (content.trim().length === 0 || content.length > 5000) {
+      console.error('❌ Invalid content length:', content.length)
+      socket.emit('error', { message: 'Reply content must be between 1 and 5000 characters' })
+      return
+    }
+
+    try {
+      console.log('💾 Attempting to save reply to database...')
+      // Add reply (anonymous - no user ID)
+      const reply = await addReply(threadId, {
+        content: content.trim(),
+        author: author || 'Anonymous',
+      })
+      
+      console.log('✅ Reply saved successfully:', reply.toJSON())
+      
+      // Invalidate popular communities cache (thread bumps affect community stats)
+      invalidatePopularCoinsCache()
+      
+      // Broadcast to all users in the thread room
+      io.to(`thread-${threadId}`).emit('thread-reply', reply.toJSON())
+      console.log('📤 Reply broadcasted to thread:', threadId)
+    } catch (error) {
+      console.error('❌ Error handling new reply:', error)
+      console.error('Error details:', error.message, error.stack)
+      socket.emit('error', { message: 'Failed to send reply: ' + error.message })
     }
   })
 

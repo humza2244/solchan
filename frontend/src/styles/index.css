@@ -1880,3 +1880,260 @@ a:hover {
   font-size: 11px;
   color: #666;
 }
+
+/* ==========================
+   THREAD SYSTEM STYLES  
+   4chan-style threading
+   ========================== */
+
+/* Create Thread Button */
+.create-thread-btn {
+  display: inline-block;
+  background: #D6DAF0;
+  color: #0000EE;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+  border: 1px solid #B7C5D9;
+  cursor: pointer;
+  margin: 5px 0;
+}
+
+.create-thread-btn:hover {
+  background: #C0C4E0;
+  text-decoration: underline;
+}
+
+/* Thread List */
+.threads-list {
+  margin: 20px 0;
+}
+
+.thread-preview {
+  margin-bottom: 30px;
+}
+
+.thread-divider {
+  border: none;
+  border-top: 1px solid #B7C5D9;
+  margin: 20px 0;
+}
+
+/* OP Post - NO BOX (4chan style) */
+.op-post {
+  margin: 15px 0;
+  padding: 5px;
+  background: none;
+  border: none;
+}
+
+.op-post .post-header {
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.op-post .post-subject {
+  color: #0F0C5D;
+  font-weight: bold;
+  font-size: 13px;
+  margin-right: 8px;
+}
+
+.op-post .post-name {
+  color: #117743;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.op-post .post-date {
+  color: #000;
+  margin-right: 8px;
+}
+
+.op-post .post-number {
+  color: #000;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.op-post .post-number:hover {
+  color: #800000;
+}
+
+.op-image {
+  float: left;
+  margin: 0 15px 15px 0;
+}
+
+.op-image img {
+  max-width: 250px;
+  max-height: 250px;
+  border: 1px solid #B7C5D9;
+}
+
+.op-content {
+  margin: 10px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.op-content p {
+  margin: 0;
+  word-wrap: break-word;
+}
+
+/* Thread Stats */
+.thread-stats {
+  clear: both;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #666;
+}
+
+.thread-stats .reply-link {
+  color: #0000EE;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.thread-stats .reply-link:hover {
+  color: #800000;
+}
+
+.thread-stats .reply-count {
+  margin-left: 5px;
+}
+
+/* Replies Preview */
+.replies-preview {
+  margin-left: 40px;
+  margin-top: 15px;
+}
+
+/* Reply Boxes - WITH BOXES (4chan style) */
+.reply-box {
+  background: #F0E0D6;
+  border: 1px solid #D9BFB7;
+  border-left: none;
+  border-top: none;
+  padding: 10px;
+  margin: 10px 0;
+  display: inline-block;
+  max-width: 100%;
+  min-width: 200px;
+}
+
+.reply-box .post-header {
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.reply-box .post-name {
+  color: #117743;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.reply-box .post-date {
+  color: #000;
+  margin-right: 8px;
+}
+
+.reply-box .post-number {
+  color: #000;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.reply-box .post-number:hover {
+  color: #800000;
+}
+
+.reply-image {
+  float: left;
+  margin: 0 10px 10px 0;
+}
+
+.reply-image img {
+  max-width: 150px;
+  max-height: 150px;
+  border: 1px solid #B7C5D9;
+}
+
+.reply-content {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.reply-content p {
+  margin: 0;
+  word-wrap: break-word;
+}
+
+/* View All Link */
+.view-all-link {
+  display: inline-block;
+  margin: 10px 0;
+  color: #0000EE;
+  text-decoration: underline;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.view-all-link:hover {
+  color: #800000;
+}
+
+/* Replies Section (in individual thread view) */
+.replies-section {
+  margin: 20px 0;
+}
+
+/* No Threads Message */
+.no-threads {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.no-threads p {
+  margin-bottom: 15px;
+}
+
+/* Reply Links in Content */
+.reply-link {
+  color: #800000;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.reply-link:hover {
+  text-decoration: underline;
+}
+
+/* Quote Preview Popup */
+.quote-preview {
+  background: #F0E0D6;
+  border: 1px solid #D9BFB7;
+  padding: 10px;
+  max-width: 400px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1001;
+}
+
+.quote-preview .post-header {
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.quote-preview .post-body {
+  font-size: 12px;
+}
+
+.quote-preview .post-body p {
+  margin: 0;
+  word-wrap: break-word;
+}

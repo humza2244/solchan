@@ -11,7 +11,9 @@ const __dirname = path.dirname(__filename)
 const schemaV2SQL = fs.readFileSync(path.join(__dirname, 'schema_v2.sql'), 'utf8')
 // Use safe schema that doesn't drop existing data
 const schemaV3SQL = fs.readFileSync(path.join(__dirname, 'schema_safe.sql'), 'utf8')
-const schemaSQL = schemaV2SQL + '\n\n' + schemaV3SQL
+// Add threads schema for 4chan-style threading
+const threadsSQL = fs.readFileSync(path.join(__dirname, 'schema_threads.sql'), 'utf8')
+const schemaSQL = schemaV2SQL + '\n\n' + schemaV3SQL + '\n\n' + threadsSQL
 
 export const migrate = async () => {
   try {
