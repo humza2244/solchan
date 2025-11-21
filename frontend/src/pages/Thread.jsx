@@ -18,6 +18,7 @@ const Thread = () => {
   const [socket, setSocket] = useState(null)
   const [hoveredPost, setHoveredPost] = useState(null)
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 })
+  const [showReplyForm, setShowReplyForm] = useState(false)
   const repliesEndRef = useRef(null)
 
   // Connect to WebSocket
@@ -234,6 +235,7 @@ const Thread = () => {
         <div className="op-content">
           <p>{renderContent(thread.content)}</p>
         </div>
+        <div style={{ clear: 'both' }}></div>
       </div>
 
       {/* Replies - With Boxes */}
@@ -257,10 +259,19 @@ const Thread = () => {
             <div className="reply-content">
               <p>{renderContent(reply.content)}</p>
             </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
         ))}
         <div ref={repliesEndRef} />
       </div>
+
+      {/* Floating Reply Toggle Button */}
+      <button 
+        className="reply-toggle-btn"
+        onClick={() => setShowReplyForm(!showReplyForm)}
+      >
+        {showReplyForm ? 'Close Reply' : 'Reply'}
+      </button>
 
       {/* Quote Preview Popup */}
       {hoveredPost && (
@@ -282,64 +293,59 @@ const Thread = () => {
         </div>
       )}
 
-      {/* Reply Form */}
-      <div className="post-form-container">
-        <form onSubmit={handleSubmitReply} className="post-form">
-          <div className="form-row">
-            <div className="form-label">Name</div>
-            <div className="form-input-group">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="form-input"
-                placeholder="Anonymous"
-                disabled={sending}
-              />
-            </div>
+      {/* Floating Reply Form */}
+      {showReplyForm && (
+        <div className="floating-reply-form">
+          <div className="floating-form-header">
+            <span>Quick Reply</span>
+            <button 
+              className="floating-form-close"
+              onClick={() => setShowReplyForm(false)}
+              type="button"
+            >
+              ✕
+            </button>
           </div>
+          <form onSubmit={handleSubmitReply} className="floating-form">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="floating-input"
+              placeholder="Name (Anonymous)"
+              disabled={sending}
+            />
 
-          <div className="form-row">
-            <div className="form-label">Comment</div>
-            <div className="form-input-group">
-              <textarea
-                value={newReply}
-                onChange={(e) => setNewReply(e.target.value)}
-                className="form-textarea"
-                placeholder="Enter your reply..."
-                required
-                disabled={sending}
-              />
-            </div>
-          </div>
+            <textarea
+              value={newReply}
+              onChange={(e) => setNewReply(e.target.value)}
+              className="floating-textarea"
+              placeholder="Enter your reply..."
+              required
+              disabled={sending}
+              rows={6}
+            />
 
-          <div className="form-row">
-            <div className="form-label">File</div>
-            <div className="form-input-group">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                disabled={sending}
-              />
-              {imagePreview && (
-                <div style={{ marginTop: 10 }}>
-                  <img src={imagePreview} alt="Preview" style={{ maxWidth: 150, maxHeight: 150 }} />
-                </div>
-              )}
-            </div>
-          </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              disabled={sending}
+              className="floating-file-input"
+            />
+            
+            {imagePreview && (
+              <div className="floating-image-preview">
+                <img src={imagePreview} alt="Preview" />
+              </div>
+            )}
 
-          <div className="form-row">
-            <div className="form-label"></div>
-            <div className="form-input-group">
-              <button type="submit" disabled={sending} className="post-button">
-                {sending ? 'Posting...' : 'Post'}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+            <button type="submit" disabled={sending} className="floating-submit-btn">
+              {sending ? 'Posting...' : 'Post Reply'}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   )
 }
