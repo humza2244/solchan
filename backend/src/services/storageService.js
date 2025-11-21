@@ -22,6 +22,27 @@ const PUBLIC_URL = process.env.R2_PUBLIC_URL // e.g., https://pub-xyz.r2.dev
  */
 export const uploadToR2 = async (fileBuffer, fileName, contentType) => {
   try {
+    // Validate environment variables
+    if (!process.env.R2_ENDPOINT_URL) {
+      throw new Error('R2_ENDPOINT_URL not configured')
+    }
+    if (!process.env.R2_ACCESS_KEY_ID) {
+      throw new Error('R2_ACCESS_KEY_ID not configured')
+    }
+    if (!process.env.R2_SECRET_ACCESS_KEY) {
+      throw new Error('R2_SECRET_ACCESS_KEY not configured')
+    }
+    if (!PUBLIC_URL) {
+      throw new Error('R2_PUBLIC_URL not configured')
+    }
+
+    console.log('📤 Uploading to R2:', {
+      bucket: BUCKET_NAME,
+      fileName,
+      contentType,
+      size: fileBuffer.length,
+    })
+
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: fileName,
@@ -33,12 +54,17 @@ export const uploadToR2 = async (fileBuffer, fileName, contentType) => {
 
     // Return the public URL
     const publicUrl = `${PUBLIC_URL}/${fileName}`
-    console.log('✅ File uploaded to R2:', publicUrl)
+    console.log('✅ File uploaded to R2 successfully:', publicUrl)
     
     return publicUrl
   } catch (error) {
-    console.error('❌ Error uploading to R2:', error)
-    throw new Error('Failed to upload file to storage')
+    console.error('❌ Error uploading to R2:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+      stack: error.stack,
+    })
+    throw new Error(`Failed to upload file to storage: ${error.message}`)
   }
 }
 
