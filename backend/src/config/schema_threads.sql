@@ -84,3 +84,38 @@ AFTER INSERT ON threads
 FOR EACH ROW
 EXECUTE FUNCTION update_community_thread_stats();
 
+-- Function to update community stats when a reply is added
+CREATE OR REPLACE FUNCTION update_community_on_reply()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_community_id UUID;
+BEGIN
+  -- Get community_id from thread
+  SELECT community_id INTO v_community_id
+  FROM threads
+  WHERE id = NEW.thread_id;
+  
+  -- Update community message_count and last_message_at
+  UPDATE communities
+  SET 
+    message_count = (
+      SELECT COUNT(*) FROM threads WHERE community_id = v_community_id
+    ) + (
+      SELECT COUNT(*) FROM replies r
+      JOIN threads t ON r.thread_id = t.id
+      WHERE t.community_id = v_community_id
+    ),
+    last_message_at = NEW.created_at
+  WHERE id = v_community_id;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger for reply creation
+DROP TRIGGER IF EXISTS trigger_update_community_on_reply ON replies;
+CREATE TRIGGER trigger_update_community_on_reply
+AFTER INSERT ON replies
+FOR EACH ROW
+EXECUTE FUNCTION update_community_on_reply();
+

@@ -71,6 +71,13 @@ export const uploadThreadImageHandler = async (req, res) => {
       .from('community-images')
       .getPublicUrl(filePath)
 
+    // Update thread with image URL
+    const { query } = await import('../config/database.js')
+    await query(
+      'UPDATE threads SET image_url = $1 WHERE id = $2',
+      [urlData.publicUrl, threadId]
+    )
+
     res.json({ imageUrl: urlData.publicUrl })
   } catch (error) {
     console.error('Error uploading thread image:', error)
@@ -182,6 +189,13 @@ export const uploadReplyImageHandler = async (req, res) => {
     const { data: urlData } = supabaseAdmin.storage
       .from('community-images')
       .getPublicUrl(filePath)
+
+    // Update reply with image URL
+    const { query } = await import('../config/database.js')
+    await query(
+      'UPDATE replies SET image_url = $1 WHERE id = $2',
+      [urlData.publicUrl, replyId]
+    )
 
     res.json({ imageUrl: urlData.publicUrl })
   } catch (error) {

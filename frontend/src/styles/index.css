@@ -1391,7 +1391,8 @@ a:hover {
 /* Thread Page - Left Align Everything */
 .thread-page {
   max-width: 100%;
-  padding: 0;
+  padding: 0 20px;
+  text-align: left;
 }
 
 .thread-header-nav {
@@ -1922,10 +1923,11 @@ a:hover {
 
 /* OP Post - NO BOX (4chan style) */
 .op-post {
-  margin: 15px 0;
+  margin: 15px 0 15px 20px;
   padding: 5px;
   background: none;
   border: none;
+  max-width: 900px;
 }
 
 .op-post .post-header {
@@ -2019,10 +2021,10 @@ a:hover {
   border-left: none;
   border-top: none;
   padding: 10px;
-  margin: 10px 0;
-  display: inline-block;
-  max-width: 100%;
-  min-width: 200px;
+  margin: 10px 0 10px 40px;
+  display: block;
+  width: auto;
+  max-width: 800px;
 }
 
 .reply-box .post-header {

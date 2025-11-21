@@ -43,24 +43,28 @@ export const searchCommunities = async (searchTerm) => {
     `SELECT 
       c.*,
       COUNT(DISTINCT CASE 
-        WHEN m.created_at >= NOW() - INTERVAL '24 hours' 
-        THEN m.id 
-      END) as messages_24h
+        WHEN t.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN t.id 
+      END) + COUNT(DISTINCT CASE 
+        WHEN r.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN r.id 
+      END) as activity_24h
     FROM communities c
-    LEFT JOIN messages m ON c.id = m.community_id
+    LEFT JOIN threads t ON c.id = t.community_id
+    LEFT JOIN replies r ON t.id = r.thread_id AND r.created_at >= NOW() - INTERVAL '24 hours'
     WHERE LOWER(c.ticker) = $1 OR LOWER(c.contract_address) = $1
     GROUP BY c.id
     ORDER BY 
       (c.message_count * 1 + 
-       COUNT(DISTINCT CASE WHEN m.created_at >= NOW() - INTERVAL '24 hours' THEN m.id END) * 5 + 
-       c.unique_users_count * 10) DESC,
+       (COUNT(DISTINCT CASE WHEN t.created_at >= NOW() - INTERVAL '24 hours' THEN t.id END) + 
+        COUNT(DISTINCT CASE WHEN r.created_at >= NOW() - INTERVAL '24 hours' THEN r.id END)) * 5) DESC,
       c.created_at DESC`,
     [search]
   )
   
   return result.rows.map(row => {
     const community = new Community(row)
-    community.messages24h = parseInt(row.messages_24h) || 0
+    community.messages24h = parseInt(row.activity_24h) || 0
     community.popularityScore = community.getPopularityScore(community.messages24h)
     return community
   })
@@ -72,11 +76,15 @@ export const getAllCommunities = async (limit = 50) => {
     `SELECT 
       c.*,
       COUNT(DISTINCT CASE 
-        WHEN m.created_at >= NOW() - INTERVAL '24 hours' 
-        THEN m.id 
-      END) as messages_24h
+        WHEN t.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN t.id 
+      END) + COUNT(DISTINCT CASE 
+        WHEN r.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN r.id 
+      END) as activity_24h
     FROM communities c
-    LEFT JOIN messages m ON c.id = m.community_id
+    LEFT JOIN threads t ON c.id = t.community_id
+    LEFT JOIN replies r ON t.id = r.thread_id AND r.created_at >= NOW() - INTERVAL '24 hours'
     GROUP BY c.id
     ORDER BY c.created_at DESC
     LIMIT $1`,
@@ -85,7 +93,7 @@ export const getAllCommunities = async (limit = 50) => {
   
   return result.rows.map(row => {
     const community = new Community(row)
-    community.messages24h = parseInt(row.messages_24h) || 0
+    community.messages24h = parseInt(row.activity_24h) || 0
     return community
   })
 }
@@ -98,18 +106,23 @@ export const getPopularCommunities = async (limit = 50) => {
     `SELECT 
       c.*,
       COUNT(DISTINCT CASE 
-        WHEN m.created_at >= NOW() - INTERVAL '24 hours' 
-        THEN m.id 
-      END) as messages_24h
+        WHEN t.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN t.id 
+      END) + COUNT(DISTINCT CASE 
+        WHEN r.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN r.id 
+      END) as activity_24h
     FROM communities c
-    LEFT JOIN messages m ON c.id = m.community_id
+    LEFT JOIN threads t ON c.id = t.community_id
+    LEFT JOIN replies r ON t.id = r.thread_id AND r.created_at >= NOW() - INTERVAL '24 hours'
     WHERE c.last_message_at IS NOT NULL
     GROUP BY c.id
-    HAVING COUNT(DISTINCT CASE WHEN m.created_at >= NOW() - INTERVAL '24 hours' THEN m.id END) > 0
+    HAVING (COUNT(DISTINCT CASE WHEN t.created_at >= NOW() - INTERVAL '24 hours' THEN t.id END) + 
+            COUNT(DISTINCT CASE WHEN r.created_at >= NOW() - INTERVAL '24 hours' THEN r.id END)) > 0
     ORDER BY 
       (c.message_count * 1 + 
-       COUNT(DISTINCT CASE WHEN m.created_at >= NOW() - INTERVAL '24 hours' THEN m.id END) * 5 + 
-       c.unique_users_count * 10) DESC
+       (COUNT(DISTINCT CASE WHEN t.created_at >= NOW() - INTERVAL '24 hours' THEN t.id END) + 
+        COUNT(DISTINCT CASE WHEN r.created_at >= NOW() - INTERVAL '24 hours' THEN r.id END)) * 5) DESC
     LIMIT $1`,
     [limit]
   )
@@ -118,12 +131,12 @@ export const getPopularCommunities = async (limit = 50) => {
   
   const communities = result.rows.map(row => {
     const community = new Community(row)
-    community.messages24h = parseInt(row.messages_24h) || 0
+    community.messages24h = parseInt(row.activity_24h) || 0
     community.popularityScore = community.getPopularityScore(community.messages24h)
     return community
   })
   
-  console.log('✅ Returning popular communities:', communities.map(c => ({ id: c.id, ticker: c.ticker, messages24h: c.messages24h })))
+  console.log('✅ Returning popular communities:', communities.map(c => ({ id: c.id, ticker: c.ticker, activity24h: c.messages24h })))
   
   return communities
 }
