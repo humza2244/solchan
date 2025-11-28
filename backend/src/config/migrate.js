@@ -13,9 +13,9 @@ const schemaV2SQL = fs.readFileSync(path.join(__dirname, 'schema_v2.sql'), 'utf8
 const schemaV3SQL = fs.readFileSync(path.join(__dirname, 'schema_safe.sql'), 'utf8')
 // Add threads schema for 4chan-style threading
 const threadsSQL = fs.readFileSync(path.join(__dirname, 'schema_threads.sql'), 'utf8')
-// Add KOTH tracking (temporarily disabled to avoid timeout issues)
-// const kothSQL = fs.readFileSync(path.join(__dirname, 'schema_koth.sql'), 'utf8')
-const schemaSQL = schemaV2SQL + '\n\n' + schemaV3SQL + '\n\n' + threadsSQL // + '\n\n' + kothSQL
+// Add KOTH tracking
+const kothSQL = fs.readFileSync(path.join(__dirname, 'schema_koth.sql'), 'utf8')
+const schemaSQL = schemaV2SQL + '\n\n' + schemaV3SQL + '\n\n' + threadsSQL + '\n\n' + kothSQL
 
 export const migrate = async () => {
   try {
