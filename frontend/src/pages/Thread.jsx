@@ -145,12 +145,16 @@ const Thread = () => {
 
       console.log('Reply posted:', response.data)
 
+      // Add the new reply to local state immediately
+      setReplies((prev) => [...prev, response.data])
+
       // Also send via WebSocket for real-time updates to other users
       if (socket) {
         socket.emit('new-reply', {
           threadId: id,
           content: newReply.trim(),
           author: name.trim() || 'Anonymous',
+          imageUrl: response.data.imageUrl, // Include imageUrl for other users
         })
       }
 

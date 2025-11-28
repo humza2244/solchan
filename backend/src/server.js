@@ -204,9 +204,9 @@ io.on('connection', (socket) => {
 
   // Handle new reply to a thread
   socket.on('new-reply', async (data) => {
-    console.log('📨 Received new-reply event:', { threadId: data.threadId, contentLength: data.content?.length, author: data.author })
+    console.log('📨 Received new-reply event:', { threadId: data.threadId, contentLength: data.content?.length, author: data.author, hasImage: !!data.imageUrl })
     
-    const { threadId, content, author } = data
+    const { threadId, content, author, imageUrl } = data
     
     if (!threadId || !content) {
       console.error('❌ Missing threadId or content')
@@ -227,6 +227,7 @@ io.on('connection', (socket) => {
       const reply = await addReply(threadId, {
         content: content.trim(),
         author: author || 'Anonymous',
+        imageUrl: imageUrl || null, // Include imageUrl from WebSocket data
       })
       
       console.log('✅ Reply saved successfully:', reply.toJSON())
