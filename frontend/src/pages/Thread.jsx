@@ -21,6 +21,8 @@ const Thread = () => {
   const [showReplyForm, setShowReplyForm] = useState(false)
   const repliesEndRef = useRef(null)
   const justPostedRef = useRef(new Set())
+  const recentContentRef = useRef(new Set())
+  const addingReplyRef = useRef(new Set()) // Track replies currently being added
 
   // Connect to WebSocket
   useEffect(() => {
@@ -68,29 +70,36 @@ const Thread = () => {
     if (!socket) return
 
     const handleReply = (reply) => {
-      console.log('📨 Received reply via WebSocket:', {
-        id: reply.id,
-        content: reply.content?.substring(0, 50),
-        isOwnReply: justPostedRef.current.has(reply.id),
-        currentJustPosted: Array.from(justPostedRef.current)
-      })
+      console.log('📨 WS: Received reply:', reply.id)
       
       // Skip if this is a reply we just posted ourselves
       if (justPostedRef.current.has(reply.id)) {
-        console.log('✋ Skipping own reply from WebSocket:', reply.id)
+        console.log('✋ WS: Skipping own reply')
         return
       }
       
+      // Check if we're already adding this reply (lock check)
+      if (addingReplyRef.current.has(reply.id)) {
+        console.log('🔒 WS: Already adding this reply, skipping')
+        return
+      }
+      
+      // Lock this reply ID
+      addingReplyRef.current.add(reply.id)
+      
       setReplies((prev) => {
-        // Double-check in case of race condition
+        // Always check for duplicates before adding
         const exists = prev.some(r => r.id === reply.id)
         if (exists) {
-          console.log('⚠️  Reply already exists in state:', reply.id)
+          console.log('⚠️  WS: Reply already in state (from HTTP?)')
           return prev
         }
-        console.log('✅ Adding reply from WebSocket:', reply.id)
+        console.log('➕ WS: Adding reply to state:', reply.id)
         return [...prev, reply]
       })
+      
+      // Clear lock after 100ms
+      setTimeout(() => addingReplyRef.current.delete(reply.id), 100)
     }
 
     const handleReplies = (replyList) => {
@@ -137,6 +146,10 @@ const Thread = () => {
       return
     }
 
+    // Store the content we're about to send
+    const contentFingerprint = `${newReply.trim()}_${Date.now()}`
+    recentContentRef.current.add(contentFingerprint)
+
     try {
       setSending(true)
 
@@ -160,24 +173,39 @@ const Thread = () => {
         }
       )
 
-      console.log('Reply posted:', response.data)
+      console.log('✅ Reply posted (HTTP):', response.data.id)
 
-      // Mark this reply as "just posted by us" FIRST (before adding to state)
-      // This prevents race condition with WebSocket broadcast
+      // Mark this ID to ignore from WebSocket
       justPostedRef.current.add(response.data.id)
-      console.log('Marked as own reply:', response.data.id)
 
-      // Add the new reply to local state immediately
-      setReplies((prev) => [...prev, response.data])
+      // Check if we're already adding this reply (lock check)
+      if (addingReplyRef.current.has(response.data.id)) {
+        console.log('🔒 HTTP: Already adding this reply, skipping')
+      } else {
+        // Lock this reply ID
+        addingReplyRef.current.add(response.data.id)
+        
+        // Add to state with duplicate check
+        setReplies((prev) => {
+          // Check if already exists
+          if (prev.some(r => r.id === response.data.id)) {
+            console.log('⚠️  HTTP: Reply already in state from WebSocket')
+            return prev
+          }
+          
+          console.log('➕ HTTP: Adding reply to state:', response.data.id)
+          return [...prev, response.data]
+        })
+        
+        // Clear lock after 100ms
+        setTimeout(() => addingReplyRef.current.delete(response.data.id), 100)
+      }
       
-      // Clear the marker after 5 seconds (enough time for WebSocket roundtrip)
+      // Clear markers after 10 seconds
       setTimeout(() => {
         justPostedRef.current.delete(response.data.id)
-        console.log('Cleared own reply marker:', response.data.id)
-      }, 5000)
-
-      // Don't emit via WebSocket - the REST API already created the reply
-      // Other users will see it when they refresh or via server-side broadcast
+        recentContentRef.current.delete(contentFingerprint)
+      }, 10000)
 
       // Clear inputs
       setNewReply('')
@@ -192,6 +220,7 @@ const Thread = () => {
       }
     } catch (error) {
       console.error('Error sending reply:', error)
+      recentContentRef.current.delete(contentFingerprint)
       alert('Failed to post reply. Please try again.')
     } finally {
       setSending(false)
