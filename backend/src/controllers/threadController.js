@@ -153,10 +153,14 @@ export const addReplyHandler = async (req, res) => {
     // Invalidate cache (thread bumps affect community stats)
     invalidatePopularCoinsCache()
 
-    // Broadcast to all users in the thread room via WebSocket
-    broadcastToThread(threadId, 'thread-reply', reply.toJSON())
-
+    // Send response to client FIRST
     res.status(201).json(reply.toJSON())
+
+    // Broadcast to all users AFTER sending response (prevents race condition)
+    // Use setImmediate to ensure HTTP response is sent first
+    setImmediate(() => {
+      broadcastToThread(threadId, 'thread-reply', reply.toJSON())
+    })
   } catch (error) {
     console.error('Error adding reply:', error)
     res.status(500).json({ error: 'Failed to add reply' })

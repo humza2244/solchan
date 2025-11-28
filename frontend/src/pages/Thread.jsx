@@ -68,20 +68,27 @@ const Thread = () => {
     if (!socket) return
 
     const handleReply = (reply) => {
-      console.log('Received new reply via WebSocket:', reply)
+      console.log('📨 Received reply via WebSocket:', {
+        id: reply.id,
+        content: reply.content?.substring(0, 50),
+        isOwnReply: justPostedRef.current.has(reply.id),
+        currentJustPosted: Array.from(justPostedRef.current)
+      })
       
       // Skip if this is a reply we just posted ourselves
       if (justPostedRef.current.has(reply.id)) {
-        console.log('Skipping own reply from WebSocket:', reply.id)
+        console.log('✋ Skipping own reply from WebSocket:', reply.id)
         return
       }
       
       setReplies((prev) => {
         // Double-check in case of race condition
-        if (prev.some(r => r.id === reply.id)) {
-          console.log('Reply already exists in state:', reply.id)
+        const exists = prev.some(r => r.id === reply.id)
+        if (exists) {
+          console.log('⚠️  Reply already exists in state:', reply.id)
           return prev
         }
+        console.log('✅ Adding reply from WebSocket:', reply.id)
         return [...prev, reply]
       })
     }
@@ -155,16 +162,19 @@ const Thread = () => {
 
       console.log('Reply posted:', response.data)
 
+      // Mark this reply as "just posted by us" FIRST (before adding to state)
+      // This prevents race condition with WebSocket broadcast
+      justPostedRef.current.add(response.data.id)
+      console.log('Marked as own reply:', response.data.id)
+
       // Add the new reply to local state immediately
       setReplies((prev) => [...prev, response.data])
-
-      // Mark this reply as "just posted by us" to avoid duplicate from WebSocket
-      justPostedRef.current.add(response.data.id)
       
-      // Clear the marker after 3 seconds (enough time for WebSocket roundtrip)
+      // Clear the marker after 5 seconds (enough time for WebSocket roundtrip)
       setTimeout(() => {
         justPostedRef.current.delete(response.data.id)
-      }, 3000)
+        console.log('Cleared own reply marker:', response.data.id)
+      }, 5000)
 
       // Don't emit via WebSocket - the REST API already created the reply
       // Other users will see it when they refresh or via server-side broadcast
