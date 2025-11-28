@@ -7,6 +7,8 @@ import {
   getThreadWithPreview,
 } from '../services/threadService.js'
 import { uploadThreadImage, uploadReplyImage, uploadToR2 } from '../services/storageService.js'
+import { broadcastToThread } from '../services/socketService.js'
+import { invalidatePopularCoinsCache } from '../utils/cache.js'
 
 // Create a new thread
 export const createThreadHandler = async (req, res) => {
@@ -147,6 +149,12 @@ export const addReplyHandler = async (req, res) => {
     })
 
     console.log('✅ Reply created with image:', reply.toJSON())
+
+    // Invalidate cache (thread bumps affect community stats)
+    invalidatePopularCoinsCache()
+
+    // Broadcast to all users in the thread room via WebSocket
+    broadcastToThread(threadId, 'thread-reply', reply.toJSON())
 
     res.status(201).json(reply.toJSON())
   } catch (error) {

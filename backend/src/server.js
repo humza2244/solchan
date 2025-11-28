@@ -16,6 +16,7 @@ import { connectDatabase, query } from './config/database.js'
 import { migrate } from './config/migrate.js'
 import { invalidatePopularCoinsCache } from './utils/cache.js'
 import { supabaseAdmin } from './config/supabase.js'
+import { setSocketIO } from './services/socketService.js'
 
 const app = express()
 const httpServer = createServer(app)
@@ -30,6 +31,9 @@ const corsOptions = {
 const io = new Server(httpServer, {
   cors: corsOptions,
 })
+
+// Make io available globally for controllers
+setSocketIO(io)
 
 const PORT = process.env.PORT || 5001
 

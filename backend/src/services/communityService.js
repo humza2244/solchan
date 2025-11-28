@@ -297,6 +297,40 @@ export const updateCommunityInfo = async (id, updateData) => {
 export const getKOTH = async () => {
   console.log('👑 getKOTH called')
   
+  // First, check if there's already a KOTH
+  const currentKothResult = await query(
+    `SELECT 
+      c.*,
+      COUNT(DISTINCT CASE 
+        WHEN t.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN t.id 
+      END) + COUNT(DISTINCT CASE 
+        WHEN r.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN r.id 
+      END) as activity_24h,
+      COUNT(DISTINCT t.id) as total_threads,
+      COUNT(DISTINCT r.id) as total_replies
+    FROM communities c
+    LEFT JOIN threads t ON c.id = t.community_id
+    LEFT JOIN replies r ON t.id = r.thread_id
+    WHERE c.has_been_koth = TRUE
+    GROUP BY c.id
+    ORDER BY c.updated_at DESC
+    LIMIT 1`,
+    []
+  )
+  
+  // If there's already a KOTH, return it (don't crown a new one)
+  if (currentKothResult.rows.length > 0) {
+    console.log('👑 Returning existing KOTH (already crowned)')
+    const community = new Community(currentKothResult.rows[0])
+    community.messages24h = parseInt(currentKothResult.rows[0].activity_24h) || 0
+    community.totalThreads = parseInt(currentKothResult.rows[0].total_threads) || 0
+    community.totalReplies = parseInt(currentKothResult.rows[0].total_replies) || 0
+    return community
+  }
+  
+  // No KOTH yet, find the most active eligible community
   const result = await query(
     `SELECT 
       c.*,
@@ -326,7 +360,7 @@ export const getKOTH = async () => {
   )
   
   if (result.rows.length === 0) {
-    console.log('👑 No eligible KOTH found (all communities have been KOTH already)')
+    console.log('👑 No eligible KOTH found (no communities yet)')
     return null
   }
   
@@ -337,11 +371,11 @@ export const getKOTH = async () => {
   
   // Mark this community as having been KOTH
   await query(
-    'UPDATE communities SET has_been_koth = TRUE WHERE id = $1',
+    'UPDATE communities SET has_been_koth = TRUE, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
     [community.id]
   )
   
-  console.log('👑 KOTH crowned:', community.ticker, '(ID:', community.id, ')')
+  console.log('👑 NEW KOTH crowned:', community.ticker, '(ID:', community.id, ')')
   
   return community
 }

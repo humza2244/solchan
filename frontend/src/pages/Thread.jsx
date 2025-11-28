@@ -148,15 +148,8 @@ const Thread = () => {
       // Add the new reply to local state immediately
       setReplies((prev) => [...prev, response.data])
 
-      // Also send via WebSocket for real-time updates to other users
-      if (socket) {
-        socket.emit('new-reply', {
-          threadId: id,
-          content: newReply.trim(),
-          author: name.trim() || 'Anonymous',
-          imageUrl: response.data.imageUrl, // Include imageUrl for other users
-        })
-      }
+      // Don't emit via WebSocket - the REST API already created the reply
+      // Other users will see it when they refresh or via server-side broadcast
 
       // Clear inputs
       setNewReply('')
