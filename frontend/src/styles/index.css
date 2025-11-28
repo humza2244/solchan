@@ -2281,3 +2281,96 @@ a:hover {
 .op-content, .reply-content {
   clear: both;
 }
+
+/* Search Results Page */
+.search-results-page {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.search-results-header {
+  background: #F0E0D6;
+  border: 1px solid #D9BFB7;
+  padding: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.search-results-header h1 {
+  color: #AF0A0F;
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.search-results-header p {
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.back-home-link {
+  display: inline-block;
+  color: #0000EE;
+  text-decoration: none;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.back-home-link:hover {
+  text-decoration: underline;
+}
+
+.loading-section, .no-results-section {
+  background: #F0E0D6;
+  border: 1px solid #D9BFB7;
+  padding: 40px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.no-results-section h2 {
+  color: #AF0A0F;
+  margin-bottom: 15px;
+}
+
+.no-results-section ul {
+  text-align: left;
+  max-width: 400px;
+  margin: 20px auto;
+  list-style-position: inside;
+}
+
+.create-community-link {
+  display: inline-block;
+  background: #0000EE;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 3px;
+  margin-top: 20px;
+}
+
+.create-community-link:hover {
+  background: #0000CC;
+}
+
+.search-results-container {
+  background: #F0E0D6;
+  border: 1px solid #D9BFB7;
+  padding: 20px;
+}
+
+.search-results-container h2 {
+  color: #AF0A0F;
+  font-size: 18px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* Reuse existing communities-list styles */
+.search-results-container .communities-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-top: 15px;
+}

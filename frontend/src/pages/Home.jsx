@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
 
 const Home = () => {
+  const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState([])
   const [koth, setKoth] = useState(null)
   const [popularCommunities, setPopularCommunities] = useState([])
   const [newCommunities, setNewCommunities] = useState([])
   const [loading, setLoading] = useState(false)
-  const [searching, setSearching] = useState(false)
   const [showWelcomeModal, setShowWelcomeModal] = useState(() => {
     // Only show modal if user hasn't seen it before
     return !localStorage.getItem('hasSeenWelcome')
@@ -26,23 +25,8 @@ const Home = () => {
     e.preventDefault()
     if (!searchQuery.trim()) return
     
-    setSearching(true)
-    try {
-      const response = await axios.get(`${API_BASE_URL}/communities/search`, {
-        params: { q: searchQuery.trim() }
-      })
-      setSearchResults(response.data)
-    } catch (error) {
-      console.error('Error searching:', error)
-      setSearchResults([])
-    } finally {
-      setSearching(false)
-    }
-  }
-
-  const clearSearch = () => {
-    setSearchQuery('')
-    setSearchResults([])
+    // Navigate to search results page
+    navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
   }
 
   // Load KOTH, popular and new communities on mount
@@ -160,61 +144,17 @@ const Home = () => {
             placeholder="Search by ticker or CA..."
             className="search-input-floating"
           />
-          <button type="submit" className="search-btn-floating" disabled={searching}>
-            {searching ? '...' : 'Search'}
+          <button type="submit" className="search-btn-floating">
+            Search
           </button>
-          {searchResults.length > 0 && (
-            <button 
-              type="button" 
-              onClick={clearSearch} 
-              className="search-btn-floating"
-              style={{ background: '#666' }}
-            >
-              Clear
-            </button>
-          )}
         </form>
       </div>
 
-      {/* Search Results OR Popular + New Communities */}
+      {/* Popular + New Communities */}
       {loading ? (
         <div className="recent-communities">
           <h2>Loading...</h2>
           <p>Please wait...</p>
-        </div>
-      ) : searchResults.length > 0 ? (
-        // Show search results
-        <div className="recent-communities">
-          <div className="section-header">
-            <h2>Search Results</h2>
-          </div>
-          <p className="communities-subtitle">Found {searchResults.length} communities</p>
-          <div className="communities-list">
-            {searchResults.map((community) => (
-              <Link
-                key={community.id}
-                to={`/community/${community.id}`}
-                className="community-link"
-              >
-                <div className="community-item">
-                  {community.imageUrl && (
-                    <img 
-                      src={community.imageUrl} 
-                      alt={community.coinName}
-                    />
-                  )}
-                  <div className="community-name">{community.ticker}</div>
-                  <div className="community-coin-name">{community.coinName}</div>
-                  <div className="community-ca">
-                    {community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}
-                  </div>
-                  <div className="community-stats">
-                    {community.messageCount} msgs • {community.uniqueUsersCount} users
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
         </div>
       ) : (
         <>
