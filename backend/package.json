@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "migrate": "node src/config/migrate.js"
+    "migrate": "node src/config/migrate.js",
+    "reset": "node src/config/reset.js",
+    "check-db": "node src/config/check_db.js"
   },
   "engines": {
     "node": ">=18.0.0"
