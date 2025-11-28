@@ -19,8 +19,9 @@ const pool = new Pool({
 
 // Handle pool errors
 pool.on('error', (err, client) => {
-  console.error('Unexpected error on idle client', err)
-  process.exit(-1)
+  console.error('⚠️  Unexpected error on idle client:', err.message)
+  // Don't kill the process - just log it and let pool recovery handle it
+  // process.exit(-1) // Removed - too aggressive
 })
 
 // Test database connection
