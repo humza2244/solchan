@@ -7,6 +7,7 @@ import {
   getMessages,
   addMessage,
   updateCommunityInfo,
+  getKOTH,
 } from '../services/communityService.js'
 import { uploadCommunityImage } from '../services/storageService.js'
 import { invalidatePopularCoinsCache } from '../utils/cache.js'
@@ -192,6 +193,27 @@ export const uploadCommunityImageHandler = async (req, res) => {
   }
 }
 
+// GET /api/communities/koth - Get King of the Hill (one-time achievement)
+export const getKOTHHandler = async (req, res) => {
+  try {
+    const koth = await getKOTH()
+    
+    if (!koth) {
+      // All communities have been KOTH already, return the most popular one
+      const popularCommunities = await getPopularCommunities(1)
+      if (popularCommunities.length > 0) {
+        return res.json(popularCommunities[0].toJSON())
+      }
+      return res.json(null)
+    }
+    
+    res.json(koth.toJSON())
+  } catch (error) {
+    console.error('Error fetching KOTH:', error)
+    res.status(500).json({ error: 'Failed to fetch KOTH' })
+  }
+}
+
 export default {
   createCommunityHandler,
   searchCommunitiesHandler,
@@ -200,5 +222,6 @@ export default {
   createMessageHandler,
   getAllCommunitiesHandler,
   uploadCommunityImageHandler,
+  getKOTHHandler,
 }
 

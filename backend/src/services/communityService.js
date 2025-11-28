@@ -293,6 +293,59 @@ export const updateCommunityInfo = async (id, updateData) => {
   return new Community(result.rows[0])
 }
 
+// Get KOTH (King of the Hill) - one-time achievement
+export const getKOTH = async () => {
+  console.log('👑 getKOTH called')
+  
+  const result = await query(
+    `SELECT 
+      c.*,
+      COUNT(DISTINCT CASE 
+        WHEN t.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN t.id 
+      END) + COUNT(DISTINCT CASE 
+        WHEN r.created_at >= NOW() - INTERVAL '24 hours' 
+        THEN r.id 
+      END) as activity_24h,
+      COUNT(DISTINCT t.id) as total_threads,
+      COUNT(DISTINCT r.id) as total_replies
+    FROM communities c
+    LEFT JOIN threads t ON c.id = t.community_id
+    LEFT JOIN replies r ON t.id = r.thread_id
+    WHERE c.has_been_koth = FALSE
+    GROUP BY c.id
+    ORDER BY 
+      -- Weight recent activity heavily, but also consider total activity
+      (COUNT(DISTINCT CASE WHEN t.created_at >= NOW() - INTERVAL '24 hours' THEN t.id END) + 
+       COUNT(DISTINCT CASE WHEN r.created_at >= NOW() - INTERVAL '24 hours' THEN r.id END)) * 10 +
+      c.message_count * 1 +
+      (COUNT(DISTINCT t.id) + COUNT(DISTINCT r.id)) * 2 DESC,
+      c.created_at DESC
+    LIMIT 1`,
+    []
+  )
+  
+  if (result.rows.length === 0) {
+    console.log('👑 No eligible KOTH found (all communities have been KOTH already)')
+    return null
+  }
+  
+  const community = new Community(result.rows[0])
+  community.messages24h = parseInt(result.rows[0].activity_24h) || 0
+  community.totalThreads = parseInt(result.rows[0].total_threads) || 0
+  community.totalReplies = parseInt(result.rows[0].total_replies) || 0
+  
+  // Mark this community as having been KOTH
+  await query(
+    'UPDATE communities SET has_been_koth = TRUE WHERE id = $1',
+    [community.id]
+  )
+  
+  console.log('👑 KOTH crowned:', community.ticker, '(ID:', community.id, ')')
+  
+  return community
+}
+
 export default {
   createCommunity,
   getCommunityById,
@@ -302,5 +355,6 @@ export default {
   getMessages,
   addMessage,
   updateCommunityInfo,
+  getKOTH,
 }
 

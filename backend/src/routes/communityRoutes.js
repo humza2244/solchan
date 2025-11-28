@@ -8,6 +8,7 @@ import {
   createMessageHandler,
   getAllCommunitiesHandler,
   uploadCommunityImageHandler,
+  getKOTHHandler,
 } from '../controllers/communityController.js'
 import { authenticateUser } from '../middleware/auth.js'
 
@@ -34,6 +35,9 @@ router.get('/', getAllCommunitiesHandler)
 
 // GET /api/communities/search - Search communities by ticker or CA
 router.get('/search', searchCommunitiesHandler)
+
+// GET /api/communities/koth - Get King of the Hill (must be before /:id route)
+router.get('/koth', getKOTHHandler)
 
 // POST /api/communities - Create a new community (anonymous)
 router.post('/', createCommunityHandler)

@@ -7,6 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
+  const [koth, setKoth] = useState(null)
   const [popularCommunities, setPopularCommunities] = useState([])
   const [newCommunities, setNewCommunities] = useState([])
   const [loading, setLoading] = useState(false)
@@ -44,11 +45,15 @@ const Home = () => {
     setSearchResults([])
   }
 
-  // Load popular and new communities on mount
+  // Load KOTH, popular and new communities on mount
   useEffect(() => {
     const loadCommunities = async () => {
       try {
         setLoading(true)
+        
+        // Fetch KOTH (King of the Hill) - one-time achievement
+        const kothResponse = await axios.get(`${API_BASE_URL}/communities/koth`)
+        setKoth(kothResponse.data)
         
         // Fetch popular communities (top 3)
         const popularResponse = await axios.get(`${API_BASE_URL}/communities`, {
@@ -112,22 +117,22 @@ const Home = () => {
       </div>
 
       {/* KOTH - King of the Hill - Horizontal */}
-      {popularCommunities.length > 0 && (
+      {koth && (
         <div className="koth-wrapper">
           <h3 className="koth-title">King of the Hill</h3>
-          <Link to={`/community/${popularCommunities[0].id}`} className="koth-card-horizontal">
-            {popularCommunities[0].imageUrl && (
+          <Link to={`/community/${koth.id}`} className="koth-card-horizontal">
+            {koth.imageUrl && (
               <img 
-                src={popularCommunities[0].imageUrl} 
-                alt={popularCommunities[0].coinName}
+                src={koth.imageUrl} 
+                alt={koth.coinName}
                 className="koth-image-horizontal"
               />
             )}
             <div className="koth-info-horizontal">
-              <div className="koth-name-horizontal">{popularCommunities[0].ticker}</div>
-              <div className="koth-coin-horizontal">{popularCommunities[0].coinName}</div>
+              <div className="koth-name-horizontal">{koth.ticker}</div>
+              <div className="koth-coin-horizontal">{koth.coinName}</div>
               <div className="koth-stats-horizontal">
-                {popularCommunities[0].recentMessageCount || 0} msgs
+                {koth.messageCount || 0} msgs
               </div>
             </div>
           </Link>

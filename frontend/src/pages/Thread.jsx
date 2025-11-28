@@ -123,7 +123,29 @@ const Thread = () => {
     try {
       setSending(true)
 
-      // Send via WebSocket for real-time
+      // Create FormData for image upload
+      const formData = new FormData()
+      formData.append('content', newReply.trim())
+      formData.append('author', name.trim() || 'Anonymous')
+      
+      if (image) {
+        formData.append('image', image)
+      }
+
+      // Send via REST API (handles both text and image)
+      const response = await axios.post(
+        `${API_BASE_URL}/threads/${id}/replies`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
+
+      console.log('Reply posted:', response.data)
+
+      // Also send via WebSocket for real-time updates to other users
       if (socket) {
         socket.emit('new-reply', {
           threadId: id,
@@ -132,19 +154,20 @@ const Thread = () => {
         })
       }
 
-      // If there's an image, upload it via REST API
-      if (image) {
-        // We'll need to get the reply ID from the response
-        // For now, just clear the image
-        setImage(null)
-        setImagePreview(null)
-      }
-
       // Clear inputs
       setNewReply('')
       setName('Anonymous')
+      setImage(null)
+      setImagePreview(null)
+      
+      // Clear file input
+      const fileInput = document.querySelector('.floating-file-input')
+      if (fileInput) {
+        fileInput.value = ''
+      }
     } catch (error) {
       console.error('Error sending reply:', error)
+      alert('Failed to post reply. Please try again.')
     } finally {
       setSending(false)
     }
