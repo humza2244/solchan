@@ -9,7 +9,9 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+  connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection could not be established
+  statement_timeout: 30000, // Max query execution time: 30 seconds
+  query_timeout: 30000, // Max time to wait for query: 30 seconds
   ssl: process.env.NODE_ENV === 'production' ? {
     rejectUnauthorized: false // Required for Supabase pooler connections
   } : false
