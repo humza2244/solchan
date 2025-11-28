@@ -111,18 +111,20 @@ export const getPopularCommunities = async (limit = 50) => {
       END) + COUNT(DISTINCT CASE 
         WHEN r.created_at >= NOW() - INTERVAL '24 hours' 
         THEN r.id 
-      END) as activity_24h
+      END) as activity_24h,
+      COUNT(DISTINCT t.id) as total_threads,
+      COUNT(DISTINCT r.id) as total_replies
     FROM communities c
     LEFT JOIN threads t ON c.id = t.community_id
-    LEFT JOIN replies r ON t.id = r.thread_id AND r.created_at >= NOW() - INTERVAL '24 hours'
-    WHERE c.last_message_at IS NOT NULL
+    LEFT JOIN replies r ON t.id = r.thread_id
     GROUP BY c.id
-    HAVING (COUNT(DISTINCT CASE WHEN t.created_at >= NOW() - INTERVAL '24 hours' THEN t.id END) + 
-            COUNT(DISTINCT CASE WHEN r.created_at >= NOW() - INTERVAL '24 hours' THEN r.id END)) > 0
     ORDER BY 
-      (c.message_count * 1 + 
-       (COUNT(DISTINCT CASE WHEN t.created_at >= NOW() - INTERVAL '24 hours' THEN t.id END) + 
-        COUNT(DISTINCT CASE WHEN r.created_at >= NOW() - INTERVAL '24 hours' THEN r.id END)) * 5) DESC
+      -- Weight recent activity heavily, but also consider total activity
+      (COUNT(DISTINCT CASE WHEN t.created_at >= NOW() - INTERVAL '24 hours' THEN t.id END) + 
+       COUNT(DISTINCT CASE WHEN r.created_at >= NOW() - INTERVAL '24 hours' THEN r.id END)) * 10 +
+      c.message_count * 1 +
+      (COUNT(DISTINCT t.id) + COUNT(DISTINCT r.id)) * 2 DESC,
+      c.created_at DESC
     LIMIT $1`,
     [limit]
   )
@@ -132,11 +134,19 @@ export const getPopularCommunities = async (limit = 50) => {
   const communities = result.rows.map(row => {
     const community = new Community(row)
     community.messages24h = parseInt(row.activity_24h) || 0
+    community.totalThreads = parseInt(row.total_threads) || 0
+    community.totalReplies = parseInt(row.total_replies) || 0
     community.popularityScore = community.getPopularityScore(community.messages24h)
     return community
   })
   
-  console.log('✅ Returning popular communities:', communities.map(c => ({ id: c.id, ticker: c.ticker, activity24h: c.messages24h })))
+  console.log('✅ Returning popular communities:', communities.map(c => ({ 
+    id: c.id, 
+    ticker: c.ticker, 
+    activity24h: c.messages24h,
+    totalThreads: c.totalThreads,
+    totalReplies: c.totalReplies
+  })))
   
   return communities
 }
