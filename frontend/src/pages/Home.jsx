@@ -48,29 +48,40 @@ const Home = () => {
   // Load KOTH, popular and new communities on mount
   useEffect(() => {
     const loadCommunities = async () => {
-      try {
-        setLoading(true)
-        
+      setLoading(true)
+      
+      // Fetch all in parallel, with independent error handling
+      await Promise.allSettled([
         // Fetch KOTH (King of the Hill) - one-time achievement
-        const kothResponse = await axios.get(`${API_BASE_URL}/communities/koth`)
-        setKoth(kothResponse.data)
+        axios.get(`${API_BASE_URL}/communities/koth`)
+          .then(res => setKoth(res.data))
+          .catch(err => {
+            console.error('Error loading KOTH:', err)
+            setKoth(null)
+          }),
         
         // Fetch popular communities (top 3)
-        const popularResponse = await axios.get(`${API_BASE_URL}/communities`, {
+        axios.get(`${API_BASE_URL}/communities`, {
           params: { popular: true, limit: 3 }
         })
-        setPopularCommunities(popularResponse.data)
+          .then(res => setPopularCommunities(res.data))
+          .catch(err => {
+            console.error('Error loading popular communities:', err)
+            setPopularCommunities([])
+          }),
         
-        // Fetch new communities (12 newest) - explicitly use recent query
-        const newResponse = await axios.get(`${API_BASE_URL}/communities`, {
+        // Fetch new communities (12 newest)
+        axios.get(`${API_BASE_URL}/communities`, {
           params: { recent: true, limit: 12 }
         })
-        setNewCommunities(newResponse.data)
-      } catch (error) {
-        console.error('Error loading communities:', error)
-      } finally {
-        setLoading(false)
-      }
+          .then(res => setNewCommunities(res.data))
+          .catch(err => {
+            console.error('Error loading new communities:', err)
+            setNewCommunities([])
+          })
+      ])
+      
+      setLoading(false)
     }
     loadCommunities()
   }, [])

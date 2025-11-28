@@ -20,18 +20,22 @@ const schemaSQL = schemaV2SQL + '\n\n' + schemaV3SQL + '\n\n' + threadsSQL + '\n
 export const migrate = async () => {
   try {
     console.log('🔄 Running database migrations...')
+    console.log('📂 Loading schema files...')
     
     // Connect to database
     await connectDatabase()
+    console.log('✅ Connected to database for migrations')
     
     // Execute the entire schema as one statement
     // This handles functions and triggers properly
     try {
+      console.log('📝 Executing schema SQL...')
       await query(schemaSQL)
       console.log('✅ Database migrations completed successfully')
     } catch (error) {
       // If executing as one fails, try the old method but with better parsing
-      console.log('Trying alternative migration method...')
+      console.log('⚠️  Single query failed, trying alternative migration method...')
+      console.log('Error was:', error.message)
       
       // Better SQL statement splitting that handles functions
       const statements = []
@@ -75,33 +79,42 @@ export const migrate = async () => {
         statements.push(currentStatement.trim())
       }
       
+      console.log(`📊 Executing ${statements.length} statements...`)
+      
       // Execute each statement
+      let successCount = 0
+      let skipCount = 0
       for (const statement of statements) {
         if (statement.trim()) {
           try {
             await query(statement)
+            successCount++
           } catch (error) {
             // Ignore errors for objects that already exist
             // PostgreSQL error codes: 42710 = duplicate_object, 42P07 = duplicate_table
             const isDuplicateError = 
               error.code === '42710' || // Duplicate object (trigger, function, etc.)
               error.code === '42P07' || // Duplicate table
+              error.code === '42701' || // Duplicate column
               error.message?.toLowerCase().includes('already exists') ||
               error.message?.toLowerCase().includes('duplicate')
             
             if (!isDuplicateError) {
-              console.error('Migration error:', error.message)
+              console.error('❌ Migration error:', error.message)
+              console.error('Statement:', statement.substring(0, 100) + '...')
               throw error
             }
             // Silently skip duplicate errors (idempotent migrations)
+            skipCount++
           }
         }
       }
       
-      console.log('✅ Database migrations completed successfully')
+      console.log(`✅ Database migrations completed: ${successCount} executed, ${skipCount} skipped (already exist)`)
     }
   } catch (error) {
     console.error('❌ Migration failed:', error)
+    console.error('Stack:', error.stack)
     throw error
   }
 }
