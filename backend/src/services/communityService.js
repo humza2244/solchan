@@ -298,18 +298,18 @@ export const getKOTH = async () => {
   console.log('👑 getKOTH called')
   
   try {
-    // First, check if there's already a KOTH (simple query, no joins)
+    // First, check if there's already a KOTH (return the FIRST one crowned)
     const currentKothResult = await query(
       `SELECT * FROM communities 
        WHERE has_been_koth = TRUE 
-       ORDER BY updated_at DESC 
+       ORDER BY became_koth_at ASC 
        LIMIT 1`,
       []
     )
     
-    // If there's already a KOTH, return it (don't crown a new one)
+    // If there's already a KOTH, return it (the first one crowned, forever)
     if (currentKothResult.rows.length > 0) {
-      console.log('👑 Returning existing KOTH (already crowned)')
+      console.log('👑 Returning existing KOTH (first crowned):', currentKothResult.rows[0].ticker)
       return new Community(currentKothResult.rows[0])
     }
     
@@ -335,9 +335,9 @@ export const getKOTH = async () => {
     
     const community = new Community(result.rows[0])
     
-    // Mark this community as having been KOTH
+    // Mark this community as having been KOTH (with timestamp)
     await query(
-      'UPDATE communities SET has_been_koth = TRUE, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
+      'UPDATE communities SET has_been_koth = TRUE, became_koth_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
       [community.id]
     )
     

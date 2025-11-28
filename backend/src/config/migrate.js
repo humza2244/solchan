@@ -15,7 +15,9 @@ const schemaV3SQL = fs.readFileSync(path.join(__dirname, 'schema_safe.sql'), 'ut
 const threadsSQL = fs.readFileSync(path.join(__dirname, 'schema_threads.sql'), 'utf8')
 // Add KOTH tracking
 const kothSQL = fs.readFileSync(path.join(__dirname, 'schema_koth.sql'), 'utf8')
-const schemaSQL = schemaV2SQL + '\n\n' + schemaV3SQL + '\n\n' + threadsSQL + '\n\n' + kothSQL
+// Fix KOTH to track when communities were crowned
+const kothFixSQL = fs.readFileSync(path.join(__dirname, 'schema_koth_fix.sql'), 'utf8')
+const schemaSQL = schemaV2SQL + '\n\n' + schemaV3SQL + '\n\n' + threadsSQL + '\n\n' + kothSQL + '\n\n' + kothFixSQL
 
 export const migrate = async () => {
   try {
