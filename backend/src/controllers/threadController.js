@@ -6,7 +6,7 @@ import {
   addReply,
   getThreadWithPreview,
 } from '../services/threadService.js'
-import { uploadThreadImage, uploadReplyImage } from '../services/storageService.js'
+import { uploadThreadImage, uploadReplyImage, uploadToR2 } from '../services/storageService.js'
 
 // Create a new thread
 export const createThreadHandler = async (req, res) => {
@@ -120,15 +120,33 @@ export const addReplyHandler = async (req, res) => {
     const { threadId } = req.params
     const { content, author } = req.body
 
+    console.log('📨 addReplyHandler called:', { threadId, content, author, hasFile: !!req.file })
+
     if (!content || !content.trim()) {
       return res.status(400).json({ error: 'Content is required' })
+    }
+
+    let imageUrl = null
+
+    // If there's an image, upload it to R2 first
+    if (req.file) {
+      try {
+        const fileName = `replies/${Date.now()}-${Math.random().toString(36).substring(7)}-${req.file.originalname}`
+        imageUrl = await uploadToR2(req.file.buffer, fileName, req.file.mimetype)
+        console.log('✅ Reply image uploaded:', imageUrl)
+      } catch (error) {
+        console.error('❌ Error uploading reply image:', error)
+        // Continue without image if upload fails
+      }
     }
 
     const reply = await addReply(threadId, {
       content: content.trim(),
       author: author || 'Anonymous',
-      imageUrl: null, // Will be added via separate image upload endpoint
+      imageUrl,
     })
+
+    console.log('✅ Reply created with image:', reply.toJSON())
 
     res.status(201).json(reply.toJSON())
   } catch (error) {

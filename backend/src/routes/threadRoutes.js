@@ -39,8 +39,8 @@ router.post('/threads/:threadId/image', upload.single('image'), uploadThreadImag
 // GET /api/threads/:threadId - Get a single thread with all replies
 router.get('/threads/:threadId', getThreadHandler)
 
-// POST /api/threads/:threadId/replies - Add a reply to a thread
-router.post('/threads/:threadId/replies', addReplyHandler)
+// POST /api/threads/:threadId/replies - Add a reply to a thread (with optional image)
+router.post('/threads/:threadId/replies', upload.single('image'), addReplyHandler)
 
 // POST /api/replies/:replyId/image - Upload image for a reply
 router.post('/replies/:replyId/image', upload.single('image'), uploadReplyImageHandler)
