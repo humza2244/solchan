@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+import { API_BASE_URL } from '../services/api.js'
 
 const CreateCommunity = () => {
   const [ticker, setTicker] = useState('')
@@ -62,10 +61,7 @@ const CreateCommunity = () => {
     e.preventDefault()
     setError('')
 
-    if (!image) {
-      setError('Community image is required')
-      return
-    }
+
 
     if (contractAddress.length < 20) {
       setError('Invalid contract address')
@@ -176,16 +172,15 @@ const CreateCommunity = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="image">Community Image *</label>
+          <label htmlFor="image">Community Image</label>
           <input
             type="file"
             id="image"
             accept="image/*"
             onChange={handleImageChange}
             disabled={loading}
-            required
           />
-          <small>Required. Size: 50KB-2MB. Dimensions: 200x200px to 2000x2000px. Recommended: 500x500px square image.</small>
+          <small>Optional. Size: 50KB-2MB. Dimensions: 200x200px to 2000x2000px. Recommended: 500x500px square image.</small>
           {imagePreview && (
             <div className="image-preview">
               <img src={imagePreview} alt="Preview" />

@@ -1,5 +1,12 @@
 # Dependencies
 node_modules/
+
+# Database
+backend/data/
+backend/serviceAccountKey.json
+
+# Uploaded files
+backend/uploads/
 .pnp
 .pnp.js
 

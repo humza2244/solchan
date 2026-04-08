@@ -8,6 +8,23 @@ export const connectSocket = () => {
   if (!socket) {
     socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 10000,
+      timeout: 10000,
+    })
+
+    socket.on('connect', () => {
+      console.log('✅ Socket connected')
+    })
+
+    socket.on('disconnect', (reason) => {
+      console.log('⚠️ Socket disconnected:', reason)
+    })
+
+    socket.on('connect_error', (error) => {
+      console.log('❌ Socket connection error:', error.message)
     })
   }
   return socket
@@ -29,4 +46,3 @@ export default {
   disconnectSocket,
   getSocket,
 }
-

@@ -8,6 +8,7 @@ export class Community {
     this.description = data.description || null
     this.imageUrl = data.image_url || data.imageUrl || null
     this.creatorId = data.creator_id || data.creatorId || null
+    this.moderators = data.moderators || []
     this.createdAt = data.created_at || data.createdAt || new Date()
     this.messageCount = data.message_count || data.messageCount || 0
     this.uniqueUsersCount = data.unique_users_count || data.uniqueUsersCount || 0
@@ -23,6 +24,7 @@ export class Community {
       description: this.description,
       imageUrl: this.imageUrl,
       creatorId: this.creatorId,
+      moderators: this.moderators,
       createdAt: this.createdAt,
       messageCount: this.messageCount,
       uniqueUsersCount: this.uniqueUsersCount,

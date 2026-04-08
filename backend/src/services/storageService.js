@@ -1,48 +1,50 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-// Cloudflare R2 configuration
-const r2Client = new S3Client({
-  region: 'auto',
-  endpoint: process.env.R2_ENDPOINT_URL,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-  },
-})
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Check if R2 is configured
+const isR2Configured = !!(process.env.R2_ENDPOINT_URL && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY)
+
+let r2Client = null
+if (isR2Configured) {
+  r2Client = new S3Client({
+    region: 'auto',
+    endpoint: process.env.R2_ENDPOINT_URL,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID,
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    },
+  })
+  console.log('☁️  R2 storage configured')
+} else {
+  console.log('📁 Using local file storage (R2 not configured)')
+}
 
 const BUCKET_NAME = process.env.R2_BUCKET_NAME || 'solchan-images'
-const PUBLIC_URL = process.env.R2_PUBLIC_URL // e.g., https://pub-xyz.r2.dev
+const PUBLIC_URL = process.env.R2_PUBLIC_URL
+const LOCAL_UPLOAD_DIR = path.join(__dirname, '../../uploads')
+
+// Ensure local upload directory exists
+if (!isR2Configured) {
+  const dirs = ['communities', 'threads', 'replies']
+  for (const dir of dirs) {
+    const fullPath = path.join(LOCAL_UPLOAD_DIR, dir)
+    if (!fs.existsSync(fullPath)) {
+      fs.mkdirSync(fullPath, { recursive: true })
+    }
+  }
+}
 
 /**
- * Upload a file to Cloudflare R2
- * @param {Buffer} fileBuffer - The file buffer to upload
- * @param {string} fileName - The name/path for the file in the bucket
- * @param {string} contentType - The MIME type of the file
- * @returns {Promise<string>} - The public URL of the uploaded file
+ * Upload a file — to R2 if configured, otherwise local filesystem
  */
 export const uploadToR2 = async (fileBuffer, fileName, contentType) => {
-  try {
-    // Validate environment variables
-    if (!process.env.R2_ENDPOINT_URL) {
-      throw new Error('R2_ENDPOINT_URL not configured')
-    }
-    if (!process.env.R2_ACCESS_KEY_ID) {
-      throw new Error('R2_ACCESS_KEY_ID not configured')
-    }
-    if (!process.env.R2_SECRET_ACCESS_KEY) {
-      throw new Error('R2_SECRET_ACCESS_KEY not configured')
-    }
-    if (!PUBLIC_URL) {
-      throw new Error('R2_PUBLIC_URL not configured')
-    }
-
-    console.log('📤 Uploading to R2:', {
-      bucket: BUCKET_NAME,
-      fileName,
-      contentType,
-      size: fileBuffer.length,
-    })
-
+  if (isR2Configured && r2Client) {
+    // Upload to Cloudflare R2
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: fileName,
@@ -51,30 +53,29 @@ export const uploadToR2 = async (fileBuffer, fileName, contentType) => {
     })
 
     await r2Client.send(command)
-
-    // Return the public URL
     const publicUrl = `${PUBLIC_URL}/${fileName}`
-    console.log('✅ File uploaded to R2 successfully:', publicUrl)
-    
+    console.log('✅ Uploaded to R2:', publicUrl)
     return publicUrl
-  } catch (error) {
-    console.error('❌ Error uploading to R2:', {
-      message: error.message,
-      code: error.code,
-      name: error.name,
-      stack: error.stack,
-    })
-    throw new Error(`Failed to upload file to storage: ${error.message}`)
+  } else {
+    // Save to local filesystem
+    const localPath = path.join(LOCAL_UPLOAD_DIR, fileName)
+    const dir = path.dirname(localPath)
+    
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true })
+    }
+
+    fs.writeFileSync(localPath, fileBuffer)
+    
+    // Return URL path that Express will serve statically
+    const localUrl = `/uploads/${fileName}`
+    console.log('✅ Saved locally:', localUrl)
+    return localUrl
   }
 }
 
 /**
- * Upload a thread image to R2
- * @param {string} threadId - The thread ID
- * @param {Buffer} fileBuffer - The file buffer
- * @param {string} originalName - Original filename
- * @param {string} mimeType - File MIME type
- * @returns {Promise<string>} - The public URL
+ * Upload a thread image
  */
 export const uploadThreadImage = async (threadId, fileBuffer, originalName, mimeType) => {
   const fileExt = originalName.split('.').pop()
@@ -83,12 +84,7 @@ export const uploadThreadImage = async (threadId, fileBuffer, originalName, mime
 }
 
 /**
- * Upload a reply image to R2
- * @param {string} replyId - The reply ID
- * @param {Buffer} fileBuffer - The file buffer
- * @param {string} originalName - Original filename
- * @param {string} mimeType - File MIME type
- * @returns {Promise<string>} - The public URL
+ * Upload a reply image
  */
 export const uploadReplyImage = async (replyId, fileBuffer, originalName, mimeType) => {
   const fileExt = originalName.split('.').pop()
@@ -97,12 +93,7 @@ export const uploadReplyImage = async (replyId, fileBuffer, originalName, mimeTy
 }
 
 /**
- * Upload a community image to R2
- * @param {string} communityId - The community ID
- * @param {Buffer} fileBuffer - The file buffer
- * @param {string} originalName - Original filename
- * @param {string} mimeType - File MIME type
- * @returns {Promise<string>} - The public URL
+ * Upload a community image
  */
 export const uploadCommunityImage = async (communityId, fileBuffer, originalName, mimeType) => {
   const fileExt = originalName.split('.').pop()
@@ -116,4 +107,3 @@ export default {
   uploadReplyImage,
   uploadCommunityImage,
 }
-

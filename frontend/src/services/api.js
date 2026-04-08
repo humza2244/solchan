@@ -1,49 +1,28 @@
 import axios from 'axios'
+import { auth } from '../config/firebase.js'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 15000,
 })
 
-// Coin community APIs
-export const getCoinCommunity = async (contractAddress) => {
-  const response = await api.get(`/coins/${contractAddress}`)
-  return response.data
-}
-
-export const getCoinMessages = async (contractAddress, limit = 100) => {
-  const response = await api.get(`/coins/${contractAddress}/messages`, {
-    params: { limit },
-  })
-  return response.data
-}
-
-export const createMessage = async (contractAddress, messageData) => {
-  const response = await api.post(`/coins/${contractAddress}/messages`, messageData)
-  return response.data
-}
-
-export const updateCoinInfo = async (contractAddress, info) => {
-  const response = await api.put(`/coins/${contractAddress}`, info)
-  return response.data
-}
-
-export const getAllCoins = async (recent = true) => {
-  const response = await api.get('/coins', {
-    params: { recent },
-  })
-  return response.data
-}
-
-export const getPopularCoins = async (limit = 50) => {
-  const response = await api.get('/coins', {
-    params: { popular: true, limit },
-  })
-  return response.data
-}
+// Automatically attach auth token to every request if user is logged in
+api.interceptors.request.use(async (config) => {
+  try {
+    const user = auth.currentUser
+    if (user) {
+      const token = await user.getIdToken()
+      config.headers.Authorization = `Bearer ${token}`
+    }
+  } catch {
+    // No auth token available — continue as anonymous
+  }
+  return config
+})
 
 export default api

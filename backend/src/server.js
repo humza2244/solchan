@@ -2,29 +2,40 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
+import helmet from 'helmet'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import rateLimit from 'express-rate-limit'
 import communityRoutes from './routes/communityRoutes.js'
-import coinRoutes from './routes/coinRoutes.js'
 import userProfileRoutes from './routes/userProfileRoutes.js'
 import threadRoutes from './routes/threadRoutes.js'
-import { getCommunityById, getMessages, addMessage } from './services/communityService.js'
-import { getThreadById, getRepliesByThread, addReply } from './services/threadService.js'
-import { getUserProfile } from './services/userProfileService.js'
-import { connectDatabase, query } from './config/database.js'
-import { migrate } from './config/migrate.js'
+import authRoutes from './routes/authRoutes.js'
+import moderationRoutes from './routes/moderationRoutes.js'
+import { authenticateUser } from './middleware/auth.js'
+import { getMessages, addMessage } from './services/communityService.js'
+import { getRepliesByThread, addReply } from './services/threadService.js'
+import { initializeFirebase, getDb } from './config/firebase.js'
 import { invalidatePopularCoinsCache } from './utils/cache.js'
-import { supabaseAdmin } from './config/supabase.js'
 import { setSocketIO } from './services/socketService.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const app = express()
 const httpServer = createServer(app)
 
 // CORS configuration
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000').split(',').map(s => s.trim())
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT'],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.includes(origin)) return callback(null, true)
+    callback(new Error('Not allowed by CORS'))
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   credentials: true,
 }
 
@@ -32,106 +43,121 @@ const io = new Server(httpServer, {
   cors: corsOptions,
 })
 
-// Make io available globally for controllers
 setSocketIO(io)
 
 const PORT = process.env.PORT || 5001
 
 // Trust proxy for Railway/production environments
-// This is required for rate limiting to work correctly behind a proxy
 if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
   app.set('trust proxy', 1)
 }
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
-  standardHeaders: true,
-  legacyHeaders: false,
-})
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}))
 
-const messageLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30, // Limit each IP to 30 messages per minute
-  message: 'Too many messages, please slow down.',
+// Rate limiting
+const generalLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 60,
+  message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
 
 // Middleware
 app.use(cors(corsOptions))
-app.use(morgan('dev'))
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use('/api/', limiter)
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'))
+app.use(express.json({ limit: '1mb' }))
+app.use(express.urlencoded({ extended: true, limit: '1mb' }))
+app.use('/api/', generalLimiter)
+
+// Serve uploaded images statically (for local dev without R2)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 
 // Routes
-app.use('/api/communities', communityRoutes)
-app.use('/api/coins', coinRoutes) // Keep for backwards compatibility
+app.use('/api/communities', authenticateUser, communityRoutes)
 app.use('/api/profile', userProfileRoutes)
-app.use('/api', threadRoutes) // Thread routes (includes /communities/:id/threads and /threads/:id)
+app.use('/api/auth', authRoutes)
+app.use('/api/mod', moderationRoutes)
+app.use('/api', authenticateUser, threadRoutes)
 
-// Health check with database status
+// Clear all demo data (one-time use, remove after production launch)
+app.delete('/api/admin/clear-data', async (req, res) => {
+  try {
+    const db = getDb()
+    const collections = ['communities', 'threads', 'replies', 'messages', 'counters']
+    let deleted = 0
+    for (const col of collections) {
+      const snap = await db.collection(col).get()
+      if (!snap.empty) {
+        for (const doc of snap.docs) {
+          await db.collection(col).doc(doc.id).delete()
+          deleted++
+        }
+      }
+    }
+    invalidatePopularCoinsCache()
+    res.json({ message: `Cleared ${deleted} documents from ${collections.length} collections` })
+  } catch (error) {
+    console.error('Error clearing data:', error.message)
+    res.status(500).json({ error: 'Failed to clear data' })
+  }
+})
+
+// Health check
 app.get('/api/health', async (req, res) => {
   try {
-    await query('SELECT 1')
-    res.json({ 
-      status: 'ok', 
+    const db = getDb()
+    res.json({
+      status: 'ok',
       message: 'Server is running',
-      database: 'connected'
+      database: 'firestore',
     })
   } catch (error) {
-    res.status(500).json({ 
-      status: 'error', 
-      message: 'Server is running but database connection failed',
-      database: 'disconnected',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    res.status(500).json({
+      status: 'error',
+      message: 'Server is running but Firestore connection failed',
     })
   }
 })
 
-// WebSocket connection handling with authentication
+// Stats endpoint
+app.get('/api/stats', async (req, res) => {
+  try {
+    const db = getDb()
+    const [commSnap, threadSnap, replySnap] = await Promise.all([
+      db.collection('communities').get(),
+      db.collection('threads').get(),
+      db.collection('replies').get(),
+    ])
+    res.json({
+      communities: commSnap.size,
+      threads: threadSnap.size,
+      replies: replySnap.size,
+    })
+  } catch (error) {
+    res.json({ communities: 0, threads: 0, replies: 0 })
+  }
+})
+
+// WebSocket connection handling
 io.on('connection', (socket) => {
   console.log('🔌 User connected:', socket.id)
-  console.log('   Transport:', socket.conn.transport.name)
-  console.log('   Origin:', socket.handshake.headers.origin)
-
-  let authenticatedUserId = null
-
-  // Authenticate socket connection
-  socket.on('authenticate', async (token) => {
-    try {
-      const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
-      
-      if (error || !user) {
-        socket.emit('auth-error', { message: 'Invalid authentication token' })
-        console.error('Socket auth failed:', error)
-        return
-      }
-      
-      authenticatedUserId = user.id
-      socket.emit('authenticated', { userId: user.id })
-      console.log(`User ${socket.id} authenticated as ${user.id}`)
-    } catch (error) {
-      console.error('Socket authentication error:', error)
-      socket.emit('auth-error', { message: 'Authentication failed' })
-    }
-  })
 
   // Join a community room
   socket.on('join-community', async (communityId) => {
     try {
       socket.join(communityId)
-      console.log(`🚪 User ${socket.id} joined community: ${communityId}`)
-    
-    // Send recent messages to the newly connected user
       const messages = await getMessages(communityId, 50)
-      console.log(`📬 Sending ${messages.length} messages to ${socket.id}`)
       socket.emit('messages', messages.map(m => m.toJSON()))
+      // Broadcast user count
+      const room = io.sockets.adapter.rooms.get(communityId)
+      io.to(communityId).emit('user-count', room ? room.size : 1)
     } catch (error) {
-      console.error('❌ Error joining community:', error)
+      console.error('Error joining community:', error.message)
       socket.emit('error', { message: 'Failed to load messages' })
     }
   })
@@ -139,48 +165,38 @@ io.on('connection', (socket) => {
   // Leave a community room
   socket.on('leave-community', (communityId) => {
     socket.leave(communityId)
-    console.log(`User ${socket.id} left community: ${communityId}`)
+    // Broadcast updated user count
+    setTimeout(() => {
+      const room = io.sockets.adapter.rooms.get(communityId)
+      io.to(communityId).emit('user-count', room ? room.size : 0)
+    }, 100)
   })
 
-  // Handle new message (anonymous - no auth required)
+  // Handle new message (anonymous)
   socket.on('new-message', async (data) => {
-    console.log('📨 Received new-message event:', { communityId: data.communityId, contentLength: data.content?.length, author: data.author })
-    
     const { communityId, content, author } = data
-    
+
     if (!communityId || !content) {
-      console.error('❌ Missing communityId or content')
       socket.emit('error', { message: 'Community ID and content are required' })
       return
     }
 
-    // Validate content length
     if (content.trim().length === 0 || content.length > 5000) {
-      console.error('❌ Invalid content length:', content.length)
-      socket.emit('error', { message: 'Message content must be between 1 and 5000 characters' })
+      socket.emit('error', { message: 'Message must be between 1 and 5000 characters' })
       return
     }
 
     try {
-      console.log('💾 Attempting to save message to database...')
-      // Add message (anonymous - no user ID)
       const message = await addMessage(communityId, {
         content: content.trim(),
         author: author || 'Anonymous',
       }, null)
-      
-      console.log('✅ Message saved successfully:', message.toJSON())
-      
-      // Invalidate popular communities cache
+
       invalidatePopularCoinsCache()
-      
-      // Broadcast to all users in the community room
       io.to(communityId).emit('message', message.toJSON())
-      console.log('📤 Message broadcasted to community:', communityId)
     } catch (error) {
-      console.error('❌ Error handling new message:', error)
-      console.error('Error details:', error.message, error.stack)
-      socket.emit('error', { message: 'Failed to send message: ' + error.message })
+      console.error('Error handling message:', error.message)
+      socket.emit('error', { message: 'Failed to send message' })
     }
   })
 
@@ -188,14 +204,13 @@ io.on('connection', (socket) => {
   socket.on('join-thread', async (threadId) => {
     try {
       socket.join(`thread-${threadId}`)
-      console.log(`🧵 User ${socket.id} joined thread: ${threadId}`)
-      
-      // Send recent replies to the newly connected user
       const replies = await getRepliesByThread(threadId, 1000)
-      console.log(`📬 Sending ${replies.length} replies to ${socket.id}`)
       socket.emit('thread-replies', replies.map(r => r.toJSON()))
+      // Broadcast user count to thread
+      const room = io.sockets.adapter.rooms.get(`thread-${threadId}`)
+      io.to(`thread-${threadId}`).emit('thread-user-count', room ? room.size : 1)
     } catch (error) {
-      console.error('❌ Error joining thread:', error)
+      console.error('Error joining thread:', error.message)
       socket.emit('error', { message: 'Failed to load replies' })
     }
   })
@@ -203,66 +218,43 @@ io.on('connection', (socket) => {
   // Leave a thread room
   socket.on('leave-thread', (threadId) => {
     socket.leave(`thread-${threadId}`)
-    console.log(`🧵 User ${socket.id} left thread: ${threadId}`)
   })
 
   // Handle new reply to a thread
   socket.on('new-reply', async (data) => {
-    console.log('📨 Received new-reply event:', { threadId: data.threadId, contentLength: data.content?.length, author: data.author, hasImage: !!data.imageUrl })
-    
     const { threadId, content, author, imageUrl } = data
-    
+
     if (!threadId || !content) {
-      console.error('❌ Missing threadId or content')
       socket.emit('error', { message: 'Thread ID and content are required' })
       return
     }
 
-    // Validate content length
     if (content.trim().length === 0 || content.length > 5000) {
-      console.error('❌ Invalid content length:', content.length)
-      socket.emit('error', { message: 'Reply content must be between 1 and 5000 characters' })
+      socket.emit('error', { message: 'Reply must be between 1 and 5000 characters' })
       return
     }
 
     try {
-      console.log('💾 Attempting to save reply to database...')
-      // Add reply (anonymous - no user ID)
       const reply = await addReply(threadId, {
         content: content.trim(),
         author: author || 'Anonymous',
-        imageUrl: imageUrl || null, // Include imageUrl from WebSocket data
+        imageUrl: imageUrl || null,
       })
-      
-      console.log('✅ Reply saved successfully:', reply.toJSON())
-      
-      // Invalidate popular communities cache (thread bumps affect community stats)
+
       invalidatePopularCoinsCache()
-      
-      // Broadcast to all users in the thread room
       io.to(`thread-${threadId}`).emit('thread-reply', reply.toJSON())
-      console.log('📤 Reply broadcasted to thread:', threadId)
     } catch (error) {
-      console.error('❌ Error handling new reply:', error)
-      console.error('Error details:', error.message, error.stack)
-      socket.emit('error', { message: 'Failed to send reply: ' + error.message })
+      console.error('Error handling reply:', error.message)
+      socket.emit('error', { message: 'Failed to send reply' })
     }
   })
 
-  // Handle disconnect
-  socket.on('disconnect', (reason) => {
-    console.log('🔌 User disconnected:', socket.id, 'Reason:', reason)
-  })
-  
-  // Log all events for debugging
-  socket.onAny((eventName, ...args) => {
-    console.log(`📡 Event received: ${eventName}`, args.length > 0 ? `with ${args.length} arg(s)` : '')
-  })
+  socket.on('disconnect', () => {})
 })
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack)
+  console.error('Server error:', err.message)
   res.status(500).json({ error: 'Something went wrong!' })
 })
 
@@ -271,22 +263,16 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' })
 })
 
-// Initialize database and start server
+// Initialize Firebase and start server
 const startServer = async () => {
   try {
-    // Connect to database
-    await connectDatabase()
-    
-    // Run migrations
-    if (process.env.RUN_MIGRATIONS !== 'false') {
-      await migrate()
-    }
-    
-    // Start server
-httpServer.listen(PORT, () => {
+    // Initialize Firebase/Firestore
+    initializeFirebase()
+
+    httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`)
       console.log(`🔌 WebSocket server ready`)
-      console.log(`📊 Database connected`)
+      console.log(`🔥 Firestore connected`)
     })
   } catch (error) {
     console.error('❌ Failed to start server:', error)
@@ -294,5 +280,4 @@ httpServer.listen(PORT, () => {
   }
 }
 
-// Start the server
 startServer()

@@ -8,11 +8,13 @@ import {
   addMessage,
   updateCommunityInfo,
   getKOTH,
+  getCommunityMembers,
 } from '../services/communityService.js'
 import { uploadCommunityImage } from '../services/storageService.js'
 import { invalidatePopularCoinsCache } from '../utils/cache.js'
+import { escapeHtml, sanitizeInput, sanitizeAuthor } from '../utils/sanitize.js'
 
-// POST /api/communities - Create a new community (requires auth)
+// POST /api/communities - Create a new community
 export const createCommunityHandler = async (req, res) => {
   try {
     const { ticker, coinName, contractAddress, description, imageUrl } = req.body
@@ -22,29 +24,33 @@ export const createCommunityHandler = async (req, res) => {
       return res.status(400).json({ error: 'Ticker, coin name, and contract address are required' })
     }
     
-    if (contractAddress.length < 20) {
+    const sanitizedTicker = sanitizeInput(ticker, 50)
+    const sanitizedCoinName = sanitizeInput(coinName, 255)
+    const sanitizedCA = sanitizeInput(contractAddress, 255)
+    const sanitizedDescription = sanitizeInput(description, 1000)
+    
+    if (!sanitizedTicker || !sanitizedCoinName || !sanitizedCA) {
+      return res.status(400).json({ error: 'Invalid input' })
+    }
+    
+    if (sanitizedCA.length < 20) {
       return res.status(400).json({ error: 'Invalid contract address' })
     }
     
-    // Anonymous creation (no auth required)
-    const userId = null
-    
     // Create community
     const community = await createCommunity({
-      ticker: ticker.trim(),
-      coinName: coinName.trim(),
-      contractAddress: contractAddress.trim(),
-      description: description?.trim() || null,
+      ticker: sanitizedTicker,
+      coinName: sanitizedCoinName,
+      contractAddress: sanitizedCA,
+      description: sanitizedDescription || null,
       imageUrl: imageUrl || null,
-      creatorId: userId,
+      creatorId: req.userId || null,
     })
     
-    // Invalidate cache
     invalidatePopularCoinsCache()
-    
     res.status(201).json(community.toJSON())
   } catch (error) {
-    console.error('Error creating community:', error)
+    console.error('Error creating community:', error.message)
     res.status(500).json({ error: 'Failed to create community' })
   }
 }
@@ -58,10 +64,14 @@ export const searchCommunitiesHandler = async (req, res) => {
       return res.status(400).json({ error: 'Search query is required' })
     }
     
+    if (q.length > 255) {
+      return res.status(400).json({ error: 'Search query too long' })
+    }
+    
     const communities = await searchCommunities(q)
     res.json(communities.map(c => c.toJSON()))
   } catch (error) {
-    console.error('Error searching communities:', error)
+    console.error('Error searching communities:', error.message)
     res.status(500).json({ error: 'Failed to search communities' })
   }
 }
@@ -77,15 +87,20 @@ export const getCommunityHandler = async (req, res) => {
       return res.status(404).json({ error: 'Community not found' })
     }
     
-    // Get messages
-    const messages = await getMessages(id, 100)
+    // Load messages separately — don't break the page if this fails
+    let messages = []
+    try {
+      messages = await getMessages(id, 100)
+    } catch (msgError) {
+      console.error('Warning: Could not load messages:', msgError.message)
+    }
     
     res.json({
       community: community.toJSON(),
       messages: messages.map(m => m.toJSON()),
     })
   } catch (error) {
-    console.error('Error fetching community:', error)
+    console.error('Error fetching community:', error.message)
     res.status(500).json({ error: 'Failed to fetch community' })
   }
 }
@@ -94,45 +109,36 @@ export const getCommunityHandler = async (req, res) => {
 export const getCommunityMessagesHandler = async (req, res) => {
   try {
     const { id } = req.params
-    const limit = parseInt(req.query.limit) || 100
+    const limit = Math.min(parseInt(req.query.limit) || 100, 500)
     
     const messages = await getMessages(id, limit)
     res.json(messages.map(m => m.toJSON()))
   } catch (error) {
-    console.error('Error fetching messages:', error)
+    console.error('Error fetching messages:', error.message)
     res.status(500).json({ error: 'Failed to fetch messages' })
   }
 }
 
-// POST /api/communities/:id/messages - Create a message (requires auth)
+// POST /api/communities/:id/messages - Create a message
 export const createMessageHandler = async (req, res) => {
   try {
     const { id } = req.params
     const { content, author } = req.body
     
-    if (!content || content.trim().length === 0) {
+    const sanitizedContent = sanitizeInput(content, 5000)
+    if (!sanitizedContent) {
       return res.status(400).json({ error: 'Message content is required' })
     }
     
-    if (content.length > 5000) {
-      return res.status(400).json({ error: 'Message is too long (max 5000 characters)' })
-    }
-    
-    // Anonymous messaging (no auth required)
-    const userId = null
-    
-    // Add message
     const message = await addMessage(id, {
-      content: content.trim(),
-      author: author || 'Anonymous',
-    }, userId)
+      content: sanitizedContent,
+      author: sanitizeAuthor(author),
+    }, null)
     
-    // Invalidate cache
     invalidatePopularCoinsCache()
-    
     res.status(201).json(message.toJSON())
   } catch (error) {
-    console.error('Error creating message:', error)
+    console.error('Error creating message:', error.message)
     if (error.message === 'Community not found') {
       return res.status(404).json({ error: 'Community not found' })
     }
@@ -144,7 +150,7 @@ export const createMessageHandler = async (req, res) => {
 export const getAllCommunitiesHandler = async (req, res) => {
   try {
     const popular = req.query.popular === 'true'
-    const limit = parseInt(req.query.limit) || 50
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100)
     
     let communities
     if (popular) {
@@ -155,12 +161,12 @@ export const getAllCommunitiesHandler = async (req, res) => {
     
     res.json(communities.map(c => c.toJSON()))
   } catch (error) {
-    console.error('Error fetching communities:', error)
+    console.error('Error fetching communities:', error.message)
     res.status(500).json({ error: 'Failed to fetch communities' })
   }
 }
 
-// POST /api/communities/:id/image - Upload community image (requires auth)
+// POST /api/communities/:id/image - Upload community image
 export const uploadCommunityImageHandler = async (req, res) => {
   try {
     const { id } = req.params
@@ -169,13 +175,11 @@ export const uploadCommunityImageHandler = async (req, res) => {
       return res.status(400).json({ error: 'No image file provided' })
     }
     
-    // Verify community exists
     const community = await getCommunityById(id)
     if (!community) {
       return res.status(404).json({ error: 'Community not found' })
     }
     
-    // Upload to Cloudflare R2
     const publicUrl = await uploadCommunityImage(
       id,
       req.file.buffer,
@@ -183,23 +187,20 @@ export const uploadCommunityImageHandler = async (req, res) => {
       req.file.mimetype
     )
     
-    // Update community with image URL
     const updatedCommunity = await updateCommunityInfo(id, { imageUrl: publicUrl })
-    
     res.json({ imageUrl: publicUrl, community: updatedCommunity.toJSON() })
   } catch (error) {
-    console.error('Error uploading image:', error)
+    console.error('Error uploading image:', error.message)
     res.status(500).json({ error: 'Failed to upload image' })
   }
 }
 
-// GET /api/communities/koth - Get King of the Hill (one-time achievement)
+// GET /api/communities/koth - Get King of the Hill
 export const getKOTHHandler = async (req, res) => {
   try {
     const koth = await getKOTH()
     
     if (!koth) {
-      // All communities have been KOTH already, return the most popular one
       const popularCommunities = await getPopularCommunities(1)
       if (popularCommunities.length > 0) {
         return res.json(popularCommunities[0].toJSON())
@@ -209,8 +210,22 @@ export const getKOTHHandler = async (req, res) => {
     
     res.json(koth.toJSON())
   } catch (error) {
-    console.error('Error fetching KOTH:', error)
+    console.error('Error fetching KOTH:', error.message)
     res.status(500).json({ error: 'Failed to fetch KOTH' })
+  }
+}
+
+// GET /api/communities/:id/members - Get community members
+export const getCommunityMembersHandler = async (req, res) => {
+  try {
+    const { id } = req.params
+    const limit = Math.min(parseInt(req.query.limit) || 100, 500)
+    
+    const members = await getCommunityMembers(id, limit)
+    res.json(members)
+  } catch (error) {
+    console.error('Error fetching community members:', error.message)
+    res.status(500).json({ error: 'Failed to fetch community members' })
   }
 }
 
@@ -223,5 +238,5 @@ export default {
   getAllCommunitiesHandler,
   uploadCommunityImageHandler,
   getKOTHHandler,
+  getCommunityMembersHandler,
 }
-

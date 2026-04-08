@@ -1,74 +1,134 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { supabase } from '../config/supabase'
+import {
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  sendEmailVerification,
+} from 'firebase/auth'
+import { auth } from '../config/firebase.js'
+import axios from 'axios'
+import { API_BASE_URL } from '../services/api.js'
 
-const AuthContext = createContext({})
+const AuthContext = createContext(null)
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider')
   return context
 }
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
-  const [session, setSession] = useState(null)
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [authToken, setAuthToken] = useState(null)
 
+  // Listen for auth state changes
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser)
+        const token = await firebaseUser.getIdToken()
+        setAuthToken(token)
+        
+        // Fetch user profile
+        try {
+          const res = await axios.get(`${API_BASE_URL}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          setProfile(res.data)
+        } catch {
+          setProfile(null)
+        }
+      } else {
+        setUser(null)
+        setProfile(null)
+        setAuthToken(null)
+      }
       setLoading(false)
     })
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
+    return () => unsubscribe()
   }, [])
 
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+  // Register with email + password + username
+  const register = async (email, password, username) => {
+    const credential = await createUserWithEmailAndPassword(auth, email, password)
+    const token = await credential.user.getIdToken()
+    
+    // Send verification email
+    await sendEmailVerification(credential.user)
+    
+    // Create profile on backend
+    const res = await axios.post(`${API_BASE_URL}/auth/register`, {
+      username,
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
     })
-    return { user: data.user, session: data.session, error }
+    
+    setProfile(res.data.profile)
+    setAuthToken(token)
+    return credential.user
   }
 
-  const signUp = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-    return { user: data.user, session: data.session, error }
+  // Login with email + password
+  const login = async (email, password) => {
+    const credential = await signInWithEmailAndPassword(auth, email, password)
+    const token = await credential.user.getIdToken()
+    setAuthToken(token)
+    
+    // Fetch profile
+    try {
+      const res = await axios.get(`${API_BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setProfile(res.data)
+    } catch {
+      setProfile(null)
+    }
+    
+    return credential.user
   }
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    return { error }
+  // Logout
+  const logout = async () => {
+    await signOut(auth)
+    setUser(null)
+    setProfile(null)
+    setAuthToken(null)
   }
 
-  const getAccessToken = () => {
-    return session?.access_token || null
+  // Resend verification email
+  const resendVerification = async () => {
+    if (user && !user.emailVerified) {
+      await sendEmailVerification(user)
+    }
+  }
+
+  // Get fresh token (for API calls)
+  const getToken = async () => {
+    if (user) {
+      const token = await user.getIdToken(true)
+      setAuthToken(token)
+      return token
+    }
+    return null
   }
 
   const value = {
     user,
-    session,
+    profile,
     loading,
-    signIn,
-    signUp,
-    signOut,
-    getAccessToken,
+    authToken,
+    isLoggedIn: !!user,
+    isVerified: user?.emailVerified || false,
+    displayName: profile?.username || 'Anonymous',
+    register,
+    login,
+    logout,
+    resendVerification,
+    getToken,
   }
 
   return (

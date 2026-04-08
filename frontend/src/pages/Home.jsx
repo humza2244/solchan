@@ -1,8 +1,43 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { API_BASE_URL } from '../services/api.js'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+const CopyCA = ({ address }) => {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    navigator.clipboard.writeText(address)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+  return (
+    <button className={`copy-ca-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>
+      {copied ? '✓' : 'Copy'}
+    </button>
+  )
+}
+
+const CommunityImage = ({ community, size = 'card' }) => {
+  if (community.imageUrl) {
+    return <img src={community.imageUrl} alt={community.coinName} />
+  }
+  const className = size === 'koth' ? 'koth-placeholder-img' : 'community-placeholder-img'
+  return <div className={className}>{community.ticker?.slice(0, 4)}</div>
+}
+
+const timeAgo = (dateStr) => {
+  if (!dateStr) return null
+  const now = new Date()
+  const date = new Date(dateStr)
+  const diff = Math.floor((now - date) / 1000)
+  if (diff < 60) return 'just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`
+  return date.toLocaleDateString()
+}
 
 const Home = () => {
   const navigate = useNavigate()
@@ -10,9 +45,9 @@ const Home = () => {
   const [koth, setKoth] = useState(null)
   const [popularCommunities, setPopularCommunities] = useState([])
   const [newCommunities, setNewCommunities] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [stats, setStats] = useState({ communities: 0, threads: 0, replies: 0 })
+  const [loading, setLoading] = useState(true)
   const [showWelcomeModal, setShowWelcomeModal] = useState(() => {
-    // Only show modal if user hasn't seen it before
     return !localStorage.getItem('hasSeenWelcome')
   })
 
@@ -24,45 +59,33 @@ const Home = () => {
   const handleSearch = async (e) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
-    
-    // Navigate to search results page
     navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
   }
 
-  // Load KOTH, popular and new communities on mount
   useEffect(() => {
     const loadCommunities = async () => {
       setLoading(true)
       
-      // Fetch all in parallel, with independent error handling
       await Promise.allSettled([
-        // Fetch KOTH (King of the Hill) - one-time achievement
         axios.get(`${API_BASE_URL}/communities/koth`)
           .then(res => setKoth(res.data))
-          .catch(err => {
-            console.error('Error loading KOTH:', err)
-            setKoth(null)
-          }),
+          .catch(() => setKoth(null)),
         
-        // Fetch popular communities (top 3)
         axios.get(`${API_BASE_URL}/communities`, {
           params: { popular: true, limit: 3 }
         })
           .then(res => setPopularCommunities(res.data))
-          .catch(err => {
-            console.error('Error loading popular communities:', err)
-            setPopularCommunities([])
-          }),
+          .catch(() => setPopularCommunities([])),
         
-        // Fetch new communities (12 newest)
         axios.get(`${API_BASE_URL}/communities`, {
           params: { recent: true, limit: 12 }
         })
           .then(res => setNewCommunities(res.data))
-          .catch(err => {
-            console.error('Error loading new communities:', err)
-            setNewCommunities([])
-          })
+          .catch(() => setNewCommunities([])),
+
+        axios.get(`${API_BASE_URL}/stats`)
+          .then(res => setStats(res.data))
+          .catch(() => {}),
       ])
       
       setLoading(false)
@@ -77,9 +100,9 @@ const Home = () => {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={handleCloseModal}>
-              X
+              ✕
             </button>
-            <h2>What is solchan?</h2>
+            <h2>Welcome to solchan</h2>
             <p>
               <strong>solchan</strong> is an uncensored memecoin community platform. 
               Create or join communities for any cryptocurrency. Chat live with holders, 
@@ -94,7 +117,91 @@ const Home = () => {
         <h1>solchan</h1>
       </div>
 
-      {/* What is solchan? - 4chan style */}
+      {/* Live Stats */}
+      <div className="stats-ticker">
+        <div className="stat-item">
+          <span className="stat-value">{stats.communities}</span> communities
+        </div>
+        <div className="stat-item">
+          <span className="stat-value">{stats.threads}</span> threads
+        </div>
+        <div className="stat-item">
+          <span className="stat-value">{stats.replies}</span> replies
+        </div>
+      </div>
+
+      {/* Bookmarked Communities */}
+      {(() => {
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCommunities') || '[]')
+        if (bookmarks.length === 0) return null
+        return (
+          <div className="bookmarked-section">
+            <div className="section-header">
+              <h2>★ Your Bookmarks</h2>
+            </div>
+            <div className="bookmarked-communities-list">
+              {bookmarks.map((b) => (
+                <span key={b.id} className="bookmarked-chip">
+                  <Link to={`/community/${b.id}`} style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', color: 'inherit' }}>
+                    {b.imageUrl ? (
+                      <img src={b.imageUrl} alt={b.ticker} />
+                    ) : (
+                      <span className="chip-placeholder">{b.ticker?.slice(0, 3)}</span>
+                    )}
+                    {b.ticker}
+                  </Link>
+                  <button
+                    className="remove-bookmark"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      const updated = bookmarks.filter(x => x.id !== b.id)
+                      localStorage.setItem('bookmarkedCommunities', JSON.stringify(updated))
+                      window.location.reload()
+                    }}
+                    title="Remove bookmark"
+                  >×</button>
+                </span>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Watched Threads */}
+      {(() => {
+        const watched = JSON.parse(localStorage.getItem('watchedThreads') || '[]')
+        if (watched.length === 0) return null
+        return (
+          <div className="watched-section">
+            <div className="section-header">
+              <h2>👁 Watched Threads</h2>
+            </div>
+            <div className="watched-threads-list">
+              {watched.map((w) => (
+                <div key={w.id} className="watched-thread-item">
+                  <Link to={`/thread/${w.id}`} className="watched-thread-subject" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    {w.subject}
+                  </Link>
+                  <span className="watched-thread-meta">
+                    {w.lastReplyCount} replies
+                  </span>
+                  <button
+                    className="remove-watch"
+                    onClick={() => {
+                      const updated = watched.filter(x => x.id !== w.id)
+                      localStorage.setItem('watchedThreads', JSON.stringify(updated))
+                      window.location.reload()
+                    }}
+                    title="Stop watching"
+                  >×</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* What is solchan? */}
       <div className="what-is-solchan">
         <div className="what-is-header">
           <h2>What is solchan?</h2>
@@ -105,24 +212,18 @@ const Home = () => {
             Search for any cryptocurrency by its ticker or contract address to join an existing 
             community or create a new one. Each coin gets its own dedicated board where holders 
             can chat in real-time, share alpha, discuss price movements, and engage in unfiltered 
-            discussion about their investments. No registration required - just search for a coin 
+            discussion about their investments. No registration required — just search for a coin 
             and start posting!
           </p>
         </div>
       </div>
 
-      {/* KOTH - King of the Hill - Horizontal */}
+      {/* KOTH */}
       {koth && (
         <div className="koth-wrapper">
           <h3 className="koth-title">King of the Hill</h3>
           <Link to={`/community/${koth.id}`} className="koth-card-horizontal">
-            {koth.imageUrl && (
-              <img 
-                src={koth.imageUrl} 
-                alt={koth.coinName}
-                className="koth-image-horizontal"
-              />
-            )}
+            <CommunityImage community={koth} size="koth" />
             <div className="koth-info-horizontal">
               <div className="koth-name-horizontal">{koth.ticker}</div>
               <div className="koth-coin-horizontal">{koth.coinName}</div>
@@ -134,7 +235,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* Search - Floating */}
+      {/* Search */}
       <div className="search-floating">
         <form onSubmit={handleSearch} className="search-form">
           <input
@@ -150,15 +251,15 @@ const Home = () => {
         </form>
       </div>
 
-      {/* Popular + New Communities */}
+      {/* Content */}
       {loading ? (
-        <div className="recent-communities">
-          <h2>Loading...</h2>
-          <p>Please wait...</p>
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <span className="loading-text">Loading communities...</span>
         </div>
       ) : (
         <>
-          {/* Trending Communities (Top 3) */}
+          {/* Trending Communities */}
           {popularCommunities.length > 0 && (
             <div className="recent-communities">
               <div className="section-header">
@@ -173,21 +274,21 @@ const Home = () => {
                     className="community-link"
                   >
                     <div className="community-item">
-                      {community.imageUrl && (
-                        <img 
-                          src={community.imageUrl} 
-                          alt={community.coinName}
-                        />
-                      )}
+                      <CommunityImage community={community} />
                       <div className="community-name">{community.ticker}</div>
                       <div className="community-coin-name">{community.coinName}</div>
                       <div className="community-ca">
                         {community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}
+                        <CopyCA address={community.contractAddress} />
                       </div>
                       <div className="community-stats">
                         {community.messageCount} msgs • {community.uniqueUsersCount} users
-                        {community.recentMessageCount && ` • ${community.recentMessageCount} in 24h`}
                       </div>
+                      {community.lastMessageAt && (
+                        <div className="community-last-active">
+                          active {timeAgo(community.lastMessageAt)}
+                        </div>
+                      )}
                     </div>
                   </Link>
                 ))}
@@ -210,20 +311,21 @@ const Home = () => {
                     className="community-link"
                   >
                     <div className="community-item">
-                      {community.imageUrl && (
-                        <img 
-                          src={community.imageUrl} 
-                          alt={community.coinName}
-                        />
-                      )}
+                      <CommunityImage community={community} />
                       <div className="community-name">{community.ticker}</div>
                       <div className="community-coin-name">{community.coinName}</div>
                       <div className="community-ca">
                         {community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}
+                        <CopyCA address={community.contractAddress} />
                       </div>
                       <div className="community-stats">
                         {community.messageCount} msgs • {community.uniqueUsersCount} users
                       </div>
+                      {community.lastMessageAt && (
+                        <div className="community-last-active">
+                          active {timeAgo(community.lastMessageAt)}
+                        </div>
+                      )}
                     </div>
                   </Link>
                 ))}
@@ -231,8 +333,15 @@ const Home = () => {
             </div>
           ) : (
             <div className="recent-communities">
-              <h2>New Communities</h2>
-              <p>No communities yet. Be the first to create one!</p>
+              <div className="section-header">
+                <h2>New Communities</h2>
+              </div>
+              <div className="no-threads">
+                <p>No communities yet. Be the first to create one!</p>
+                <Link to="/create-community" className="create-thread-btn">
+                  Create a Community
+                </Link>
+              </div>
             </div>
           )}
         </>

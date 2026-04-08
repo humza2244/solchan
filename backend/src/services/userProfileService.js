@@ -1,73 +1,71 @@
-import { query } from '../config/database.js'
+import { getDb, toDate } from '../config/firebase.js'
 
 /**
  * Create or update user profile with username
  */
 export const createUserProfile = async (userId, username) => {
-  try {
-    const result = await query(
-      `INSERT INTO user_profiles (user_id, username)
-       VALUES ($1, $2)
-       ON CONFLICT (user_id) 
-       DO UPDATE SET username = $2, updated_at = CURRENT_TIMESTAMP
-       RETURNING *`,
-      [userId, username]
-    )
-    return result.rows[0]
-  } catch (error) {
-    if (error.code === '23505') { // Unique violation
+  const db = getDb()
+  
+  // Check if username is taken by another user
+  const existingSnap = await db.collection('userProfiles')
+    .where('username', '==', username.toLowerCase())
+    .get()
+    
+  if (!existingSnap.empty) {
+    const existingDoc = existingSnap.docs[0]
+    if (existingDoc.id !== userId) {
       throw new Error('Username already taken')
     }
-    throw error
   }
+  
+  const now = new Date()
+  await db.collection('userProfiles').doc(userId).set({
+    userId,
+    username: username,
+    usernameLower: username.toLowerCase(),
+    createdAt: now,
+    updatedAt: now,
+  }, { merge: true })
+  
+  const doc = await db.collection('userProfiles').doc(userId).get()
+  return { id: doc.id, ...doc.data(), createdAt: toDate(doc.data().createdAt) }
 }
 
 /**
  * Get user profile by user ID
  */
 export const getUserProfile = async (userId) => {
-  try {
-    const result = await query(
-      'SELECT * FROM user_profiles WHERE user_id = $1',
-      [userId]
-    )
-    return result.rows[0] || null
-  } catch (error) {
-    console.error('Error fetching user profile:', error)
-    return null
-  }
+  const db = getDb()
+  const doc = await db.collection('userProfiles').doc(userId).get()
+  if (!doc.exists) return null
+  return { id: doc.id, ...doc.data(), createdAt: toDate(doc.data().createdAt) }
 }
 
 /**
  * Get user profile by username
  */
 export const getUserProfileByUsername = async (username) => {
-  try {
-    const result = await query(
-      'SELECT * FROM user_profiles WHERE LOWER(username) = LOWER($1)',
-      [username]
-    )
-    return result.rows[0] || null
-  } catch (error) {
-    console.error('Error fetching user profile by username:', error)
-    return null
-  }
+  const db = getDb()
+  const snap = await db.collection('userProfiles')
+    .where('usernameLower', '==', username.toLowerCase())
+    .limit(1)
+    .get()
+  
+  if (snap.empty) return null
+  const doc = snap.docs[0]
+  return { id: doc.id, ...doc.data(), createdAt: toDate(doc.data().createdAt) }
 }
 
 /**
  * Check if username is available
  */
 export const isUsernameAvailable = async (username) => {
-  try {
-    const result = await query(
-      'SELECT COUNT(*) as count FROM user_profiles WHERE LOWER(username) = LOWER($1)',
-      [username]
-    )
-    return parseInt(result.rows[0].count) === 0
-  } catch (error) {
-    console.error('Error checking username availability:', error)
-    return false
-  }
+  const db = getDb()
+  const snap = await db.collection('userProfiles')
+    .where('usernameLower', '==', username.toLowerCase())
+    .limit(1)
+    .get()
+  return snap.empty
 }
 
 /**
@@ -76,15 +74,19 @@ export const isUsernameAvailable = async (username) => {
 export const getUserProfiles = async (userIds) => {
   if (!userIds || userIds.length === 0) return []
   
-  try {
-    const result = await query(
-      'SELECT * FROM user_profiles WHERE user_id = ANY($1)',
-      [userIds]
-    )
-    return result.rows
-  } catch (error) {
-    console.error('Error fetching user profiles:', error)
-    return []
+  const db = getDb()
+  const results = []
+  
+  // Firestore 'in' queries support max 30 values
+  for (let i = 0; i < userIds.length; i += 30) {
+    const batch = userIds.slice(i, i + 30)
+    const snap = await db.collection('userProfiles')
+      .where('userId', 'in', batch)
+      .get()
+    snap.docs.forEach(doc => {
+      results.push({ id: doc.id, ...doc.data() })
+    })
   }
+  
+  return results
 }
-

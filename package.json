@@ -1,7 +1,7 @@
 {
   "name": "chan-app",
   "version": "1.0.0",
-  "description": "A 4chan-like web application",
+  "description": "solchan - 4chan-style memecoin community boards",
   "private": true,
   "workspaces": [
     "frontend",
@@ -14,8 +14,5 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
-  },
-  "dependencies": {
-    "postgres": "^3.4.7"
   }
 }

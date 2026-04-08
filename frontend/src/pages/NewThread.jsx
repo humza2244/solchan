@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+import { API_BASE_URL } from '../services/api.js'
+import { useAuth } from '../context/AuthContext.jsx'
 
 const NewThread = () => {
   const { communityId } = useParams()
   const navigate = useNavigate()
+  const { isLoggedIn, displayName } = useAuth()
   
-  const [name, setName] = useState('Anonymous')
+  const [name, setName] = useState(isLoggedIn ? displayName : 'Anonymous')
   const [subject, setSubject] = useState('')
   const [content, setContent] = useState('')
   const [image, setImage] = useState(null)
@@ -111,11 +112,11 @@ const NewThread = () => {
             <div className="form-input-group">
               <input
                 type="text"
-                value={name}
+                value={isLoggedIn ? displayName : name}
                 onChange={(e) => setName(e.target.value)}
                 className="form-input"
                 placeholder="Anonymous"
-                disabled={submitting}
+                disabled={submitting || isLoggedIn}
               />
             </div>
           </div>
@@ -147,6 +148,19 @@ const NewThread = () => {
                 disabled={submitting}
                 rows={8}
               />
+              <div className="formatting-help">
+                <details>
+                  <summary className="formatting-help-toggle">Formatting help</summary>
+                  <div className="formatting-help-content">
+                    <code>&gt;greentext</code> — quote text<br/>
+                    <code>**bold**</code> — <strong>bold text</strong><br/>
+                    <code>*italic*</code> — <em>italic text</em><br/>
+                    <code>~~spoiler~~</code> — spoiler text<br/>
+                    <code>`code`</code> — inline code<br/>
+                    <code>&gt;&gt;1234</code> — reply link
+                  </div>
+                </details>
+              </div>
             </div>
           </div>
 

@@ -1,8 +1,34 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import axios from 'axios'
+import { API_BASE_URL } from '../services/api.js'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+const CopyCA = ({ address }) => {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    navigator.clipboard.writeText(address)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+  return (
+    <button className={`copy-ca-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>
+      {copied ? '✓' : 'Copy'}
+    </button>
+  )
+}
+
+const CommunityImage = ({ community }) => {
+  if (community.imageUrl) {
+    return <img src={community.imageUrl} alt={community.coinName} />
+  }
+  return (
+    <div className="community-placeholder-img">
+      {community.ticker?.slice(0, 4)}
+    </div>
+  )
+}
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams()
@@ -45,7 +71,10 @@ const SearchResults = () => {
 
       {loading ? (
         <div className="loading-section">
-          <p>Searching...</p>
+          <div className="loading-container">
+            <div className="spinner"></div>
+            <span className="loading-text">Searching...</span>
+          </div>
         </div>
       ) : results.length === 0 ? (
         <div className="no-results-section">
@@ -56,8 +85,8 @@ const SearchResults = () => {
             <li>Ticker symbol (e.g., "BTC", "ETH", "PEPE")</li>
             <li>Contract address (e.g., "0x123...")</li>
           </ul>
-          <Link to="/create" className="create-community-link">
-            Or create a new community for "{query}"
+          <Link to="/create-community" className="create-community-link">
+            Create a community for "{query}"
           </Link>
         </div>
       ) : (
@@ -72,16 +101,12 @@ const SearchResults = () => {
                 className="community-link"
               >
                 <div className="community-item">
-                  {community.imageUrl && (
-                    <img 
-                      src={community.imageUrl} 
-                      alt={community.coinName}
-                    />
-                  )}
+                  <CommunityImage community={community} />
                   <div className="community-name">{community.ticker}</div>
                   <div className="community-coin-name">{community.coinName}</div>
                   <div className="community-ca">
                     {community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}
+                    <CopyCA address={community.contractAddress} />
                   </div>
                   <div className="community-stats">
                     {community.messageCount} msgs • {community.uniqueUsersCount} users
@@ -97,4 +122,3 @@ const SearchResults = () => {
 }
 
 export default SearchResults
-
