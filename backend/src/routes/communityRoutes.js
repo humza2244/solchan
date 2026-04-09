@@ -11,6 +11,7 @@ import {
   uploadCommunityImageHandler,
   getKOTHHandler,
   getCommunityMembersHandler,
+  joinCommunityHandler,
 } from '../controllers/communityController.js'
 
 const router = express.Router()
@@ -73,5 +74,8 @@ router.post('/:id/messages', postLimiter, createMessageHandler)
 
 // POST /api/communities/:id/image - Upload community image (anonymous)
 router.post('/:id/image', createLimiter, upload.single('image'), uploadCommunityImageHandler)
+
+// POST /api/communities/:id/join - Join community (anonymous)
+router.post('/:id/join', postLimiter, joinCommunityHandler)
 
 export default router

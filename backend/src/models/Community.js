@@ -4,7 +4,7 @@ export class Community {
     this.id = data.id
     this.ticker = data.ticker
     this.coinName = data.coin_name || data.coinName
-    this.contractAddress = (data.contract_address || data.contractAddress).toLowerCase()
+    this.contractAddress = data.contract_address || data.contractAddress
     this.description = data.description || null
     this.imageUrl = data.image_url || data.imageUrl || null
     this.creatorId = data.creator_id || data.creatorId || null

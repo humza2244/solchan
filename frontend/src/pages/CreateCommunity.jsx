@@ -18,13 +18,8 @@ const CreateCommunity = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      // Check file size (between 50KB and 2MB)
-      if (file.size < 50 * 1024) {
-        setError('Image is too small (minimum 50KB)')
-        return
-      }
-      if (file.size > 2 * 1024 * 1024) {
-        setError('Image is too large (maximum 2MB)')
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image is too large (maximum 5MB)')
         return
       }
       
@@ -33,25 +28,12 @@ const CreateCommunity = () => {
         return
       }
 
-      // Check image dimensions
-      const img = new Image()
-      img.onload = () => {
-        if (img.width < 200 || img.height < 200) {
-          setError('Image dimensions too small (minimum 200x200px)')
-          setImage(null)
-          setImagePreview(null)
-          return
-        }
-        if (img.width > 2000 || img.height > 2000) {
-          setError('Image dimensions too large (maximum 2000x2000px)')
-          setImage(null)
-          setImagePreview(null)
-          return
-        }
-        setError('')
+      // Revoke old preview URL to prevent memory leak
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview)
       }
-      img.src = URL.createObjectURL(file)
-      
+
+      setError('')
       setImage(file)
       setImagePreview(URL.createObjectURL(file))
     }
@@ -180,7 +162,7 @@ const CreateCommunity = () => {
             onChange={handleImageChange}
             disabled={loading}
           />
-          <small>Optional. Size: 50KB-2MB. Dimensions: 200x200px to 2000x2000px. Recommended: 500x500px square image.</small>
+          <small>Optional. Max 5MB. Any image format accepted.</small>
           {imagePreview && (
             <div className="image-preview">
               <img src={imagePreview} alt="Preview" />

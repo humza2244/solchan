@@ -2523,6 +2523,32 @@ a.post-name:hover {
   color: #333;
 }
 
+/* Join button */
+.join-btn {
+  background: #228B22;
+  border: 1px solid #1a6b1a;
+  color: #fff;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  border-radius: 3px;
+  margin-left: 8px;
+  transition: all 0.15s;
+  font-weight: bold;
+}
+
+.join-btn:hover:not(:disabled) {
+  background: #2da52d;
+}
+
+.join-btn.joined {
+  background: #6c9c6c;
+  border-color: #5a8a5a;
+  cursor: default;
+  opacity: 0.8;
+}
+
 /* ===== FORMATTING HELP ===== */
 .formatting-help {
   margin-top: 4px;
@@ -3346,6 +3372,20 @@ body.dark .bookmark-btn.bookmarked {
   background: #ff6b9d;
   color: #fff;
   border-color: #ff6b9d;
+}
+
+body.dark .join-btn {
+  background: #2d7a2d;
+  border-color: #247a24;
+}
+
+body.dark .join-btn:hover:not(:disabled) {
+  background: #3a943a;
+}
+
+body.dark .join-btn.joined {
+  background: #3a5a3a;
+  border-color: #2a4a2a;
 }
 
 body.dark .sort-btn {

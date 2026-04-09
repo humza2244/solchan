@@ -9,6 +9,7 @@ import {
   updateCommunityInfo,
   getKOTH,
   getCommunityMembers,
+  joinCommunity,
 } from '../services/communityService.js'
 import { uploadCommunityImage } from '../services/storageService.js'
 import { invalidatePopularCoinsCache } from '../utils/cache.js'
@@ -179,16 +180,14 @@ export const uploadCommunityImageHandler = async (req, res) => {
     if (!community) {
       return res.status(404).json({ error: 'Community not found' })
     }
+
+    // Convert buffer to base64 data URL — stores directly in Firestore
+    // This avoids ephemeral filesystem issues on Render
+    const base64 = req.file.buffer.toString('base64')
+    const dataUrl = `data:${req.file.mimetype};base64,${base64}`
     
-    const publicUrl = await uploadCommunityImage(
-      id,
-      req.file.buffer,
-      req.file.originalname,
-      req.file.mimetype
-    )
-    
-    const updatedCommunity = await updateCommunityInfo(id, { imageUrl: publicUrl })
-    res.json({ imageUrl: publicUrl, community: updatedCommunity.toJSON() })
+    const updatedCommunity = await updateCommunityInfo(id, { imageUrl: dataUrl })
+    res.json({ imageUrl: dataUrl, community: updatedCommunity.toJSON() })
   } catch (error) {
     console.error('Error uploading image:', error.message)
     res.status(500).json({ error: 'Failed to upload image' })
@@ -229,6 +228,20 @@ export const getCommunityMembersHandler = async (req, res) => {
   }
 }
 
+// POST /api/communities/:id/join - Join community without posting
+export const joinCommunityHandler = async (req, res) => {
+  try {
+    const { id } = req.params
+    const author = req.body.author || 'Anonymous'
+    
+    const result = await joinCommunity(id, { author, userId: req.userId || null })
+    res.json(result)
+  } catch (error) {
+    console.error('Error joining community:', error.message)
+    res.status(500).json({ error: 'Failed to join community' })
+  }
+}
+
 export default {
   createCommunityHandler,
   searchCommunitiesHandler,
@@ -239,4 +252,5 @@ export default {
   uploadCommunityImageHandler,
   getKOTHHandler,
   getCommunityMembersHandler,
+  joinCommunityHandler,
 }

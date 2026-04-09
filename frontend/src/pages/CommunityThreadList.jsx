@@ -113,6 +113,8 @@ const CommunityThreadList = () => {
   const [sortMode, setSortMode] = useState('bump')
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('threadViewMode') || 'list')
   const [isBookmarked, setIsBookmarked] = useState(false)
+  const [hasJoined, setHasJoined] = useState(false)
+  const [joinLoading, setJoinLoading] = useState(false)
 
   // Check bookmark status
   useEffect(() => {
@@ -270,6 +272,24 @@ const CommunityThreadList = () => {
           <Link to={`/community/${id}/new-thread`} className="create-thread-btn">
             Start a New Thread
           </Link>
+          <button
+            className={`join-btn ${hasJoined ? 'joined' : ''}`}
+            onClick={async () => {
+              if (hasJoined) return
+              setJoinLoading(true)
+              try {
+                await axios.post(`${API_BASE_URL}/communities/${id}/join`, { author: 'Anonymous' })
+                setHasJoined(true)
+              } catch (err) {
+                console.error('Failed to join:', err)
+              } finally {
+                setJoinLoading(false)
+              }
+            }}
+            disabled={hasJoined || joinLoading}
+          >
+            {hasJoined ? '✓ Joined' : joinLoading ? 'Joining...' : '👋 Join Community'}
+          </button>
           <button
             className={`bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`}
             onClick={toggleBookmark}

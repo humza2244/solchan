@@ -8,11 +8,11 @@ import Message from '../models/Message.js'
 export const createCommunity = async (communityData) => {
   const db = getDb()
   const now = new Date()
-  const normalizedCA = communityData.contractAddress.toLowerCase()
+  const normalizedCA = communityData.contractAddress.trim()
 
   // Check for existing community with same contract address
   const existing = await db.collection('communities')
-    .where('contractAddress', '==', normalizedCA)
+    .where('contractAddressLower', '==', normalizedCA.toLowerCase())
     .limit(1)
     .get()
 
@@ -25,6 +25,7 @@ export const createCommunity = async (communityData) => {
     ticker: communityData.ticker,
     coinName: communityData.coinName,
     contractAddress: normalizedCA,
+    contractAddressLower: normalizedCA.toLowerCase(),
     description: communityData.description || null,
     imageUrl: communityData.imageUrl || null,
     creatorId: communityData.creatorId || null,
@@ -99,9 +100,9 @@ export const searchCommunities = async (searchTerm) => {
     tickerPrefix.docs.forEach(addResult)
   }
 
-  // 3. Exact contract address match
+  // 3. Exact contract address match (case-insensitive via lowercase field)
   const caExact = await db.collection('communities')
-    .where('contractAddress', '==', search)
+    .where('contractAddressLower', '==', search)
     .get()
   caExact.docs.forEach(addResult)
 
@@ -109,8 +110,8 @@ export const searchCommunities = async (searchTerm) => {
   if (search.length >= 6) {
     const caEnd = search.slice(0, -1) + String.fromCharCode(search.charCodeAt(search.length - 1) + 1)
     const caPrefix = await db.collection('communities')
-      .where('contractAddress', '>=', search)
-      .where('contractAddress', '<', caEnd)
+      .where('contractAddressLower', '>=', search)
+      .where('contractAddressLower', '<', caEnd)
       .limit(20)
       .get()
     caPrefix.docs.forEach(addResult)
@@ -353,6 +354,36 @@ export const trackMember = async (communityId, { author, userId }) => {
       uniqueUsersCount: FieldValue.increment(1),
     })
   }
+}
+
+// Join a community without posting (lurker)
+export const joinCommunity = async (communityId, { author, userId }) => {
+  const db = getDb()
+  const now = new Date()
+  
+  const memberKey = userId || `anon_${(author || 'Anonymous').toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+  const memberRef = db.collection('communityMembers').doc(`${communityId}_${memberKey}`)
+  const memberDoc = await memberRef.get()
+  
+  if (memberDoc.exists) {
+    return { alreadyJoined: true }
+  }
+  
+  await memberRef.set({
+    communityId,
+    userId: userId || null,
+    author: author || 'Anonymous',
+    memberKey,
+    joinedAt: now,
+    lastPostAt: null,
+    postCount: 0,
+  })
+  
+  await db.collection('communities').doc(communityId).update({
+    uniqueUsersCount: FieldValue.increment(1),
+  })
+  
+  return { joined: true }
 }
 
 // Get all members of a community
