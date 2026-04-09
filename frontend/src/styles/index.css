@@ -3629,3 +3629,136 @@ body.dark .mod-input {
   border-color: #3a3a5a;
   color: #d4d4dc;
 }
+
+/* ===========================
+   WELCOME MODAL (enhanced)
+   =========================== */
+.welcome-modal {
+  max-width: 520px;
+  padding: 30px 28px;
+  border-radius: 3px;
+}
+
+.welcome-modal h2 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.welcome-subtitle {
+  font-size: 14px !important;
+  color: #555 !important;
+  margin-bottom: 20px !important;
+}
+
+.welcome-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.welcome-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.step-number {
+  min-width: 32px;
+  height: 32px;
+  background: #800000;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.welcome-step strong {
+  font-size: 14px;
+  color: #800000;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.welcome-step p {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  color: #444 !important;
+  margin: 0 !important;
+}
+
+.welcome-got-it {
+  width: 100%;
+  padding: 12px;
+  background: #800000;
+  color: #fff;
+  border: none;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.welcome-got-it:hover {
+  background: #a00000;
+}
+
+/* Feature pills */
+.feature-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.feature-pill {
+  display: inline-block;
+  padding: 5px 12px;
+  background: #D9EAF7;
+  border: 1px solid #B7C5D9;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #333;
+  white-space: nowrap;
+}
+
+/* Dark mode welcome */
+body.dark .welcome-modal {
+  background: #1a1a3a;
+  border-color: #4a4a7a;
+}
+
+body.dark .welcome-subtitle {
+  color: #9a9ab0 !important;
+}
+
+body.dark .step-number {
+  background: #6a5acd;
+}
+
+body.dark .welcome-step strong {
+  color: #b0a8e6;
+}
+
+body.dark .welcome-step p {
+  color: #9a9ab0 !important;
+}
+
+body.dark .welcome-got-it {
+  background: #6a5acd;
+}
+
+body.dark .welcome-got-it:hover {
+  background: #7b6be0;
+}
+
+body.dark .feature-pill {
+  background: #2a2a4a;
+  border-color: #3a3a5a;
+  color: #c4c4dc;
+}

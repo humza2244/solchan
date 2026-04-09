@@ -98,16 +98,40 @@ const Home = () => {
       {/* Welcome Modal */}
       {showWelcomeModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content welcome-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={handleCloseModal}>
               ✕
             </button>
-            <h2>Welcome to solchan</h2>
-            <p>
-              <strong>solchan</strong> is an uncensored memecoin community platform. 
-              Create or join communities for any cryptocurrency. Chat live with holders, 
-              share alpha, and discuss your favorite memecoins. Pure chaos, zero moderation.
+            <h2>👋 Welcome to solchan</h2>
+            <p className="welcome-subtitle">
+              The anonymous imageboard for memecoin communities.
             </p>
+            <div className="welcome-steps">
+              <div className="welcome-step">
+                <span className="step-number">1</span>
+                <div>
+                  <strong>No sign up needed</strong>
+                  <p>Just pick a community and start posting. You're automatically "Anonymous" — no email, no wallet, nothing.</p>
+                </div>
+              </div>
+              <div className="welcome-step">
+                <span className="step-number">2</span>
+                <div>
+                  <strong>Find your coin</strong>
+                  <p>Search by ticker (PEPE, DOGE, etc.) or paste a contract address. If it doesn't exist yet, create it!</p>
+                </div>
+              </div>
+              <div className="welcome-step">
+                <span className="step-number">3</span>
+                <div>
+                  <strong>Post threads & reply</strong>
+                  <p>Start new threads with images, reply to others, use greentext (&gt;like this), and format with **bold** or *italic*.</p>
+                </div>
+              </div>
+            </div>
+            <button className="welcome-got-it" onClick={handleCloseModal}>
+              Got it, let me in →
+            </button>
           </div>
         </div>
       )}
@@ -208,13 +232,18 @@ const Home = () => {
         </div>
         <div className="what-is-content">
           <p>
-            solchan is a simple image-based bulletin board for memecoin communities. 
-            Search for any cryptocurrency by its ticker or contract address to join an existing 
-            community or create a new one. Each coin gets its own dedicated board where holders 
-            can chat in real-time, share alpha, discuss price movements, and engage in unfiltered 
-            discussion about their investments. No registration required — just search for a coin 
-            and start posting!
+            An anonymous imageboard for memecoin communities — like 4chan but for crypto. 
+            Every coin gets its own board. <strong>No sign up required</strong> — just search for a 
+            coin, click a community, and start posting.
           </p>
+          <div className="feature-pills">
+            <span className="feature-pill">🔓 No registration</span>
+            <span className="feature-pill">💬 Real-time chat</span>
+            <span className="feature-pill">🖼 Image posting</span>
+            <span className="feature-pill">🎨 Text formatting</span>
+            <span className="feature-pill">🌙 Dark mode</span>
+            <span className="feature-pill">📌 Thread pinning</span>
+          </div>
         </div>
       </div>
 
