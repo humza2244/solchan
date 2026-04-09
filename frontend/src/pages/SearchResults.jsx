@@ -20,8 +20,9 @@ const CopyCA = ({ address }) => {
 }
 
 const CommunityImage = ({ community }) => {
-  if (community.imageUrl) {
-    return <img src={community.imageUrl} alt={community.coinName} />
+  const [imgErr, setImgErr] = useState(false)
+  if (community.imageUrl && !imgErr) {
+    return <img src={community.imageUrl} alt={community.coinName} onError={() => setImgErr(true)} />
   }
   return (
     <div className="community-placeholder-img">

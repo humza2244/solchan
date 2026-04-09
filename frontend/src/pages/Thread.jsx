@@ -652,6 +652,7 @@ const Thread = () => {
               alt="Thread image"
               onClick={() => toggleImage(thread.postNumber)}
               title="Click to expand/collapse"
+              onError={(e) => { e.target.style.display = 'none' }}
             />
           </div>
         )}
@@ -709,6 +710,7 @@ const Thread = () => {
                   alt="Reply image"
                   onClick={() => toggleImage(reply.postNumber)}
                   title="Click to expand/collapse"
+                  onError={(e) => { e.target.style.display = 'none' }}
                 />
               </div>
             )}

@@ -67,18 +67,15 @@ export const uploadThreadImageHandler = async (req, res) => {
       return res.status(400).json({ error: 'No image file provided' })
     }
 
-    const publicUrl = await uploadThreadImage(
-      threadId,
-      req.file.buffer,
-      req.file.originalname,
-      req.file.mimetype
-    )
+    // Store as base64 data URL in Firestore (avoids ephemeral fs on Render)
+    const base64 = req.file.buffer.toString('base64')
+    const dataUrl = `data:${req.file.mimetype};base64,${base64}`
 
     const { getDb } = await import('../config/firebase.js')
     const db = getDb()
-    await db.collection('threads').doc(threadId).update({ imageUrl: publicUrl })
+    await db.collection('threads').doc(threadId).update({ imageUrl: dataUrl })
 
-    res.json({ imageUrl: publicUrl })
+    res.json({ imageUrl: dataUrl })
   } catch (error) {
     console.error('Error uploading thread image:', error.message)
     res.status(500).json({ error: 'Failed to upload image' })
@@ -184,14 +181,14 @@ export const addReplyHandler = async (req, res) => {
 
     let imageUrl = null
 
-    // If there's an image, upload it to R2 first
+    // If there's an image, convert to base64 data URL
     if (req.file) {
       try {
-        const fileName = `replies/${Date.now()}-${Math.random().toString(36).substring(7)}-${req.file.originalname}`
-        imageUrl = await uploadToR2(req.file.buffer, fileName, req.file.mimetype)
+        const base64 = req.file.buffer.toString('base64')
+        imageUrl = `data:${req.file.mimetype};base64,${base64}`
       } catch (error) {
-        console.error('Error uploading reply image:', error.message)
-        // Continue without image if upload fails
+        console.error('Error processing reply image:', error.message)
+        // Continue without image if processing fails
       }
     }
 
@@ -231,18 +228,15 @@ export const uploadReplyImageHandler = async (req, res) => {
       return res.status(400).json({ error: 'No image file provided' })
     }
 
-    const publicUrl = await uploadReplyImage(
-      replyId,
-      req.file.buffer,
-      req.file.originalname,
-      req.file.mimetype
-    )
+    // Store as base64 data URL in Firestore
+    const base64 = req.file.buffer.toString('base64')
+    const dataUrl = `data:${req.file.mimetype};base64,${base64}`
 
     const { getDb } = await import('../config/firebase.js')
     const db = getDb()
-    await db.collection('replies').doc(replyId).update({ imageUrl: publicUrl })
+    await db.collection('replies').doc(replyId).update({ imageUrl: dataUrl })
 
-    res.json({ imageUrl: publicUrl })
+    res.json({ imageUrl: dataUrl })
   } catch (error) {
     console.error('Error uploading reply image:', error.message)
     res.status(500).json({ error: 'Failed to upload image' })

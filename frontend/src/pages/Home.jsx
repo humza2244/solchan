@@ -20,10 +20,12 @@ const CopyCA = ({ address }) => {
 }
 
 const CommunityImage = ({ community, size = 'card' }) => {
-  if (community.imageUrl) {
-    return <img src={community.imageUrl} alt={community.coinName} />
-  }
+  const [imgError, setImgError] = useState(false)
   const className = size === 'koth' ? 'koth-placeholder-img' : 'community-placeholder-img'
+  
+  if (community.imageUrl && !imgError) {
+    return <img src={community.imageUrl} alt={community.coinName} onError={() => setImgError(true)} />
+  }
   return <div className={className}>{community.ticker?.slice(0, 4)}</div>
 }
 

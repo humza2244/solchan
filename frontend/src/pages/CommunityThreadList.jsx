@@ -23,8 +23,9 @@ const CopyCA = ({ address }) => {
 }
 
 const CommunityImage = ({ community }) => {
-  if (community.imageUrl) {
-    return <img src={community.imageUrl} alt={community.coinName} style={{ width: 36, height: 36, borderRadius: 4, objectFit: 'cover' }} />
+  const [imgErr, setImgErr] = useState(false)
+  if (community.imageUrl && !imgErr) {
+    return <img src={community.imageUrl} alt={community.coinName} style={{ width: 36, height: 36, borderRadius: 4, objectFit: 'cover' }} onError={() => setImgErr(true)} />
   }
   return (
     <div style={{
@@ -494,6 +495,7 @@ const CommunityThreadList = () => {
                       src={thread.imageUrl} 
                       alt="Thread image"
                       onClick={() => setLightboxImg(thread.imageUrl)} 
+                      onError={(e) => { e.target.style.display = 'none' }}
                     />
                   </div>
                 )}
