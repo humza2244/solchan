@@ -741,7 +741,7 @@ const Thread = () => {
           className="reply-toggle-btn"
           onClick={() => setShowReplyForm(!showReplyForm)}
         >
-          {showReplyForm ? 'Close Reply' : 'Reply'}
+          {showReplyForm ? '✕ Close' : '✏️ Write a Reply'}
         </button>
       ) : (
         <button className="reply-toggle-btn locked" disabled>

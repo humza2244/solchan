@@ -440,7 +440,7 @@ const CommunityThreadList = () => {
                 <div className="post-header">
                   <span className="post-subject">
                     {thread.isPinned && <span className="pin-indicator" title="Pinned">📌 </span>}
-                    {thread.subject}
+                    <Link to={`/thread/${thread.id}`} className="thread-subject-link">{thread.subject}</Link>
                   </span>
                   <Link to={`/user/${encodeURIComponent(thread.author)}`} className="post-name">{thread.author}</Link>
                   <span className="post-date">
@@ -481,8 +481,8 @@ const CommunityThreadList = () => {
                   <p>{renderContent(thread.content)}</p>
                 </div>
                 <div className="thread-stats">
-                  <Link to={`/thread/${thread.id}`} className="reply-link">
-                    Reply
+                  <Link to={`/thread/${thread.id}`} className="open-thread-btn">
+                    💬 Open Thread
                   </Link>
                   <span className="reply-count-badge">
                     {thread.replyCount} {thread.replyCount === 1 ? 'reply' : 'replies'}

@@ -850,16 +850,38 @@ a:hover {
   margin-top: 10px;
   font-size: 12px;
   color: #666;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.thread-stats .reply-link {
-  color: #0000EE;
-  text-decoration: underline;
+.open-thread-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #800000 0%, #af0a0f 100%);
+  color: #fff !important;
+  text-decoration: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(128, 0, 0, 0.25);
+}
+
+.open-thread-btn:hover {
+  background: linear-gradient(135deg, #a00000 0%, #cc1105 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(128, 0, 0, 0.35);
+}
+
+.thread-subject-link {
+  color: inherit;
+  text-decoration: none;
   cursor: pointer;
-  margin-right: 10px;
 }
 
-.thread-stats .reply-link:hover {
+.thread-subject-link:hover {
+  text-decoration: underline;
   color: #800000;
 }
 
@@ -1141,22 +1163,26 @@ a:hover {
    =========================== */
 .reply-toggle-btn {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
-  background: #0F0C5D;
+  right: 24px;
+  bottom: 24px;
+  background: linear-gradient(135deg, #800000 0%, #af0a0f 100%);
   color: #FFF;
-  border: 2px solid #000;
-  padding: 12px 20px;
-  font-size: 14px;
+  border: none;
+  padding: 14px 28px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   z-index: 999;
-  border-radius: 4px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  border-radius: 50px;
+  box-shadow: 0 4px 16px rgba(128, 0, 0, 0.4);
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
 }
 
 .reply-toggle-btn:hover {
-  background: #1a1570;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(128, 0, 0, 0.5);
+  background: linear-gradient(135deg, #a00000 0%, #cc1105 100%);
 }
 
 .floating-reply-form {
@@ -3197,11 +3223,13 @@ body.dark .fmt-btn:hover {
 }
 
 body.dark .reply-toggle-btn {
-  background: #ff6b9d;
+  background: linear-gradient(135deg, #6a5acd 0%, #8b76e8 100%);
+  box-shadow: 0 4px 16px rgba(106, 90, 205, 0.4);
 }
 
 body.dark .reply-toggle-btn:hover {
-  background: #e05585;
+  background: linear-gradient(135deg, #7b6be0 0%, #9c8ef0 100%);
+  box-shadow: 0 6px 24px rgba(106, 90, 205, 0.5);
 }
 
 body.dark .scroll-btn {
@@ -3761,4 +3789,25 @@ body.dark .feature-pill {
   background: #2a2a4a;
   border-color: #3a3a5a;
   color: #c4c4dc;
+}
+
+/* Dark mode: Open Thread button & subject link */
+body.dark .open-thread-btn {
+  background: linear-gradient(135deg, #6a5acd 0%, #8b76e8 100%);
+  box-shadow: 0 2px 6px rgba(106, 90, 205, 0.3);
+}
+
+body.dark .open-thread-btn:hover {
+  background: linear-gradient(135deg, #7b6be0 0%, #9c8ef0 100%);
+  box-shadow: 0 3px 10px rgba(106, 90, 205, 0.4);
+}
+
+body.dark .thread-subject-link:hover {
+  color: #b0a8e6;
+}
+
+body.dark .reply-count-badge {
+  background: #2a2a4a;
+  border-color: #3a3a5a;
+  color: #b0a8e6;
 }
