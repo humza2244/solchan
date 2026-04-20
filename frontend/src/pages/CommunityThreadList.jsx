@@ -338,7 +338,7 @@ const CommunityThreadList = () => {
       {/* Lightbox */}
       {lightboxImg && (
         <div className="lightbox-overlay" onClick={() => setLightboxImg(null)}>
-          <button className="lightbox-close" onClick={() => setLightboxImg(null)}>✕</button>
+          <button className="lightbox-close" onClick={() => setLightboxImg(null)}></button>
           <img src={lightboxImg} alt="Full size" />
         </div>
       )}
@@ -383,7 +383,7 @@ const CommunityThreadList = () => {
             }}
             disabled={hasJoined || joinLoading}
           >
-            {hasJoined ? '✓ Joined' : joinLoading ? 'Joining...' : '👋 Join Community'}
+            {hasJoined ? '✓ Joined' : joinLoading ? 'Joining...' : ' Join Community'}
           </button>
           <button
             className={`bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`}
@@ -410,7 +410,7 @@ const CommunityThreadList = () => {
       {/* Set CA Panel — shown to creator/mod when CA is missing */}
       {isMod && !community.contractAddress && (
         <div className="set-ca-panel">
-          <h4 className="set-ca-title">📋 Add Contract Address</h4>
+          <h4 className="set-ca-title"> Add Contract Address</h4>
           <p className="set-ca-desc">Your community doesn't have a contract address yet. Add it once the token launches.</p>
           {caMsg && <div className="mod-success">{caMsg}</div>}
           {caErr && <div className="mod-error">{caErr}</div>}
@@ -434,7 +434,7 @@ const CommunityThreadList = () => {
       {/* Community Rules Panel */}
       {(community.rules || isMod) && (
         <details className="community-rules-panel" style={{ marginTop: 12 }}>
-          <summary className="rules-toggle">📋 Community Rules</summary>
+          <summary className="rules-toggle"> Community Rules</summary>
           <div className="rules-content">
             {community.rules ? (
               community.rules.split('\n').map((line, i) => (
@@ -478,7 +478,7 @@ const CommunityThreadList = () => {
           className="members-panel-toggle"
           onClick={() => setShowMembers(!showMembers)}
         >
-          👥 Members ({members.length})
+           Members ({members.length})
         </button>
         {showMembers && (
           <div className="members-panel">
@@ -489,7 +489,7 @@ const CommunityThreadList = () => {
                 {members.map((member) => (
                   <div key={member.id} className="member-card">
                     <div className="member-name">
-                      {member.userId ? '🔑 ' : ''}{member.author}
+                      {member.userId ? ' ' : ''}{member.author}
                     </div>
                     <div className="member-stats">
                       <span>{member.postCount} {member.postCount === 1 ? 'post' : 'posts'}</span>
@@ -512,7 +512,7 @@ const CommunityThreadList = () => {
           onClick={() => setShowChat(!showChat)}
           style={{ marginTop: 8 }}
         >
-          💬 Live Chat ({chatMessages.length})
+           Live Chat ({chatMessages.length})
         </button>
         {showChat && (
           <div className="community-chat-panel">
@@ -532,7 +532,7 @@ const CommunityThreadList = () => {
                         className="chat-delete-btn"
                         onClick={() => handleDeleteChatMessage(msg.id)}
                         title="Delete message"
-                      >🗑</button>
+                      ></button>
                     )}
                   </div>
                 ))
@@ -591,7 +591,7 @@ const CommunityThreadList = () => {
                 className={`view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
                 onClick={() => handleViewModeChange('list')}
                 title="List View"
-              >☰</button>
+              ></button>
               <button
                 className={`view-toggle-btn ${viewMode === 'catalog' ? 'active' : ''}`}
                 onClick={() => handleViewModeChange('catalog')}
@@ -613,7 +613,7 @@ const CommunityThreadList = () => {
                 })
                 .map((thread) => (
                   <Link key={thread.id} to={`/thread/${thread.id}`} className="catalog-card">
-                    {thread.isPinned && <span className="catalog-card-pin">📌</span>}
+                    {thread.isPinned && <span className="catalog-card-pin"></span>}
                     {thread.imageUrl ? (
                       <img src={thread.imageUrl} className="catalog-card-img" alt="" />
                     ) : (
@@ -647,7 +647,7 @@ const CommunityThreadList = () => {
               <div className="op-post">
                 <div className="post-header">
                   <span className="post-subject">
-                    {thread.isPinned && <span className="pin-indicator" title="Pinned">📌 </span>}
+                    {thread.isPinned && <span className="pin-indicator" title="Pinned"> </span>}
                     <Link to={`/thread/${thread.id}`} className="thread-subject-link">{thread.subject}</Link>
                   </span>
                   <Link to={`/user/${encodeURIComponent(thread.author)}`} className="post-name">{thread.author}</Link>
@@ -663,7 +663,7 @@ const CommunityThreadList = () => {
                       onClick={() => setReportTarget({ type: 'thread', id: thread.id })}
                       title="Report"
                     >
-                      🚩
+                      
                     </button>
                     {isMod && (
                       <button
@@ -671,7 +671,7 @@ const CommunityThreadList = () => {
                         onClick={() => handleDeleteThread(thread.id)}
                         title="Delete Thread"
                       >
-                        🗑
+                        
                       </button>
                     )}
                   </span>
@@ -691,7 +691,7 @@ const CommunityThreadList = () => {
                 </div>
                 <div className="thread-stats">
                   <Link to={`/thread/${thread.id}`} className="open-thread-btn">
-                    💬 Open Thread
+                     Open Thread
                   </Link>
                   <span className="reply-count-badge">
                     {thread.replyCount} {thread.replyCount === 1 ? 'reply' : 'replies'}

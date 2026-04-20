@@ -11,10 +11,10 @@ export const getSocketIO = () => {
 
 export const broadcastToThread = (threadId, event, data) => {
   if (!io) {
-    console.warn('⚠️  Socket.IO not initialized, cannot broadcast')
+    console.warn('  Socket.IO not initialized, cannot broadcast')
     return
   }
   io.to(`thread-${threadId}`).emit(event, data)
-  console.log(`📤 Broadcasted ${event} to thread-${threadId}`)
+  console.log(` Broadcasted ${event} to thread-${threadId}`)
 }
 

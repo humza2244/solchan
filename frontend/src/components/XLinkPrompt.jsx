@@ -43,7 +43,7 @@ const XLinkPrompt = ({ onComplete, onCancel }) => {
     <div className="x-link-overlay">
       <div className="x-link-modal">
         <div className="x-link-header">
-          <span className="x-logo">𝕏</span>
+          <span className="x-logo">X</span>
           <h3>Welcome! Choose a Username</h3>
           <p>Your X account is connected. Pick a username to use on solchan.</p>
         </div>

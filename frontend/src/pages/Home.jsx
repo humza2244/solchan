@@ -106,9 +106,9 @@ const Home = () => {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content welcome-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={handleCloseModal}>
-              ✕
+              
             </button>
-            <h2>👋 Welcome to solchan</h2>
+            <h2> Welcome to solchan</h2>
             <p className="welcome-subtitle">
               The anonymous imageboard for memecoin communities.
             </p>
@@ -204,7 +204,7 @@ const Home = () => {
         return (
           <div className="watched-section">
             <div className="section-header">
-              <h2>👁 Watched Threads</h2>
+              <h2> Watched Threads</h2>
             </div>
             <div className="watched-threads-list">
               {watched.map((w) => (
@@ -243,12 +243,12 @@ const Home = () => {
             coin, click a community, and start posting.
           </p>
           <div className="feature-pills">
-            <span className="feature-pill">🔓 No registration</span>
-            <span className="feature-pill">💬 Real-time chat</span>
-            <span className="feature-pill">🖼 Image posting</span>
-            <span className="feature-pill">🎨 Text formatting</span>
-            <span className="feature-pill">🌙 Dark mode</span>
-            <span className="feature-pill">📌 Thread pinning</span>
+            <span className="feature-pill">No registration needed</span>
+            <span className="feature-pill">Real-time chat</span>
+            <span className="feature-pill">Image posting</span>
+            <span className="feature-pill">Text formatting</span>
+            <span className="feature-pill">Thread pinning</span>
+            <span className="feature-pill">Anonymous posting</span>
           </div>
         </div>
       </div>
@@ -314,8 +314,10 @@ const Home = () => {
                       <div className="community-name">{community.ticker}</div>
                       <div className="community-coin-name">{community.coinName}</div>
                       <div className="community-ca">
-                        {community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}
-                        <CopyCA address={community.contractAddress} />
+                        {community.contractAddress
+                          ? <>{community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}<CopyCA address={community.contractAddress} /></>
+                          : <span style={{ color: '#aaa', fontStyle: 'italic' }}>No CA yet</span>
+                        }
                       </div>
                       <div className="community-stats">
                         {community.messageCount} msgs • {community.uniqueUsersCount} users

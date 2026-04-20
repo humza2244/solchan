@@ -16,15 +16,15 @@ export const connectSocket = () => {
     })
 
     socket.on('connect', () => {
-      console.log('✅ Socket connected')
+      console.log(' Socket connected')
     })
 
     socket.on('disconnect', (reason) => {
-      console.log('⚠️ Socket disconnected:', reason)
+      console.log(' Socket disconnected:', reason)
     })
 
     socket.on('connect_error', (error) => {
-      console.log('❌ Socket connection error:', error.message)
+      console.log(' Socket connection error:', error.message)
     })
   }
   return socket

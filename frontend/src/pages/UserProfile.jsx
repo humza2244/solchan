@@ -78,7 +78,7 @@ const UserProfile = () => {
             <div key={`${post.type}-${post.id}`} className="user-post-card">
               <div className="user-post-meta">
                 <span className={`user-post-type ${post.type}`}>
-                  {post.type === 'thread' ? '📝 Thread' : '💬 Reply'}
+                  {post.type === 'thread' ? ' Thread' : ' Reply'}
                 </span>
                 <span className="post-date">
                   {new Date(post.createdAt).toLocaleString()}

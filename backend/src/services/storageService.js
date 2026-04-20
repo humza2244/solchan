@@ -19,9 +19,9 @@ if (isR2Configured) {
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
     },
   })
-  console.log('☁️  R2 storage configured')
+  console.log('  R2 storage configured')
 } else {
-  console.log('📁 Using local file storage (R2 not configured)')
+  console.log(' Using local file storage (R2 not configured)')
 }
 
 const BUCKET_NAME = process.env.R2_BUCKET_NAME || 'solchan-images'
@@ -54,7 +54,7 @@ export const uploadToR2 = async (fileBuffer, fileName, contentType) => {
 
     await r2Client.send(command)
     const publicUrl = `${PUBLIC_URL}/${fileName}`
-    console.log('✅ Uploaded to R2:', publicUrl)
+    console.log(' Uploaded to R2:', publicUrl)
     return publicUrl
   } else {
     // Save to local filesystem
@@ -69,7 +69,7 @@ export const uploadToR2 = async (fileBuffer, fileName, contentType) => {
     
     // Return URL path that Express will serve statically
     const localUrl = `/uploads/${fileName}`
-    console.log('✅ Saved locally:', localUrl)
+    console.log(' Saved locally:', localUrl)
     return localUrl
   }
 }

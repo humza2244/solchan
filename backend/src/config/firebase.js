@@ -53,7 +53,7 @@ export const initializeFirebase = () => {
     try {
       serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
     } catch (e) {
-      console.error('⚠️  Invalid FIREBASE_SERVICE_ACCOUNT JSON')
+      console.error('  Invalid FIREBASE_SERVICE_ACCOUNT JSON')
     }
   }
 
@@ -64,7 +64,7 @@ export const initializeFirebase = () => {
       try {
         serviceAccount = JSON.parse(readFileSync(keyPath, 'utf8'))
       } catch (e) {
-        console.error('⚠️  Invalid serviceAccountKey.json')
+        console.error('  Invalid serviceAccountKey.json')
       }
     }
   }
@@ -78,18 +78,18 @@ export const initializeFirebase = () => {
       db = admin.firestore()
       db.settings({ ignoreUndefinedProperties: true })
       usingRealFirebase = true
-      console.log('🔥 Connected to Firebase Cloud Firestore')
+      console.log(' Connected to Firebase Cloud Firestore')
       console.log(`   Project: ${serviceAccount.project_id}`)
       return db
     } catch (e) {
-      console.error('⚠️  Firebase init failed, falling back to local store:', e.message)
+      console.error('  Firebase init failed, falling back to local store:', e.message)
     }
   }
 
   // ── Local file-backed store (dev fallback) ──
   db = createLocalStore()
-  console.log('🔥 Persistent local Firestore initialized')
-  console.log(`💾 Data file: ${DATA_FILE}`)
+  console.log(' Persistent local Firestore initialized')
+  console.log(` Data file: ${DATA_FILE}`)
   return db
 }
 
@@ -135,10 +135,10 @@ const loadFromDisk = () => {
         collections.set(name, m)
       }
       const total = Array.from(collections.values()).reduce((s, m) => s + m.size, 0)
-      console.log(`📂 Loaded ${total} documents from disk`)
+      console.log(` Loaded ${total} documents from disk`)
     }
   } catch (e) {
-    console.error('⚠️  Error loading data:', e.message)
+    console.error('  Error loading data:', e.message)
     collections = new Map()
   }
 }
@@ -153,7 +153,7 @@ const saveToDisk = () => {
       for (const [name, docs] of collections.entries()) obj[name] = Object.fromEntries(docs)
       writeFileSync(DATA_FILE, JSON.stringify(obj, null, 2))
     } catch (e) {
-      console.error('⚠️  Error saving data:', e.message)
+      console.error('  Error saving data:', e.message)
     }
   }, 100)
 }

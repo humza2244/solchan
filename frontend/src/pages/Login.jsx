@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import XLinkPrompt from '../components/XLinkPrompt.jsx'
 
 const Login = () => {
   const { login, loginWithX, isLoggedIn } = useAuth()
@@ -12,9 +11,8 @@ const Login = () => {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [xLoading, setXLoading] = useState(false)
-  const [showXPrompt, setShowXPrompt] = useState(false)
 
-  if (isLoggedIn && !showXPrompt) {
+  if (isLoggedIn) {
     navigate('/')
     return null
   }
@@ -33,7 +31,6 @@ const Login = () => {
       await login(email.trim(), password)
       navigate('/')
     } catch (err) {
-      console.error('Login error:', err)
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
         setError('Invalid email or password')
       } else if (err.code === 'auth/too-many-requests') {
@@ -50,12 +47,8 @@ const Login = () => {
     setError('')
     setXLoading(true)
     try {
-      const result = await loginWithX()
-      if (result.needsUsername) {
-        setShowXPrompt(true)
-      } else {
-        navigate('/')
-      }
+      await loginWithX()
+      navigate('/')
     } catch (err) {
       console.error('X login error:', err.code, err.message)
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
@@ -65,20 +58,11 @@ const Login = () => {
       } else if (err.code === 'auth/popup-blocked') {
         setError('Popup was blocked by your browser. Allow popups for this site and try again.')
       } else {
-        setError(`Login failed (${err.code || 'unknown error'}). Use email/password instead.`)
+        setError(`Login failed (${err.code || 'unknown'}). Use email/password instead.`)
       }
     } finally {
       setXLoading(false)
     }
-  }
-
-  if (showXPrompt) {
-    return (
-      <XLinkPrompt
-        onComplete={() => navigate('/')}
-        onCancel={() => setShowXPrompt(false)}
-      />
-    )
   }
 
   return (
@@ -86,14 +70,11 @@ const Login = () => {
       <div className="create-community">
         <h2>Login</h2>
         <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px' }}>
-          Login to post with your username. You can always post as Anonymous without logging in.
+          Login to post with your username. You can always post anonymously without logging in.
         </p>
 
-        {error && (
-          <div className="error-message">{error}</div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
-        {/* X Login Button */}
         <button
           id="login-with-x"
           type="button"

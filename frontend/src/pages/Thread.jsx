@@ -521,7 +521,7 @@ const Thread = () => {
     return (
       <div className="thread-page">
         <div className="no-threads" style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🔍</div>
+          <div style={{ fontSize: 48, marginBottom: 12 }}></div>
           <p style={{ fontSize: 16, marginBottom: 16, color: '#666' }}>Thread not found or has been deleted</p>
           <Link to="/" className="back-link" style={{ fontSize: 14 }}>← Back to Home</Link>
         </div>
@@ -602,7 +602,7 @@ const Thread = () => {
       {/* Image Lightbox */}
       {lightboxImg && (
         <div className="lightbox-overlay" onClick={() => setLightboxImg(null)}>
-          <button className="lightbox-close" onClick={() => setLightboxImg(null)}>✕</button>
+          <button className="lightbox-close" onClick={() => setLightboxImg(null)}></button>
           <img src={lightboxImg} alt="Full size" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
@@ -616,14 +616,14 @@ const Thread = () => {
             onClick={toggleWatch}
             title={isWatched ? 'Unwatch thread' : 'Watch thread'}
           >
-            {isWatched ? '👁 Watching' : '👁 Watch'}
+            {isWatched ? ' Watching' : ' Watch'}
           </button>
           <button
             className={`thread-action-btn ${linkCopied ? 'copied' : ''}`}
             onClick={handleShareLink}
             title="Copy thread link"
           >
-            {linkCopied ? '✓ Copied!' : '🔗 Share'}
+            {linkCopied ? '✓ Copied!' : ' Share'}
           </button>
           {liveUsers > 0 && (
             <span className="live-users">{liveUsers} in thread</span>
@@ -634,14 +634,14 @@ const Thread = () => {
       {/* Thread locked banner */}
       {thread.isLocked && (
         <div className="thread-locked-banner">
-          🔒 This thread is locked. No new replies can be posted.
+           This thread is locked. No new replies can be posted.
         </div>
       )}
 
       {/* Community rules */}
       {communityData?.rules && (
         <details className="community-rules-panel">
-          <summary className="rules-toggle">📋 Community Rules</summary>
+          <summary className="rules-toggle"> Community Rules</summary>
           <div className="rules-content">
             {communityData.rules.split('\n').map((line, i) => (
               <p key={i}>{line}</p>
@@ -665,14 +665,14 @@ const Thread = () => {
           <span className="post-number" onClick={() => handlePostNumberClick(thread.postNumber)}>
             No. {thread.postNumber}
           </span>
-          {thread.isLocked && <span className="lock-indicator">🔒</span>}
+          {thread.isLocked && <span className="lock-indicator"></span>}
           {myPosts.has(String(thread.postNumber)) && <span className="you-marker">(You)</span>}
           <span className="post-actions">
-            <button className="report-btn" onClick={() => setReportTarget({ type: 'thread', id: thread.id })} title="Report">🚩</button>
-            {isMod && <button className="pin-btn" onClick={handleTogglePin} title={thread.isPinned ? 'Unpin' : 'Pin'}>{thread.isPinned ? '📌' : '📍'}</button>}
-            {isMod && <button className="lock-btn" onClick={handleToggleLock} title={thread.isLocked ? 'Unlock' : 'Lock'}>{thread.isLocked ? '🔓' : '🔒'}</button>}
-            {isMod && <button className="delete-btn" onClick={() => handleDeleteThread(thread.id)} title="Delete Thread">🗑</button>}
-            {isMod && <button className="ban-btn" onClick={() => handleBanUser(thread.author)} title="Ban User">🔨</button>}
+            <button className="report-btn" onClick={() => setReportTarget({ type: 'thread', id: thread.id })} title="Report"></button>
+            {isMod && <button className="pin-btn" onClick={handleTogglePin} title={thread.isPinned ? 'Unpin' : 'Pin'}>{thread.isPinned ? '' : ''}</button>}
+            {isMod && <button className="lock-btn" onClick={handleToggleLock} title={thread.isLocked ? 'Unlock' : 'Lock'}>{thread.isLocked ? '' : ''}</button>}
+            {isMod && <button className="delete-btn" onClick={() => handleDeleteThread(thread.id)} title="Delete Thread"></button>}
+            {isMod && <button className="ban-btn" onClick={() => handleBanUser(thread.author)} title="Ban User"></button>}
           </span>
         </div>
         {thread.imageUrl && (
@@ -701,9 +701,9 @@ const Thread = () => {
       </div>
       {/* Thread Stats Bar */}
       <div className="thread-stats-bar">
-        <span>💬 {threadStats.totalPosts} posts</span>
-        <span>👤 {threadStats.uniquePosters} posters</span>
-        <span>🖼 {threadStats.imageCount} images</span>
+        <span> {threadStats.totalPosts} posts</span>
+        <span> {threadStats.uniquePosters} posters</span>
+        <span> {threadStats.imageCount} images</span>
       </div>
 
       {/* Replies */}
@@ -728,9 +728,9 @@ const Thread = () => {
               </span>
               {myPosts.has(String(reply.postNumber)) && <span className="you-marker">(You)</span>}
               <span className="post-actions">
-                <button className="report-btn" onClick={() => setReportTarget({ type: 'reply', id: reply.id })} title="Report">🚩</button>
-                {isMod && <button className="delete-btn" onClick={() => handleDeleteReply(reply.id)} title="Delete Reply">🗑</button>}
-                {isMod && <button className="ban-btn" onClick={() => handleBanUser(reply.author)} title="Ban User">🔨</button>}
+                <button className="report-btn" onClick={() => setReportTarget({ type: 'reply', id: reply.id })} title="Report"></button>
+                {isMod && <button className="delete-btn" onClick={() => handleDeleteReply(reply.id)} title="Delete Reply"></button>}
+                {isMod && <button className="ban-btn" onClick={() => handleBanUser(reply.author)} title="Ban User"></button>}
               </span>
             </div>
             {reply.imageUrl && (
@@ -773,11 +773,11 @@ const Thread = () => {
           className="reply-toggle-btn"
           onClick={() => setShowReplyForm(!showReplyForm)}
         >
-          {showReplyForm ? '✕ Close' : '✏️ Write a Reply'}
+          {showReplyForm ? ' Close' : ' Write a Reply'}
         </button>
       ) : (
         <button className="reply-toggle-btn locked" disabled>
-          🔒 Thread Locked
+           Thread Locked
         </button>
       )}
 
@@ -811,7 +811,7 @@ const Thread = () => {
               onClick={() => setShowReplyForm(false)}
               type="button"
             >
-              ✕
+              
             </button>
           </div>
           <form onSubmit={handleSubmitReply} className="floating-form">

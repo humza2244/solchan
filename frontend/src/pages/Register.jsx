@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import XLinkPrompt from '../components/XLinkPrompt.jsx'
 
 const Register = () => {
   const { register, loginWithX, isLoggedIn } = useAuth()
@@ -15,9 +14,8 @@ const Register = () => {
   const [submitting, setSubmitting] = useState(false)
   const [xLoading, setXLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [showXPrompt, setShowXPrompt] = useState(false)
 
-  if (isLoggedIn && !success && !showXPrompt) {
+  if (isLoggedIn && !success) {
     navigate('/')
     return null
   }
@@ -58,15 +56,14 @@ const Register = () => {
       await register(email.trim(), password, username.trim())
       setSuccess(true)
     } catch (err) {
-      console.error('Registration error:', err)
       if (err.code === 'auth/email-already-in-use') {
         setError('An account with this email already exists')
-      } else if (err.code === 'auth/weak-password') {
-        setError('Password is too weak — use at least 6 characters')
       } else if (err.code === 'auth/invalid-email') {
         setError('Invalid email address')
-      } else if (err.response?.data?.error) {
-        setError(err.response.data.error)
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password is too weak')
+      } else if (err.message === 'Username already taken') {
+        setError('That username is already taken')
       } else {
         setError('Registration failed. Please try again.')
       }
@@ -75,52 +72,39 @@ const Register = () => {
     }
   }
 
-  const handleXSignup = async () => {
+  const handleXRegister = async () => {
     setError('')
     setXLoading(true)
     try {
-      const result = await loginWithX()
-      if (result.needsUsername) {
-        setShowXPrompt(true)
-      } else {
-        navigate('/')
-      }
+      await loginWithX()
+      navigate('/')
     } catch (err) {
-      console.error('X signup error:', err)
+      console.error('X register error:', err.code, err.message)
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-        // silently ignore
+        // User closed popup — ignore
       } else if (err.code === 'auth/configuration-not-found' || err.code === 'auth/operation-not-allowed') {
-        setError('X sign-up is not configured yet. Please use email/password.')
+        setError('X login is not enabled yet. Register with email/password instead.')
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Popup was blocked. Allow popups for this site and try again.')
       } else {
-        setError('X sign-up failed. Please try again.')
+        setError(`Registration failed (${err.code || 'unknown'}). Try email/password instead.`)
       }
     } finally {
       setXLoading(false)
     }
   }
 
-  if (showXPrompt) {
-    return (
-      <XLinkPrompt
-        onComplete={() => navigate('/')}
-        onCancel={() => setShowXPrompt(false)}
-      />
-    )
-  }
-
   if (success) {
     return (
       <div className="thread-page">
-        <div className="create-community" style={{ textAlign: 'center' }}>
-          <h2 style={{ color: '#117743' }}>✓ Account Created!</h2>
-          <p style={{ margin: '15px 0', lineHeight: 1.6 }}>
-            A verification email has been sent to <strong>{email}</strong>.<br />
-            Check your inbox (and spam folder) to verify your account.
+        <div className="create-community">
+          <h2>Account Created</h2>
+          <p>
+            A verification email has been sent to your address. You can continue posting while you verify.
           </p>
-          <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px' }}>
-            You can start posting immediately, but verifying your email will add a ✓ badge to your posts.
-          </p>
-          <Link to="/" style={{ color: '#0000EE', fontWeight: 'bold' }}>Go to Home →</Link>
+          <button className="create-button" onClick={() => navigate('/')}>
+            Go to Home
+          </button>
         </div>
       </div>
     )
@@ -129,29 +113,21 @@ const Register = () => {
   return (
     <div className="thread-page">
       <div className="create-community">
-        <h2>Create an Account</h2>
+        <h2>Create Account</h2>
         <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px' }}>
-          Registration is optional. You can always post as Anonymous without an account.
+          You don't need an account to post. Registration is optional — only needed to post with a persistent username.
         </p>
 
-        {error && (
-          <div className="error-message">{error}</div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
-        {/* X Signup Button */}
         <button
           id="register-with-x"
           type="button"
-          onClick={handleXSignup}
+          onClick={handleXRegister}
           disabled={xLoading || submitting}
           className="x-login-btn"
         >
-          {xLoading ? 'Connecting...' : (
-            <>
-              <span className="x-login-icon">𝕏</span>
-              Sign up with X (Twitter)
-            </>
-          )}
+          {xLoading ? 'Connecting to X...' : 'Sign up with X (Twitter)'}
         </button>
 
         <div className="auth-divider">
@@ -166,11 +142,12 @@ const Register = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="3-20 characters, letters/numbers/underscores"
+              placeholder="Letters, numbers, underscores only"
               disabled={submitting}
+              maxLength={20}
               autoComplete="username"
             />
-            <small>This will be your display name on posts</small>
+            <small>This is your public display name. 3-20 characters.</small>
           </div>
 
           <div className="form-group">
@@ -184,7 +161,6 @@ const Register = () => {
               disabled={submitting}
               autoComplete="email"
             />
-            <small>Used for login and verification only — never shared publicly</small>
           </div>
 
           <div className="form-group">
@@ -201,20 +177,20 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="reg-confirm">Confirm Password</label>
+            <label htmlFor="reg-confirm-password">Confirm Password</label>
             <input
-              id="reg-confirm"
+              id="reg-confirm-password"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
+              placeholder="Repeat your password"
               disabled={submitting}
               autoComplete="new-password"
             />
           </div>
 
           <button type="submit" disabled={submitting} className="create-button">
-            {submitting ? 'Creating Account...' : 'Create Account'}
+            {submitting ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 

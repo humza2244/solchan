@@ -48,7 +48,7 @@ const ReportModal = ({ contentType, contentId, communityId, onClose }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content report-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕</button>
+        <button className="modal-close" onClick={onClose}></button>
         
         {success ? (
           <div className="report-success">

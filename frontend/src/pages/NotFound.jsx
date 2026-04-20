@@ -8,7 +8,7 @@ const NotFound = () => {
       maxWidth: 500,
       margin: '0 auto',
     }}>
-      <div style={{ fontSize: 64, marginBottom: 10 }}>🔍</div>
+      <div style={{ fontSize: 64, marginBottom: 10 }}></div>
       <h1 style={{ fontSize: 48, color: '#AF0A0F', marginBottom: 8, fontWeight: 800 }}>404</h1>
       <h2 style={{ fontSize: 18, marginBottom: 16, color: '#34345C' }}>Page Not Found</h2>
       <p style={{ fontSize: 14, color: '#666', marginBottom: 24, lineHeight: 1.6 }}>

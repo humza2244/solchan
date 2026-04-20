@@ -114,13 +114,13 @@ const CTOPanel = ({ community, onCTOApproved }) => {
         className={`cto-panel-toggle ${community.ctoStatus === 'pending' ? 'cto-active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        🚩 CTO Available {requests.filter(r => r.status === 'pending').length > 0 && `(${requests.filter(r => r.status === 'pending').length} pending)`}
+         CTO Available {requests.filter(r => r.status === 'pending').length > 0 && `(${requests.filter(r => r.status === 'pending').length} pending)`}
       </button>
 
       {isOpen && (
         <div className="cto-panel">
           <div className="cto-eligibility-badge">
-            <span className="cto-badge-icon">⚠️</span>
+            <span className="cto-badge-icon"></span>
             <span>{eligibilityReason}</span>
           </div>
 
@@ -132,7 +132,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
             <div className="cto-submit-section">
               {!showForm ? (
                 <button className="cto-request-btn" onClick={() => setShowForm(true)}>
-                  🚀 Request Community Takeover (CTO)
+                   Request Community Takeover (CTO)
                 </button>
               ) : (
                 <form onSubmit={handleSubmitCTO} className="cto-form">
@@ -179,7 +179,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
               requests.map(req => (
                 <div key={req.id} className={`cto-request-item ${req.status}`}>
                   <div className="cto-request-header">
-                    <span className="cto-requester">👤 {req.requesterUsername}</span>
+                    <span className="cto-requester"> {req.requesterUsername}</span>
                     <span className={`cto-status-badge ${req.status}`}>
                       {req.status === 'approved' ? '✓ Approved' : req.status === 'rejected' ? '✗ Rejected' : '⏳ Pending'}
                     </span>
@@ -187,9 +187,9 @@ const CTOPanel = ({ community, onCTOApproved }) => {
                   <p className="cto-reason">"{req.reason}"</p>
                   <div className="cto-vote-row">
                     <span className="cto-votes">
-                      👍 {req.upvotes || 0} / {CTO_VOTE_THRESHOLD} needed
+                       {req.upvotes || 0} / {CTO_VOTE_THRESHOLD} needed
                     </span>
-                    <span className="cto-votes-down">👎 {req.downvotes || 0}</span>
+                    <span className="cto-votes-down"> {req.downvotes || 0}</span>
                     {req.status === 'pending' && isLoggedIn && user?.uid !== req.requesterId && (
                       <div className="cto-vote-btns">
                         <button
@@ -198,7 +198,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
                           disabled={voting === req.id}
                           title="Support this CTO request"
                         >
-                          {voting === req.id ? '...' : '👍 Support'}
+                          {voting === req.id ? '...' : ' Support'}
                         </button>
                         <button
                           className="cto-vote-down-btn"
@@ -206,7 +206,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
                           disabled={voting === req.id}
                           title="Oppose this CTO request"
                         >
-                          👎
+                          
                         </button>
                       </div>
                     )}

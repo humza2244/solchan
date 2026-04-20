@@ -114,7 +114,7 @@ const CreateCommunity = () => {
         You can create a community now and add the contract address later once it's deployed.
         <br />
         {!isLoggedIn && (
-          <span>💡 <Link to="/login">Log in</Link> to become the community creator with full mod powers.</span>
+          <span> <Link to="/login">Log in</Link> to become the community creator with full mod powers.</span>
         )}
       </p>
 

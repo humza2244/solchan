@@ -155,7 +155,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
         username: warnUsername.trim(),
         reason: warnReason.trim() || 'Rule violation',
       }, authHeaders)
-      showMsg(`⚠️ Warning issued to ${warnUsername}`)
+      showMsg(` Warning issued to ${warnUsername}`)
       setWarnUsername('')
       setWarnReason('')
       // Refresh warnings
@@ -194,7 +194,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
   return (
     <div className="mod-panel-wrapper">
       <button className="mod-panel-toggle" onClick={() => setIsOpen(!isOpen)}>
-        ⚔ Mod Panel {reports.length > 0 && `(${reports.length})`}
+         Mod Panel {reports.length > 0 && `(${reports.length})`}
       </button>
 
       {isOpen && (
@@ -305,7 +305,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
                     placeholder="Reason for ban..."
                     className="mod-input ban-reason-input"
                   />
-                  <button type="submit" className="mod-btn mod-btn-ban">🔨 Ban User</button>
+                  <button type="submit" className="mod-btn mod-btn-ban"> Ban User</button>
                 </div>
               </form>
 
@@ -317,7 +317,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
                   bans.map(ban => (
                     <div key={ban.id} className="ban-item">
                       <div className="ban-info">
-                        <span className="ban-username">🚫 {ban.username}</span>
+                        <span className="ban-username"> {ban.username}</span>
                         <span className="ban-reason">— {ban.reason}</span>
                         <span className="ban-expiry">{formatBanExpiry(ban.expiresAt)}</span>
                       </div>
@@ -356,7 +356,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
                     placeholder="Reason for warning..."
                     className="mod-input ban-reason-input"
                   />
-                  <button type="submit" className="mod-btn mod-btn-warn">⚠️ Warn User</button>
+                  <button type="submit" className="mod-btn mod-btn-warn"> Warn User</button>
                 </div>
               </form>
 
@@ -368,7 +368,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
                   warnings.map(w => (
                     <div key={w.id} className="ban-item warning-item">
                       <div className="ban-info">
-                        <span className="ban-username">⚠️ {w.username}</span>
+                        <span className="ban-username"> {w.username}</span>
                         <span className="ban-reason">— {w.reason}</span>
                         <span className="ban-expiry" style={{ background: '#e8a000' }}>
                           {w.createdAt ? new Date(w.createdAt).toLocaleDateString() : ''}
@@ -385,7 +385,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
           {activeTab === 'mods' && isCreator && (
             <div className="mod-management">
               <div className="creator-info">
-                <span className="creator-label">👑 Creator:</span>
+                <span className="creator-label"> Creator:</span>
                 <span className="creator-name">{creatorUsername || 'Unknown'}</span>
               </div>
 
@@ -407,7 +407,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
                 ) : (
                   modDetails.map((mod) => (
                     <div key={mod.uid} className="mod-item">
-                      <span className="mod-username">🛡 {mod.username}</span>
+                      <span className="mod-username"> {mod.username}</span>
                       <button
                         className="mod-btn mod-btn-remove"
                         onClick={() => handleRemoveMod(mod.uid)}

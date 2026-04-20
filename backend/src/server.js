@@ -227,7 +227,7 @@ const checkSpam = (socketId, content) => {
 
 // WebSocket connection handling
 io.on('connection', (socket) => {
-  console.log('🔌 User connected:', socket.id)
+  console.log(' User connected:', socket.id)
 
   // Join a community room
   socket.on('join-community', async (communityId) => {
@@ -371,12 +371,12 @@ const startServer = async () => {
     initializeFirebase()
 
     httpServer.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`)
-      console.log(`🔌 WebSocket server ready`)
-      console.log(`🔥 Firestore connected`)
+      console.log(` Server running on http://localhost:${PORT}`)
+      console.log(` WebSocket server ready`)
+      console.log(` Firestore connected`)
     })
   } catch (error) {
-    console.error('❌ Failed to start server:', error)
+    console.error(' Failed to start server:', error)
     process.exit(1)
   }
 }
