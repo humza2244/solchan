@@ -521,7 +521,7 @@ const Thread = () => {
     return (
       <div className="thread-page">
         <div className="no-threads" style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}></div>
+          <div style={{ fontSize: 36, marginBottom: 12, color: '#ccc', fontWeight: 800 }}>404</div>
           <p style={{ fontSize: 16, marginBottom: 16, color: '#666' }}>Thread not found or has been deleted</p>
           <Link to="/" className="back-link" style={{ fontSize: 14 }}>← Back to Home</Link>
         </div>
@@ -623,7 +623,7 @@ const Thread = () => {
             onClick={handleShareLink}
             title="Copy thread link"
           >
-            {linkCopied ? '✓ Copied!' : ' Share'}
+            {linkCopied ? 'OK Copied!' : ' Share'}
           </button>
           {liveUsers > 0 && (
             <span className="live-users">{liveUsers} in thread</span>

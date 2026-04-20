@@ -239,7 +239,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
               {loading ? (
                 <p className="mod-loading">Loading reports...</p>
               ) : reports.length === 0 ? (
-                <p className="mod-empty">No pending reports ✓</p>
+                <p className="mod-empty">No pending reports OK</p>
               ) : (
                 reports.map(report => (
                   <div key={report.id} className="report-item">

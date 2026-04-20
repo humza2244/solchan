@@ -18,7 +18,7 @@ const CopyCA = ({ address }) => {
   }
   return (
     <button className={`copy-ca-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>
-      {copied ? '✓ Copied' : 'Copy CA'}
+      {copied ? 'OK Copied' : 'Copy CA'}
     </button>
   )
 }
@@ -287,7 +287,7 @@ const CommunityThreadList = () => {
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       )
       setCommunity(res.data)
-      setCAMsg('✓ Contract address saved!')
+      setCAMsg('OK Contract address saved!')
       setCAInput('')
     } catch (err) {
       if (err.response?.status === 409 && err.response?.data?.existingId) {
@@ -383,13 +383,13 @@ const CommunityThreadList = () => {
             }}
             disabled={hasJoined || joinLoading}
           >
-            {hasJoined ? '✓ Joined' : joinLoading ? 'Joining...' : ' Join Community'}
+            {hasJoined ? 'OK Joined' : joinLoading ? 'Joining...' : ' Join Community'}
           </button>
           <button
             className={`bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`}
             onClick={toggleBookmark}
           >
-            {isBookmarked ? '★ Bookmarked' : '☆ Bookmark'}
+            {isBookmarked ? '* Bookmarked' : ' Bookmark'}
           </button>
         </div>
       </div>

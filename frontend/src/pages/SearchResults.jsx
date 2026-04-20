@@ -14,7 +14,7 @@ const CopyCA = ({ address }) => {
   }
   return (
     <button className={`copy-ca-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>
-      {copied ? '✓' : 'Copy'}
+      {copied ? 'OK' : 'Copy'}
     </button>
   )
 }
@@ -106,8 +106,10 @@ const SearchResults = () => {
                   <div className="community-name">{community.ticker}</div>
                   <div className="community-coin-name">{community.coinName}</div>
                   <div className="community-ca">
-                    {community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}
-                    <CopyCA address={community.contractAddress} />
+                    {community.contractAddress
+                      ? <>{community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}<CopyCA address={community.contractAddress} /></>
+                      : <span style={{ color: '#aaa', fontStyle: 'italic' }}>No CA yet</span>
+                    }
                   </div>
                   <div className="community-stats">
                     {community.messageCount} msgs • {community.uniqueUsersCount} users

@@ -39,7 +39,7 @@ const ForgotPassword = () => {
 
         {sent ? (
           <div className="auth-success">
-            <p>✓ Password reset email sent to <strong>{email}</strong></p>
+            <p>OK Password reset email sent to <strong>{email}</strong></p>
             <p style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
               Check your inbox and follow the link to reset your password.
             </p>

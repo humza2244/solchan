@@ -19,6 +19,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 .container {
@@ -826,6 +827,7 @@ a:hover {
 .op-image {
   float: left;
   margin: 0 15px 15px 0;
+  max-width: 100%;
 }
 
 .op-image img {
@@ -833,6 +835,7 @@ a:hover {
   max-height: 250px;
   border: 1px solid #B7C5D9;
   cursor: pointer;
+  object-fit: contain;
 }
 
 .op-image img:hover {
@@ -877,6 +880,7 @@ a:hover {
 .reply-image {
   float: left;
   margin: 0 10px 10px 0;
+  max-width: 100%;
 }
 
 .reply-image img {
@@ -884,6 +888,7 @@ a:hover {
   max-height: 150px;
   border: 1px solid #B7C5D9;
   cursor: pointer;
+  object-fit: contain;
 }
 
 .reply-image img:hover {
@@ -1460,6 +1465,11 @@ a:hover {
     flex-wrap: wrap;
     justify-content: center;
     gap: 4px 8px;
+    padding: 0 8px;
+  }
+
+  .nav-divider {
+    margin: 0 4px;
   }
 
   .communities-list {
@@ -1484,13 +1494,19 @@ a:hover {
   }
 
   .reply-box {
-    margin-left: 10px;
-    max-width: 100%;
+    margin-left: 8px;
+    margin-right: 4px;
+    max-width: calc(100% - 12px);
+    overflow-x: hidden;
+    word-break: break-word;
   }
 
   .op-post {
     margin-left: 5px;
-    max-width: 100%;
+    margin-right: 5px;
+    max-width: calc(100% - 10px);
+    overflow-x: hidden;
+    word-break: break-word;
   }
 
   .op-image img {
@@ -1503,6 +1519,12 @@ a:hover {
     max-height: 100px;
   }
 
+  .op-image.expanded img,
+  .reply-image.expanded img {
+    max-width: 90vw !important;
+    max-height: 70vh !important;
+  }
+
   .floating-reply-form {
     width: calc(100% - 20px);
     right: 10px;
@@ -1510,7 +1532,8 @@ a:hover {
   }
 
   .thread-page {
-    padding: 0 10px;
+    padding: 0 8px;
+    overflow-x: hidden;
   }
 
   .thread-header-nav {
@@ -1523,7 +1546,7 @@ a:hover {
   }
 
   .replies-preview {
-    margin-left: 10px;
+    margin-left: 8px;
   }
 
   .post-form-container {
@@ -1533,6 +1556,7 @@ a:hover {
   .create-community {
     margin: 15px auto;
     padding: 15px;
+    max-width: calc(100% - 20px);
   }
 
   .search-results-page {
@@ -1555,6 +1579,79 @@ a:hover {
   .post-header {
     flex-wrap: wrap;
     gap: 4px;
+    font-size: 11px;
+  }
+
+  /* Community page sidebar */
+  .community-sidebar {
+    padding: 10px;
+  }
+
+  .community-header-card {
+    padding: 10px;
+  }
+
+  /* Chat panel */
+  .chat-messages {
+    max-height: 250px;
+  }
+
+  /* Mod panel */
+  .mod-panel {
+    padding: 10px;
+  }
+
+  /* Lightbox */
+  .lightbox-overlay img {
+    max-width: 95vw;
+    max-height: 85vh;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 12px 10px;
+  }
+
+  .footer-links {
+    gap: 10px;
+  }
+
+  /* Stats ticker */
+  .stats-ticker {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Community CA */
+  .community-ca {
+    font-size: 10px;
+    word-break: break-all;
+  }
+
+  /* Feature pills */
+  .feature-pills {
+    gap: 6px;
+  }
+
+  .feature-pill {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  /* Catalog view */
+  .catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .catalog-card {
+    padding: 6px;
+  }
+
+  /* Members/chat toggle */
+  .panel-toggle-btn {
+    font-size: 11px;
+    padding: 4px 8px;
   }
 }
 
@@ -1584,6 +1681,45 @@ a:hover {
   .reply-image {
     float: none;
     margin: 0 0 10px 0;
+  }
+
+  .reply-box {
+    margin-left: 4px;
+    margin-right: 2px;
+    max-width: calc(100% - 6px);
+  }
+
+  .op-post {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+
+  .catalog-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .nav {
+    font-size: 11px;
+  }
+
+  .header {
+    padding: 4px 0;
+  }
+
+  /* Welcome modal */
+  .welcome-modal {
+    width: calc(100% - 20px) !important;
+    max-width: none !important;
+    margin: 10px;
+    padding: 15px !important;
+  }
+
+  /* KOTH */
+  .koth-card-horizontal {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 }
 
@@ -3070,13 +3206,6 @@ a.post-name:hover {
   filter: brightness(1.3);
 }
 
-/* ===== DARK MODE TOGGLE ===== */
-
-
-.dark-mode-toggle:hover {
-  transform: scale(1.2);
-}
-
 /* ===== FORMATTING TOOLBAR ===== */
 .formatting-toolbar {
   display: flex;
@@ -3125,9 +3254,11 @@ a.post-name:hover {
 /* ===== EXPANDED IMAGES ===== */
 .op-image.expanded img,
 .reply-image.expanded img {
-  max-width: 100% !important;
-  max-height: none !important;
+  max-width: min(90vw, 800px) !important;
+  max-height: 80vh !important;
   width: auto;
+  height: auto;
+  object-fit: contain;
   cursor: zoom-out;
 }
 
@@ -3136,108 +3267,6 @@ a.post-name:hover {
   cursor: zoom-in;
   transition: max-width 0.2s ease;
 }
-
-/* ===== DARK MODE ===== */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Dark mode: Home Page */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Dark mode: Community Page */
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Dark mode: Auth Pages */
-
-
-
-
-
-/* Dark mode: Create Community */
-
-
-
-
-
-
-
-
-/* Dark mode: Catalog grid */
-
-
 
 
 /* ===== BAN BUTTON ON POSTS ===== */
@@ -3393,15 +3422,6 @@ a.post-name:hover {
   margin-bottom: 4px;
 }
 
-/* ===== DARK MODE: BAN UI ===== */
-
-
-
-
-
-
-
-
 
 /* ===========================
    WELCOME MODAL (enhanced)
@@ -3499,19 +3519,6 @@ a.post-name:hover {
   color: #333;
   white-space: nowrap;
 }
-
-/* Dark mode welcome */
-
-
-
-
-
-
-
-
-/* Dark mode: Open Thread button & subject link */
-
-
 
 
 /* ===========================
@@ -3762,25 +3769,6 @@ a.post-name:hover {
 .chat-anon-toggle input {
   cursor: pointer;
 }
-
-/* Dark mode: chat + X UI */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* ===========================
@@ -4185,21 +4173,5 @@ a.post-name:hover {
 /* ===========================
    DARK MODE — CTO + CA + WARN
    =========================== */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

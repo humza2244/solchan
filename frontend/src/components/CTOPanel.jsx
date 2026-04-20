@@ -93,7 +93,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       if (res.data.status === 'approved') {
-        showMsg('✓ CTO approved! The community has a new creator.')
+        showMsg('OK CTO approved! The community has a new creator.')
         onCTOApproved?.()
       } else {
         showMsg(`Vote recorded! ${res.data.upvotes || 0}/${CTO_VOTE_THRESHOLD} votes needed.`)
@@ -181,7 +181,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
                   <div className="cto-request-header">
                     <span className="cto-requester"> {req.requesterUsername}</span>
                     <span className={`cto-status-badge ${req.status}`}>
-                      {req.status === 'approved' ? '✓ Approved' : req.status === 'rejected' ? '✗ Rejected' : '⏳ Pending'}
+                      {req.status === 'approved' ? 'OK Approved' : req.status === 'rejected' ? 'X Rejected' : ' Pending'}
                     </span>
                   </div>
                   <p className="cto-reason">"{req.reason}"</p>
