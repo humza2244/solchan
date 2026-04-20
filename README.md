@@ -1,222 +1,134 @@
-# Solchan - Uncensored Memecoin Community Platform
+# solchan
 
-An uncensored, 4chan-style community platform specifically designed for memecoin holders and traders. Search for any cryptocurrency by contract address to join or create communities. Chat in real-time, share alpha, and engage in unfiltered discussions.
+An anonymous imageboard for memecoin communities. Every coin gets its own board — no sign-up required, just find your coin and start posting.
 
-## Features
+**Live → [solchan.fun](https://solchan.fun)**
 
-- 🔍 **Search by Ticker or Contract Address** - Find communities for any cryptocurrency
-- 💬 **Real-time Chat** - Live messaging with Socket.IO
-- 🎨 **4chan-Inspired UI** - Authentic board aesthetics
-- 🏷️ **Multiple Communities per Coin** - Create competing communities for the same token
-- 📊 **Popularity Rankings** - Communities ranked by activity and engagement
-- 🖼️ **Image Uploads** - Community images stored in Supabase
-- 🔐 **User Authentication** - Powered by Supabase Auth (currently bypassed for testing)
-- 📈 **Real-time Stats** - Message counts, unique users, and activity tracking
+---
 
-## Tech Stack
+## What it is
 
-### Frontend
-- React 18 with Vite
-- React Router for navigation
-- Socket.IO client for real-time messaging
-- Axios for HTTP requests
-- Supabase for authentication
-- 4chan-inspired CSS
+Solchan is a 4chan-style forum built specifically for Solana memecoin communities. Each community is organized around a coin's contract address. Anyone can browse and post anonymously. Registered users get extra features like moderation, bookmarks, and account linking.
 
-### Backend
-- Node.js + Express
-- Socket.IO for WebSocket connections
-- PostgreSQL (Supabase)
-- Supabase Storage for images
-- JWT authentication (currently bypassed)
+**Core features**
 
-## Local Development
+- Anonymous posting — no account needed
+- Real-time threads and replies via WebSocket
+- Community live chat with spam protection
+- Image uploads on thread creation and replies
+- Thread pinning, locking, quoting, and formatting
+- Catalog view (grid) and list view
+- Dark mode
+- King of the Hill — most active community gets crowned
 
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-- PostgreSQL database (or Supabase account)
+**Community features**
 
-### Setup
+- Create a community without a CA — add the contract address later once the token launches
+- One CA per coin enforced globally
+- Join communities, bookmark boards, watch threads
+- Community rules set by the creator
+- Live user count per community
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd chan-app
-   ```
+**Moderation**
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+- Creator + mod system with role management
+- Delete threads, replies, and live chat messages
+- Ban and unban users with optional duration
+- Warn users with a log in the mod panel
+- Report system with dismiss/resolve
+- CTO (Community Takeover) — if a team goes inactive, the community can vote to install a new creator
 
-3. **Configure environment variables**
-   
-   Backend (`backend/.env`):
-   ```bash
-   DATABASE_URL=postgresql://postgres:password@host:5432/database
-   FRONTEND_URL=http://localhost:3000
-   SUPABASE_URL=https://your-project.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-   PORT=5001
-   RUN_MIGRATIONS=true
-   ```
+**Auth (optional)**
 
-   Frontend (`frontend/.env`):
-   ```bash
-   VITE_API_URL=http://localhost:5001/api
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key
-   ```
+- Email/password accounts
+- X (Twitter) login and account linking
+- Logged-in users can post with their username or stay anonymous
 
-4. **Run database migrations**
-   ```bash
-   cd backend
-   npm run migrate
-   ```
+---
 
-5. **Start development servers**
-   ```bash
-   # From root directory
-   npm run dev
-   ```
+## Stack
 
-   This starts both frontend (port 3000) and backend (port 5001).
+| Layer | Tech |
+|---|---|
+| Frontend | React + Vite |
+| Backend | Node.js + Express |
+| Database | Firebase Firestore |
+| Auth | Firebase Auth |
+| Realtime | Socket.IO |
+| Storage | Cloudflare R2 (or base64 in Firestore) |
+| Hosting | Render |
 
-6. **Visit the app**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:5001/api
+---
 
-## Deployment
+## Running locally
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions to Railway and Vercel.
+**Requirements:** Node.js 18+, a Firebase project
 
-**Quick Deploy:**
-- **Backend**: Railway (recommended for Socket.IO)
-- **Frontend**: Vercel
-- **Database**: Supabase (already hosted)
-- **Storage**: Supabase Storage
-
-## Project Structure
-
-```
-chan-app/
-├── backend/
-│   ├── src/
-│   │   ├── config/          # Database, migrations, Supabase
-│   │   ├── controllers/     # API request handlers
-│   │   ├── middleware/      # Auth middleware
-│   │   ├── models/          # Data models
-│   │   ├── routes/          # API routes
-│   │   ├── services/        # Business logic
-│   │   ├── utils/           # Caching utilities
-│   │   └── server.js        # Express + Socket.IO server
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── context/         # Auth context
-│   │   ├── pages/           # Page components
-│   │   ├── services/        # API client, Socket.IO
-│   │   ├── styles/          # CSS
-│   │   └── App.jsx
-│   └── package.json
-└── package.json             # Root workspace config
-```
-
-## API Endpoints
-
-### Communities
-- `GET /api/communities` - Get all/popular communities
-- `GET /api/communities/search?q=ticker` - Search communities
-- `GET /api/communities/:id` - Get community with messages
-- `POST /api/communities` - Create community (auth required*)
-- `POST /api/communities/:id/image` - Upload image (auth required*)
-
-### Messages
-- `POST /api/communities/:id/messages` - Post message (auth required*)
-
-*Currently bypassed for testing
-
-## WebSocket Events
-
-### Client → Server
-- `authenticate` - Authenticate socket connection
-- `join-community` - Join a community room
-- `leave-community` - Leave a community room
-- `new-message` - Send a new message
-
-### Server → Client
-- `authenticated` - Authentication successful
-- `messages` - Initial messages when joining
-- `message` - New message broadcast
-- `error` - Error occurred
-
-## Database Schema
-
-### Communities Table
-- `id` - UUID primary key
-- `ticker` - Token symbol
-- `coin_name` - Full token name
-- `contract_address` - Blockchain address
-- `description` - Community description
-- `image_url` - Community image URL
-- `created_at` - Creation timestamp
-- `message_count` - Total messages
-- `unique_users_count` - Unique user count
-- `last_message_at` - Last activity timestamp
-
-### Messages Table
-- `id` - Bigint primary key
-- `post_number` - Sequential post number
-- `community_id` - Foreign key to communities
-- `content` - Message content
-- `user_id` - Foreign key to users
-- `author` - Display name
-- `created_at` - Creation timestamp
-
-## Development Notes
-
-### Authentication Bypass
-Authentication is currently bypassed for testing. All API calls use a mock user ID. Search for `TEMPORARY` comments in the code to find bypassed sections.
-
-To re-enable auth:
-1. Uncomment auth code in `backend/src/middleware/auth.js`
-2. Uncomment auth code in `backend/src/server.js`
-3. Uncomment auth code in `frontend/src/context/AuthContext.jsx`
-4. Uncomment protected route logic in `frontend/src/App.jsx`
-
-### Database Migrations
-Migrations run automatically on server start if `RUN_MIGRATIONS=true`. To run manually:
 ```bash
-cd backend
-npm run migrate
+# Clone
+git clone https://github.com/realdoomsman/solchan
+cd solchan
+
+# Install all workspaces
+npm install
+
+# Backend env
+cp backend/.env.example backend/.env
+# Fill in your Firebase service account key path and other env vars
+
+# Start both frontend + backend
+npm run dev
 ```
 
-### Caching
-Popular communities are cached for 5 minutes to improve performance. Cache is automatically invalidated when new messages are posted.
+Frontend runs on `http://localhost:3000`  
+Backend runs on `http://localhost:5001`
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## Environment variables
+
+**Backend (`backend/.env`)**
+
+```
+PORT=5001
+GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json
+CLOUDFLARE_R2_ACCESS_KEY=
+CLOUDFLARE_R2_SECRET_KEY=
+CLOUDFLARE_R2_BUCKET=
+CLOUDFLARE_R2_ENDPOINT=
+```
+
+**Frontend (`frontend/.env`)**
+
+```
+VITE_API_URL=http://localhost:5001/api
+```
+
+> The Firebase client config in `frontend/src/config/firebase.js` is intentionally public — Firebase security is enforced by Firestore rules, not by keeping this key hidden.
+
+---
+
+## Project structure
+
+```
+solchan/
+├── frontend/          React + Vite app
+│   └── src/
+│       ├── components/   Layout, ModPanel, CTOPanel, ...
+│       ├── context/      AuthContext
+│       ├── pages/        Thread, CommunityThreadList, ...
+│       └── services/     API, socket
+│
+└── backend/           Express API + WebSocket server
+    └── src/
+        ├── controllers/
+        ├── models/
+        ├── routes/
+        └── services/
+```
+
+---
 
 ## License
 
-MIT License - feel free to use this project however you want!
-
-## Support
-
-For issues and questions:
-- Open a GitHub issue
-- Check [DEPLOYMENT.md](DEPLOYMENT.md) for deployment help
-- Check [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) for technical details
-
-## Acknowledgments
-
-- Inspired by 4chan's board system
-- Built for the memecoin trading community
-- No moderation, pure chaos 🚀
+MIT
