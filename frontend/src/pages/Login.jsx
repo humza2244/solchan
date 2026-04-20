@@ -52,19 +52,20 @@ const Login = () => {
     try {
       const result = await loginWithX()
       if (result.needsUsername) {
-        // New X user — show username picker
         setShowXPrompt(true)
       } else {
         navigate('/')
       }
     } catch (err) {
-      console.error('X login error:', err)
+      console.error('X login error:', err.code, err.message)
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-        // User closed popup — silently ignore
+        // User closed popup — ignore
       } else if (err.code === 'auth/configuration-not-found' || err.code === 'auth/operation-not-allowed') {
-        setError('X login is not configured yet. Please use email/password.')
+        setError('X login is not enabled yet. Use email/password login instead.')
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Popup was blocked by your browser. Allow popups for this site and try again.')
       } else {
-        setError('X login failed. Please try again or use email/password.')
+        setError(`Login failed (${err.code || 'unknown error'}). Use email/password instead.`)
       }
     } finally {
       setXLoading(false)
@@ -100,12 +101,7 @@ const Login = () => {
           disabled={xLoading || submitting}
           className="x-login-btn"
         >
-          {xLoading ? 'Connecting...' : (
-            <>
-              <span className="x-login-icon">𝕏</span>
-              Continue with X (Twitter)
-            </>
-          )}
+          {xLoading ? 'Connecting to X...' : 'Continue with X (Twitter)'}
         </button>
 
         <div className="auth-divider">

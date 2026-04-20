@@ -7,16 +7,15 @@ const Layout = ({ children }) => {
   const navigate = useNavigate()
   const { isLoggedIn, displayName, logout, loading, twitterHandle, linkX, profile } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true')
   const [showScrollTop, setShowScrollTop] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [linkingX, setLinkingX] = useState(false)
   const [xLinkMsg, setXLinkMsg] = useState('')
 
+  // Ensure dark mode is always off
   useEffect(() => {
-    document.body.classList.toggle('dark', darkMode)
-    localStorage.setItem('darkMode', darkMode)
-  }, [darkMode])
+    document.body.classList.remove('dark')
+    localStorage.removeItem('darkMode')
+  }, [])
 
   // Scroll listener for scroll-to-top button
   useEffect(() => {
@@ -26,11 +25,6 @@ const Layout = ({ children }) => {
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
-  // Close mobile menu on navigation
-  useEffect(() => {
-    setMobileMenuOpen(false)
-  }, [location.pathname])
 
   const handleHomeClick = (e) => {
     if (location.pathname === '/') {
@@ -57,13 +51,16 @@ const Layout = ({ children }) => {
     setLinkingX(true)
     try {
       const handle = await linkX()
-      setXLinkMsg(handle ? `✓ @${handle} linked!` : '✓ X linked!')
+      setXLinkMsg(handle ? `@${handle} linked!` : 'X linked!')
       setTimeout(() => setXLinkMsg(''), 3000)
     } catch (err) {
       if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
-        console.error('Link X error:', err)
-        setXLinkMsg('Failed to link X')
-        setTimeout(() => setXLinkMsg(''), 3000)
+        if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/configuration-not-found') {
+          setXLinkMsg('X login not configured in Firebase')
+        } else {
+          setXLinkMsg('Failed to link X')
+        }
+        setTimeout(() => setXLinkMsg(''), 4000)
       }
     } finally {
       setLinkingX(false)
@@ -89,22 +86,13 @@ const Layout = ({ children }) => {
               />
             </form>
             <span className="nav-divider">|</span>
-            <button
-              className="dark-mode-toggle"
-              onClick={() => setDarkMode(!darkMode)}
-              title={darkMode ? 'Light mode' : 'Dark mode'}
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-            <span className="nav-divider">|</span>
             {!loading && (
               isLoggedIn ? (
                 <>
                   <Link to={`/user/${encodeURIComponent(displayName)}`} className="nav-user">{displayName}</Link>
-                  {/* X handle or Link X button */}
                   {twitterHandle ? (
                     <span className="nav-x-handle" title="X account linked">
-                      𝕏 @{twitterHandle}
+                      X @{twitterHandle}
                     </span>
                   ) : (
                     xLinkMsg ? (
@@ -116,7 +104,7 @@ const Layout = ({ children }) => {
                         disabled={linkingX}
                         title="Connect your X (Twitter) account"
                       >
-                        {linkingX ? 'Connecting...' : '𝕏 Link X'}
+                        {linkingX ? 'Connecting...' : 'Link X'}
                       </button>
                     )
                   )}
@@ -144,13 +132,12 @@ const Layout = ({ children }) => {
           <div className="footer-links">
             <Link to="/">Home</Link>
             <Link to="/create-community">Create Community</Link>
-            <a href="https://github.com/humza2244/solchan" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/realdoomsman/solchan" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
-          <p>&copy; {new Date().getFullYear()} solchan — the memecoin imageboard</p>
+          <p>&copy; {new Date().getFullYear()} solchan</p>
         </div>
       </footer>
 
-      {/* Scroll to top button */}
       <button
         className={`scroll-top-btn ${showScrollTop ? 'visible' : ''}`}
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

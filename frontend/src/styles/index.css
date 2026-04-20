@@ -3071,15 +3071,7 @@ a.post-name:hover {
 }
 
 /* ===== DARK MODE TOGGLE ===== */
-.dark-mode-toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 2px 4px;
-  line-height: 1;
-  transition: transform 0.2s;
-}
+
 
 .dark-mode-toggle:hover {
   transform: scale(1.2);
@@ -3146,475 +3138,107 @@ a.post-name:hover {
 }
 
 /* ===== DARK MODE ===== */
-body.dark {
-  background: #1a1a2e;
-  color: #d4d4dc;
-}
 
-body.dark .header {
-  background: #16213e;
-  border-bottom-color: #2a2a4a;
-}
 
-body.dark .header .nav a,
-body.dark .header .nav .nav-link,
-body.dark .header .nav .nav-user {
-  color: #b0b0cc;
-}
 
-body.dark .header .nav a:hover,
-body.dark .header .nav .nav-link:hover {
-  color: #ff6b9d;
-}
 
-body.dark .nav-search-input {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #d4d4dc;
-}
 
-body.dark .nav-divider {
-  color: #3a3a5a;
-}
 
-body.dark .main {
-  background: #1a1a2e;
-}
 
-body.dark .footer {
-  background: #16213e;
-  border-top-color: #2a2a4a;
-  color: #666;
-}
 
-body.dark .footer-links a {
-  color: #777;
-}
 
-body.dark .footer-links a:hover {
-  color: #ff6b9d;
-}
 
-body.dark .scroll-top-btn {
-  background: #2a2a4a;
-  color: #ff6b9d;
-}
 
-body.dark .scroll-top-btn:hover {
-  background: #3a3a5a;
-}
 
-body.dark .thread-page {
-  background: #1e1e36;
-}
 
-body.dark .thread-header-nav {
-  background: #24244a;
-  border-color: #3a3a5a;
-}
 
-body.dark .back-link {
-  color: #ff6b9d;
-}
 
-body.dark .op-post {
-  background: #2a2a4e;
-  border-color: #3a3a5a;
-}
 
-body.dark .reply-box {
-  background: #262646;
-  border-color: #3a3a5a;
-}
 
-body.dark .reply-box.highlighted {
-  border-color: #ff6b9d;
-}
 
-body.dark .post-subject {
-  color: #ff6b9d;
-}
 
-body.dark .post-name {
-  color: #7b9bff;
-}
 
-body.dark .post-date {
-  color: #888;
-}
 
-body.dark .post-number {
-  color: #ff6b9d;
-}
 
-body.dark .reply-link {
-  color: #ff6b9d;
-}
 
-body.dark .greentext {
-  color: #80c080;
-}
 
-body.dark .spoiler-text {
-  background: #555;
-  color: #555;
-}
 
-body.dark .spoiler-text:hover {
-  color: #ddd;
-}
 
-body.dark .inline-code {
-  background: #333;
-  color: #f0c040;
-  border-color: #444;
-}
 
-body.dark .backlinks {
-  border-top-color: #3a3a5a;
-  color: #666;
-}
 
-body.dark .thread-action-btn {
-  background: #3a3a5a;
-  border-color: #4a4a6a;
-  color: #ccc;
-}
 
-body.dark .thread-action-btn:hover {
-  background: #4a4a6a;
-}
 
-body.dark .thread-action-btn.watched {
-  background: #ff6b9d;
-  border-color: #ff6b9d;
-  color: #fff;
-}
 
-body.dark .thread-action-btn.copied {
-  background: #2a8a2a;
-  border-color: #2a8a2a;
-}
 
-body.dark .thread-locked-banner {
-  background: #3a1a1a;
-  border-color: #5a2a2a;
-  color: #ff8888;
-}
 
-body.dark .community-rules-panel {
-  background: #24244a;
-  border-color: #3a3a5a;
-}
 
-body.dark .rules-toggle {
-  color: #ccc;
-}
 
-body.dark .rules-toggle:hover {
-  background: #2a2a4a;
-}
 
-body.dark .rules-content {
-  border-top-color: #3a3a5a;
-  color: #aaa;
-}
 
-body.dark .thread-stats-bar {
-  background: rgba(255,255,255,0.03);
-  border-color: #3a3a5a;
-  color: #777;
-}
 
-body.dark .floating-reply-form {
-  background: #222244;
-  border-color: #3a3a5a;
-}
 
-body.dark .floating-form-header {
-  background: #1a1a3a;
-  color: #ccc;
-}
 
-body.dark .floating-input,
-body.dark .floating-textarea {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #d4d4dc;
-}
 
-body.dark .floating-submit-btn {
-  background: #ff6b9d;
-  border-color: #ff6b9d;
-}
 
-body.dark .floating-submit-btn:hover {
-  background: #e05585;
-}
 
-body.dark .fmt-btn {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #ccc;
-}
 
-body.dark .fmt-btn:hover {
-  background: #3a3a5a;
-}
 
-body.dark .reply-toggle-btn {
-  background: linear-gradient(135deg, #6a5acd 0%, #8b76e8 100%);
-  box-shadow: 0 4px 16px rgba(106, 90, 205, 0.4);
-}
 
-body.dark .reply-toggle-btn:hover {
-  background: linear-gradient(135deg, #7b6be0 0%, #9c8ef0 100%);
-  box-shadow: 0 6px 24px rgba(106, 90, 205, 0.5);
-}
 
-body.dark .scroll-btn {
-  background: #3a3a5a;
-}
 
-body.dark .scroll-btn:hover {
-  background: #ff6b9d;
-}
 
-body.dark .quote-preview {
-  background: #2a2a4e;
-  border-color: #5a5a7a;
-  color: #d4d4dc;
-}
 
-body.dark .lightbox-overlay {
-  background: rgba(0,0,0,0.9);
-}
 
 /* Dark mode: Home Page */
-body.dark .solchan-title {
-  color: #ff6b9d;
-}
 
-body.dark .section-header {
-  background: linear-gradient(135deg, #2a1020 0%, #1a1a3a 100%);
-  color: #ff6b9d;
-}
 
-body.dark .section-header h2 {
-  color: #ff6b9d;
-}
 
-body.dark .what-is-content,
-body.dark .what-is-solchan {
-  background: #222244;
-  border-color: #3a3a5a;
-}
 
-body.dark .what-is-content {
-  color: #bbb;
-}
 
-body.dark .community-card {
-  background: #262646;
-  border-color: #3a3a5a;
-}
 
-body.dark .community-card:hover {
-  border-color: #ff6b9d;
-}
 
-body.dark .community-card-name {
-  color: #ff6b9d;
-}
 
-body.dark .community-card-desc {
-  color: #888;
-}
 
-body.dark .stats-bar {
-  color: #777;
-}
 
-body.dark .koth-card {
-  background: linear-gradient(135deg, #3a2a10 0%, #2a2a10 100%);
-  border-color: #5a5a2a;
-}
 
-body.dark .search-input-home {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #d4d4dc;
-}
 
-body.dark .search-btn-home {
-  background: #ff6b9d;
-  border-color: #ff6b9d;
-}
 
-body.dark .bookmarked-chip {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #ccc;
-}
 
-body.dark .watched-thread-item {
-  background: #262646;
-  border-color: #3a3a5a;
-  color: #ccc;
-}
 
-body.dark .watched-thread-item:hover {
-  border-color: #ff6b9d;
-}
 
 /* Dark mode: Community Page */
-body.dark .community-header-stats {
-  color: #777;
-}
 
-body.dark .create-thread-btn {
-  color: #ff6b9d;
-  border-color: #ff6b9d;
-}
 
-body.dark .bookmark-btn {
-  color: #ccc;
-  border-color: #3a3a5a;
-}
 
-body.dark .bookmark-btn.bookmarked {
-  background: #ff6b9d;
-  color: #fff;
-  border-color: #ff6b9d;
-}
 
-body.dark .join-btn {
-  background: #2d7a2d;
-  border-color: #247a24;
-}
 
-body.dark .join-btn:hover:not(:disabled) {
-  background: #3a943a;
-}
 
-body.dark .join-btn.joined {
-  background: #3a5a3a;
-  border-color: #2a4a2a;
-}
 
-body.dark .sort-btn {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #ccc;
-}
 
-body.dark .sort-btn.active {
-  background: #ff6b9d;
-  border-color: #ff6b9d;
-  color: #fff;
-}
 
-body.dark .members-panel-toggle {
-  background: #24244a;
-  border-color: #3a3a5a;
-  color: #ccc;
-}
 
-body.dark .members-panel-content {
-  background: #222244;
-  border-color: #3a3a5a;
-}
 
-body.dark .thread-ca {
-  color: #777;
-}
 
-body.dark .copy-ca-btn {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #ccc;
-}
 
 /* Dark mode: Auth Pages */
-body.dark .auth-page {
-  background: #1e1e36;
-}
 
-body.dark .auth-form {
-  background: #222244;
-  border-color: #3a3a5a;
-}
 
-body.dark .auth-form input {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #d4d4dc;
-}
 
-body.dark .auth-form h2 {
-  color: #ff6b9d;
-}
 
-body.dark .auth-form button {
-  background: #ff6b9d;
-}
 
 /* Dark mode: Create Community */
-body.dark .create-community-page {
-  background: #1e1e36;
-}
 
-body.dark .create-form {
-  background: #222244;
-  border-color: #3a3a5a;
-}
 
-body.dark .create-form input,
-body.dark .create-form textarea,
-body.dark .create-form select {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #d4d4dc;
-}
 
-body.dark .live-users {
-  color: #4ade80;
-}
 
-body.dark .thread-post-count {
-  background: rgba(255,255,255,0.05);
-  color: #777;
-}
 
-body.dark .poster-id {
-  color: #fff;
-}
 
-body.dark .you-marker {
-  color: #ff6b9d;
-}
 
-body.dark .reply-box.my-post {
-  border-left-color: #ff6b9d;
-}
 
 /* Dark mode: Catalog grid */
-body.dark .catalog-card {
-  background: #262646;
-  border-color: #3a3a5a;
-}
 
-body.dark .catalog-card:hover {
-  border-color: #ff6b9d;
-}
 
-body.dark .catalog-card-subject {
-  color: #ff6b9d;
-}
 
-body.dark .catalog-card-meta {
-  color: #666;
-}
 
 /* ===== BAN BUTTON ON POSTS ===== */
 .ban-btn {
@@ -3770,47 +3394,14 @@ body.dark .catalog-card-meta {
 }
 
 /* ===== DARK MODE: BAN UI ===== */
-body.dark .ban-form {
-  background: rgba(255,255,255,0.03);
-  border-color: #3a3a5a;
-}
 
-body.dark .bans-list h4 {
-  color: #ccc;
-}
 
-body.dark .ban-item {
-  background: #2a1a1a;
-  border-color: #4a2a2a;
-}
 
-body.dark .ban-reason {
-  color: #999;
-}
 
-body.dark .creator-info {
-  background: rgba(255, 215, 0, 0.05);
-  border-color: rgba(255, 215, 0, 0.2);
-}
 
-body.dark .creator-name {
-  color: #ffd700;
-}
 
-body.dark .mod-username {
-  color: #ccc;
-}
 
-body.dark .mod-item {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-}
 
-body.dark .mod-input {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #d4d4dc;
-}
 
 /* ===========================
    WELCOME MODAL (enhanced)
@@ -3910,61 +3501,18 @@ body.dark .mod-input {
 }
 
 /* Dark mode welcome */
-body.dark .welcome-modal {
-  background: #1a1a3a;
-  border-color: #4a4a7a;
-}
 
-body.dark .welcome-subtitle {
-  color: #9a9ab0 !important;
-}
 
-body.dark .step-number {
-  background: #6a5acd;
-}
 
-body.dark .welcome-step strong {
-  color: #b0a8e6;
-}
 
-body.dark .welcome-step p {
-  color: #9a9ab0 !important;
-}
 
-body.dark .welcome-got-it {
-  background: #6a5acd;
-}
 
-body.dark .welcome-got-it:hover {
-  background: #7b6be0;
-}
 
-body.dark .feature-pill {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #c4c4dc;
-}
 
 /* Dark mode: Open Thread button & subject link */
-body.dark .open-thread-btn {
-  background: linear-gradient(135deg, #6a5acd 0%, #8b76e8 100%);
-  box-shadow: 0 2px 6px rgba(106, 90, 205, 0.3);
-}
 
-body.dark .open-thread-btn:hover {
-  background: linear-gradient(135deg, #7b6be0 0%, #9c8ef0 100%);
-  box-shadow: 0 3px 10px rgba(106, 90, 205, 0.4);
-}
 
-body.dark .thread-subject-link:hover {
-  color: #b0a8e6;
-}
 
-body.dark .reply-count-badge {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #b0a8e6;
-}
 
 /* ===========================
    X / TWITTER AUTH BUTTON
@@ -4216,92 +3764,24 @@ body.dark .reply-count-badge {
 }
 
 /* Dark mode: chat + X UI */
-body.dark .x-login-btn {
-  background: #1a1a2e;
-  border-color: #3a3a5a;
-  color: #eee;
-}
 
-body.dark .x-login-btn:hover:not(:disabled) {
-  background: #222244;
-}
 
-body.dark .auth-divider {
-  color: #666;
-}
 
-body.dark .auth-divider::before,
-body.dark .auth-divider::after {
-  background: #3a3a5a;
-}
 
-body.dark .nav-link-x-btn {
-  border-color: #3a3a5a;
-  color: #aaa;
-}
 
-body.dark .nav-link-x-btn:hover:not(:disabled) {
-  border-color: #8888cc;
-  color: #eee;
-}
 
-body.dark .x-link-modal {
-  background: #1a1a36;
-  border-color: #3a3a5a;
-  color: #eee;
-}
 
-body.dark .x-link-header h3 {
-  color: #eee;
-}
 
-body.dark .x-link-header p {
-  color: #999;
-}
 
-body.dark .community-chat-panel {
-  border-color: #3a3a5a;
-}
 
-body.dark .chat-messages {
-  background: #1e1e36;
-}
 
-body.dark .chat-author {
-  color: #ff6b9d;
-}
 
-body.dark .chat-content {
-  color: #d4d4dc;
-}
 
-body.dark .chat-error {
-  background: #3a1a1a;
-  color: #ff8888;
-  border-top-color: #5a2a2a;
-}
 
-body.dark .chat-input-row {
-  border-top-color: #3a3a5a;
-}
 
-body.dark .chat-input {
-  background: #222244;
-  color: #d4d4dc;
-}
 
-body.dark .chat-send-btn {
-  background: #ff6b9d;
-}
 
-body.dark .chat-send-btn:hover:not(:disabled) {
-  background: #e05585;
-}
 
-body.dark .chat-anon-toggle {
-  color: #aaa;
-  border-top-color: #3a3a5a;
-}
 
 /* ===========================
    CHAT DELETE BUTTON
@@ -4705,93 +4185,21 @@ body.dark .chat-anon-toggle {
 /* ===========================
    DARK MODE — CTO + CA + WARN
    =========================== */
-body.dark .set-ca-panel {
-  background: #1e2040;
-  border-color: #3a3a5a;
-}
 
-body.dark .set-ca-title {
-  color: #ccc;
-}
 
-body.dark .set-ca-desc {
-  color: #888;
-}
 
-body.dark .set-ca-btn {
-  background: #6a5acd;
-}
 
-body.dark .set-ca-btn:hover:not(:disabled) {
-  background: #7b6be0;
-}
 
-body.dark .optional-badge {
-  background: #1a3a1a;
-  color: #4ade80;
-  border-color: #2a5a2a;
-}
 
-body.dark .cto-panel-toggle {
-  background: #2a2010;
-  border-color: #6a5a20;
-  color: #d4b060;
-}
 
-body.dark .cto-panel-toggle:hover,
-body.dark .cto-panel-toggle.cto-active {
-  background: #332810;
-}
 
-body.dark .cto-panel {
-  background: #1e1a0a;
-  border-color: #6a5a20;
-}
 
-body.dark .cto-eligibility-badge {
-  background: #2a2010;
-  border-color: #6a5a20;
-  color: #d4b060;
-}
 
-body.dark .cto-form {
-  background: rgba(0,0,0,0.2);
-  border-color: #6a5a20;
-}
 
-body.dark .cto-form-label {
-  color: #aaa;
-}
 
-body.dark .cto-reason-input {
-  background: #2a2a4a;
-  border-color: #3a3a5a;
-  color: #d4d4dc;
-}
 
-body.dark .cto-request-item {
-  background: #1a1a30;
-  border-color: #6a5a20;
-}
 
-body.dark .cto-requester {
-  color: #eee;
-}
 
-body.dark .cto-reason {
-  color: #aaa;
-}
 
-body.dark .cto-requests h4 {
-  color: #aaa;
-  border-top-color: #3a3a5a;
-}
 
-body.dark .cto-login-note {
-  color: #888;
-}
 
-body.dark .warning-item {
-  background: #2a2010 !important;
-  border-color: #6a5a20 !important;
-}

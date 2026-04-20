@@ -26,21 +26,43 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const httpServer = createServer(app)
 
-// CORS configuration
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000').split(',').map(s => s.trim())
+// CORS configuration — allow configured origins + all vercel.app previews
+const configuredOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000').split(',').map(s => s.trim())
 
 const corsOptions = {
   origin: (origin, callback) => {
+    // Allow same-origin and server-to-server requests
     if (!origin) return callback(null, true)
-    if (allowedOrigins.includes(origin)) return callback(null, true)
+    // Allow localhost in any form
+    if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) return callback(null, true)
+    // Allow any vercel.app deployment (covers preview deployments)
+    if (origin.endsWith('.vercel.app')) return callback(null, true)
+    // Allow solchan.fun
+    if (origin === 'https://solchan.fun' || origin === 'https://www.solchan.fun') return callback(null, true)
+    // Allow explicitly configured origins
+    if (configuredOrigins.includes(origin)) return callback(null, true)
+    // Block everything else
+    console.warn('CORS blocked origin:', origin)
     callback(new Error('Not allowed by CORS'))
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }
 
 const io = new Server(httpServer, {
-  cors: corsOptions,
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true)
+      if (origin.startsWith('http://localhost')) return callback(null, true)
+      if (origin.endsWith('.vercel.app')) return callback(null, true)
+      if (origin === 'https://solchan.fun' || origin === 'https://www.solchan.fun') return callback(null, true)
+      if (configuredOrigins.includes(origin)) return callback(null, true)
+      callback(new Error('Not allowed'))
+    },
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
 })
 
 setSocketIO(io)
