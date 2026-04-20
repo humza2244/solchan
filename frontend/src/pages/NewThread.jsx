@@ -31,6 +31,11 @@ const NewThread = () => {
         return
       }
 
+      // Revoke old preview URL to prevent memory leak
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview)
+      }
+
       setImage(file)
       setImagePreview(URL.createObjectURL(file))
       setError('')

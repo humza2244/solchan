@@ -12,6 +12,25 @@ import { invalidatePopularCoinsCache } from '../utils/cache.js'
 import { sanitizeInput, sanitizeAuthor, escapeHtml } from '../utils/sanitize.js'
 import { trackMember } from '../services/communityService.js'
 
+// In-memory IP spam dedup: Map<ip_contentHash, timestamp>
+const ipSpamMap = new Map()
+const IP_DEDUP_WINDOW_MS = 2 * 60 * 1000 // 2 minutes
+
+const checkIpSpam = (ip, content) => {
+  // Clean expired entries occasionally
+  const now = Date.now()
+  if (ipSpamMap.size > 5000) {
+    for (const [k, t] of ipSpamMap) {
+      if (now - t > IP_DEDUP_WINDOW_MS * 2) ipSpamMap.delete(k)
+    }
+  }
+  const key = `${ip}::${content.trim().toLowerCase().slice(0, 200)}`
+  const last = ipSpamMap.get(key)
+  if (last && (now - last) < IP_DEDUP_WINDOW_MS) return true
+  ipSpamMap.set(key, now)
+  return false
+}
+
 // Create a new thread
 export const createThreadHandler = async (req, res) => {
   try {
@@ -163,6 +182,12 @@ export const addReplyHandler = async (req, res) => {
     const sanitizedAuthor = sanitizeAuthor(author)
     if (!sanitizedContent) {
       return res.status(400).json({ error: 'Content is required' })
+    }
+
+    // IP-based duplicate content check
+    const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown'
+    if (checkIpSpam(ip, sanitizedContent)) {
+      return res.status(429).json({ error: 'Duplicate message — please wait before sending the same content again.' })
     }
 
     // Check if user is banned from the community

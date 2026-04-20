@@ -1,8 +1,10 @@
 import express from 'express'
 import multer from 'multer'
 import rateLimit from 'express-rate-limit'
+import { authenticateUser, requireAuth } from '../middleware/auth.js'
 import {
   createCommunityHandler,
+  updateCommunityCAHandler,
   searchCommunitiesHandler,
   getCommunityHandler,
   getCommunityMessagesHandler,
@@ -12,6 +14,9 @@ import {
   getKOTHHandler,
   getCommunityMembersHandler,
   joinCommunityHandler,
+  submitCTOHandler,
+  voteCTOHandler,
+  getCTOHandler,
 } from '../controllers/communityController.js'
 
 const router = express.Router()
@@ -48,6 +53,14 @@ const postLimiter = rateLimit({
   legacyHeaders: false,
 })
 
+const ctoLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: { error: 'Too many CTO requests. Please wait.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
 // GET /api/communities - Get all or popular communities
 router.get('/', getAllCommunitiesHandler)
 
@@ -57,11 +70,14 @@ router.get('/search', searchCommunitiesHandler)
 // GET /api/communities/koth - Get King of the Hill (must be before /:id route)
 router.get('/koth', getKOTHHandler)
 
-// POST /api/communities - Create a new community (anonymous)
-router.post('/', createLimiter, createCommunityHandler)
+// POST /api/communities - Create a new community (auth optional — CA also optional)
+router.post('/', authenticateUser, createLimiter, createCommunityHandler)
 
 // GET /api/communities/:id - Get community with messages
 router.get('/:id', getCommunityHandler)
+
+// PUT /api/communities/:id/ca - Set or update contract address (creator/mod only)
+router.put('/:id/ca', requireAuth, updateCommunityCAHandler)
 
 // GET /api/communities/:id/messages - Get messages for a community
 router.get('/:id/messages', getCommunityMessagesHandler)
@@ -77,5 +93,16 @@ router.post('/:id/image', createLimiter, upload.single('image'), uploadCommunity
 
 // POST /api/communities/:id/join - Join community (anonymous)
 router.post('/:id/join', postLimiter, joinCommunityHandler)
+
+// ===== CTO Routes =====
+
+// GET /api/communities/:id/cto - Get CTO requests
+router.get('/:id/cto', getCTOHandler)
+
+// POST /api/communities/:id/cto - Submit CTO request (auth required)
+router.post('/:id/cto', requireAuth, ctoLimiter, submitCTOHandler)
+
+// POST /api/communities/:id/cto/:requestId/vote - Vote on CTO request (auth required)
+router.post('/:id/cto/:requestId/vote', requireAuth, voteCTOHandler)
 
 export default router

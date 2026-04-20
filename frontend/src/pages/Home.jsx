@@ -95,6 +95,10 @@ const Home = () => {
     loadCommunities()
   }, [])
 
+  useEffect(() => {
+    document.title = 'solchan — memecoin community boards'
+  }, [])
+
   return (
     <div className="home">
       {/* Welcome Modal */}
@@ -287,6 +291,7 @@ const Home = () => {
         <div className="loading-container">
           <div className="spinner"></div>
           <span className="loading-text">Loading communities...</span>
+          <span className="loading-hint">First load may take a moment while the server wakes up</span>
         </div>
       ) : (
         <>

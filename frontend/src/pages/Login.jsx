@@ -1,17 +1,20 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import XLinkPrompt from '../components/XLinkPrompt.jsx'
 
 const Login = () => {
-  const { login, isLoggedIn } = useAuth()
+  const { login, loginWithX, isLoggedIn } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [xLoading, setXLoading] = useState(false)
+  const [showXPrompt, setShowXPrompt] = useState(false)
 
-  if (isLoggedIn) {
+  if (isLoggedIn && !showXPrompt) {
     navigate('/')
     return null
   }
@@ -43,6 +46,40 @@ const Login = () => {
     }
   }
 
+  const handleXLogin = async () => {
+    setError('')
+    setXLoading(true)
+    try {
+      const result = await loginWithX()
+      if (result.needsUsername) {
+        // New X user — show username picker
+        setShowXPrompt(true)
+      } else {
+        navigate('/')
+      }
+    } catch (err) {
+      console.error('X login error:', err)
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        // User closed popup — silently ignore
+      } else if (err.code === 'auth/configuration-not-found' || err.code === 'auth/operation-not-allowed') {
+        setError('X login is not configured yet. Please use email/password.')
+      } else {
+        setError('X login failed. Please try again or use email/password.')
+      }
+    } finally {
+      setXLoading(false)
+    }
+  }
+
+  if (showXPrompt) {
+    return (
+      <XLinkPrompt
+        onComplete={() => navigate('/')}
+        onCancel={() => setShowXPrompt(false)}
+      />
+    )
+  }
+
   return (
     <div className="thread-page">
       <div className="create-community">
@@ -54,6 +91,26 @@ const Login = () => {
         {error && (
           <div className="error-message">{error}</div>
         )}
+
+        {/* X Login Button */}
+        <button
+          id="login-with-x"
+          type="button"
+          onClick={handleXLogin}
+          disabled={xLoading || submitting}
+          className="x-login-btn"
+        >
+          {xLoading ? 'Connecting...' : (
+            <>
+              <span className="x-login-icon">𝕏</span>
+              Continue with X (Twitter)
+            </>
+          )}
+        </button>
+
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
 
         <form onSubmit={handleSubmit} className="community-form">
           <div className="form-group">

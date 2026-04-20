@@ -42,7 +42,7 @@ const getPosterID = (author) => {
 
 const Thread = () => {
   const { id } = useParams()
-  const { isLoggedIn, displayName, user } = useAuth()
+  const { isLoggedIn, displayName, user, getToken } = useAuth()
   const [thread, setThread] = useState(null)
   const [replies, setReplies] = useState([])
   const [newReply, setNewReply] = useState('')
@@ -129,6 +129,14 @@ const Thread = () => {
     }
   }, [replies.length, id, isWatched])
 
+  // Dynamic page title
+  useEffect(() => {
+    if (thread) {
+      document.title = `${thread.subject} (${replies.length}r) — solchan`
+    }
+    return () => { document.title = 'solchan — memecoin community boards' }
+  }, [thread, replies.length])
+
   const handleShareLink = () => {
     const url = window.location.href
     navigator.clipboard.writeText(url)
@@ -138,8 +146,11 @@ const Thread = () => {
 
   const handleToggleLock = async () => {
     try {
+      const token = await getToken()
       const res = await axios.post(`${API_BASE_URL}/mod/lock/${thread.id}`, {
         communityId: thread.communityId,
+      }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       setThread(prev => ({ ...prev, isLocked: res.data.isLocked }))
     } catch (err) {
@@ -309,6 +320,11 @@ const Thread = () => {
       if (!file.type.startsWith('image/')) {
         alert('File must be an image')
         return
+      }
+
+      // Revoke old preview URL to prevent memory leak
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview)
       }
 
       setImage(file)
@@ -495,6 +511,7 @@ const Thread = () => {
         <div className="loading-container">
           <div className="spinner"></div>
           <span className="loading-text">Loading thread...</span>
+          <span className="loading-hint">First load may take a moment while the server wakes up</span>
         </div>
       </div>
     )
@@ -503,9 +520,10 @@ const Thread = () => {
   if (!thread) {
     return (
       <div className="thread-page">
-        <div className="no-threads">
-          <p>Thread not found</p>
-          <Link to="/" className="back-link">← Back to Home</Link>
+        <div className="no-threads" style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>🔍</div>
+          <p style={{ fontSize: 16, marginBottom: 16, color: '#666' }}>Thread not found or has been deleted</p>
+          <Link to="/" className="back-link" style={{ fontSize: 14 }}>← Back to Home</Link>
         </div>
       </div>
     )
@@ -514,7 +532,10 @@ const Thread = () => {
   const handleDeleteThread = async (threadId) => {
     if (!confirm('Delete this entire thread?')) return
     try {
-      await axios.delete(`${API_BASE_URL}/mod/thread/${threadId}?communityId=${thread.communityId}`)
+      const token = await getToken()
+      await axios.delete(`${API_BASE_URL}/mod/thread/${threadId}?communityId=${thread.communityId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       window.location.href = `/community/${thread.communityId}`
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete')
@@ -524,7 +545,10 @@ const Thread = () => {
   const handleDeleteReply = async (replyId) => {
     if (!confirm('Delete this reply?')) return
     try {
-      await axios.delete(`${API_BASE_URL}/mod/reply/${replyId}?communityId=${thread.communityId}`)
+      const token = await getToken()
+      await axios.delete(`${API_BASE_URL}/mod/reply/${replyId}?communityId=${thread.communityId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       setReplies(prev => prev.filter(r => r.id !== replyId))
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete')
@@ -533,8 +557,11 @@ const Thread = () => {
 
   const handleTogglePin = async () => {
     try {
+      const token = await getToken()
       const res = await axios.post(`${API_BASE_URL}/mod/pin/${thread.id}`, {
         communityId: thread.communityId,
+      }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       setThread(prev => ({ ...prev, isPinned: res.data.isPinned }))
     } catch (err) {
@@ -546,10 +573,13 @@ const Thread = () => {
     const reason = prompt(`Ban "${username}" from this community?\n\nEnter reason:`)
     if (reason === null) return // cancelled
     try {
+      const token = await getToken()
       await axios.post(`${API_BASE_URL}/mod/${thread.communityId}/ban`, {
         username,
         reason: reason || 'Rule violation',
         duration: null, // permanent from thread view, mods can adjust in panel
+      }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       alert(`${username} has been banned from this community.`)
     } catch (err) {

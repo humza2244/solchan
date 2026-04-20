@@ -1,20 +1,23 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import XLinkPrompt from '../components/XLinkPrompt.jsx'
 
 const Register = () => {
-  const { register, isLoggedIn } = useAuth()
+  const { register, loginWithX, isLoggedIn } = useAuth()
   const navigate = useNavigate()
-  
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [username, setUsername] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [xLoading, setXLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [showXPrompt, setShowXPrompt] = useState(false)
 
-  if (isLoggedIn && !success) {
+  if (isLoggedIn && !success && !showXPrompt) {
     navigate('/')
     return null
   }
@@ -29,7 +32,6 @@ const Register = () => {
     e.preventDefault()
     setError('')
 
-    // Validate
     if (!email.trim() || !password || !username.trim()) {
       setError('All fields are required')
       return
@@ -73,6 +75,39 @@ const Register = () => {
     }
   }
 
+  const handleXSignup = async () => {
+    setError('')
+    setXLoading(true)
+    try {
+      const result = await loginWithX()
+      if (result.needsUsername) {
+        setShowXPrompt(true)
+      } else {
+        navigate('/')
+      }
+    } catch (err) {
+      console.error('X signup error:', err)
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        // silently ignore
+      } else if (err.code === 'auth/configuration-not-found' || err.code === 'auth/operation-not-allowed') {
+        setError('X sign-up is not configured yet. Please use email/password.')
+      } else {
+        setError('X sign-up failed. Please try again.')
+      }
+    } finally {
+      setXLoading(false)
+    }
+  }
+
+  if (showXPrompt) {
+    return (
+      <XLinkPrompt
+        onComplete={() => navigate('/')}
+        onCancel={() => setShowXPrompt(false)}
+      />
+    )
+  }
+
   if (success) {
     return (
       <div className="thread-page">
@@ -102,6 +137,26 @@ const Register = () => {
         {error && (
           <div className="error-message">{error}</div>
         )}
+
+        {/* X Signup Button */}
+        <button
+          id="register-with-x"
+          type="button"
+          onClick={handleXSignup}
+          disabled={xLoading || submitting}
+          className="x-login-btn"
+        >
+          {xLoading ? 'Connecting...' : (
+            <>
+              <span className="x-login-icon">𝕏</span>
+              Sign up with X (Twitter)
+            </>
+          )}
+        </button>
+
+        <div className="auth-divider">
+          <span>or register with email</span>
+        </div>
 
         <form onSubmit={handleSubmit} className="community-form">
           <div className="form-group">

@@ -16,6 +16,9 @@ import {
   unbanUser,
   isUserBanned,
   getBans,
+  deleteChatMessage,
+  warnUser,
+  getWarnings,
 } from '../services/moderationService.js'
 import { sanitizeInput } from '../utils/sanitize.js'
 import { getDb } from '../config/firebase.js'
@@ -391,6 +394,75 @@ router.get('/:communityId/check-ban/:username', async (req, res) => {
   } catch (error) {
     console.error('Error checking ban:', error.message)
     res.status(500).json({ error: 'Failed to check ban status' })
+  }
+})
+
+// DELETE /api/mod/message/:messageId?communityId=... — Delete a live chat message (mods/creator only)
+router.delete('/message/:messageId', requireAuth, async (req, res) => {
+  try {
+    const { messageId } = req.params
+    const communityId = req.query.communityId
+
+    if (!communityId) {
+      return res.status(400).json({ error: 'communityId query param required' })
+    }
+
+    const isMod = await isModOrCreator(communityId, req.userId)
+    if (!isMod) {
+      return res.status(403).json({ error: 'Not authorized — must be a moderator or creator' })
+    }
+
+    const result = await deleteChatMessage(messageId, communityId)
+    res.json({ message: 'Chat message deleted', ...result })
+  } catch (error) {
+    console.error('Error deleting message:', error.message)
+    res.status(500).json({ error: 'Failed to delete message' })
+  }
+})
+
+// POST /api/mod/:communityId/warn — Warn a user (mods/creator only)
+router.post('/:communityId/warn', requireAuth, async (req, res) => {
+  try {
+    const { communityId } = req.params
+    const { username, reason } = req.body
+
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' })
+    }
+
+    const isMod = await isModOrCreator(communityId, req.userId)
+    if (!isMod) {
+      return res.status(403).json({ error: 'Not authorized' })
+    }
+
+    const warning = await warnUser(communityId, {
+      username: sanitizeInput(username, 100),
+      reason: sanitizeInput(reason, 500) || 'Rule violation',
+      warnedBy: req.userId,
+    })
+
+    res.status(201).json({ message: `Warning issued to ${username}`, warning })
+  } catch (error) {
+    console.error('Error warning user:', error.message)
+    res.status(500).json({ error: 'Failed to warn user' })
+  }
+})
+
+// GET /api/mod/:communityId/warnings — Get warnings (mods/creator only)
+router.get('/:communityId/warnings', requireAuth, async (req, res) => {
+  try {
+    const { communityId } = req.params
+
+    const isMod = await isModOrCreator(communityId, req.userId)
+    if (!isMod) {
+      return res.status(403).json({ error: 'Not authorized' })
+    }
+
+    const warnings = await getWarnings(communityId)
+    res.json(warnings)
+  } catch (error) {
+    console.error('Error fetching warnings:', error.message)
+    res.status(500).json({ error: 'Failed to fetch warnings' })
   }
 })
 

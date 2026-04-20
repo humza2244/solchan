@@ -270,6 +270,64 @@ export const getBans = async (communityId) => {
   }))
 }
 
+// ======== CHAT MESSAGE MODERATION ========
+
+// Delete a live community chat message (mod/creator only)
+export const deleteChatMessage = async (messageId, communityId) => {
+  const db = getDb()
+
+  // Verify it belongs to the right community
+  const msgDoc = await db.collection('messages').doc(messageId).get()
+  if (!msgDoc.exists) throw new Error('Message not found')
+  if (msgDoc.data().communityId !== communityId) {
+    throw new Error('Message does not belong to this community')
+  }
+
+  await db.collection('messages').doc(messageId).delete()
+
+  // Decrement community messageCount
+  await db.collection('communities').doc(communityId).update({
+    messageCount: FieldValue.increment(-1),
+  })
+
+  return { deleted: true }
+}
+
+// ======== USER WARNINGS ========
+
+// Issue a warning to a user
+export const warnUser = async (communityId, { username, reason, warnedBy }) => {
+  const db = getDb()
+  const now = new Date()
+
+  const docRef = await db.collection('communities').doc(communityId)
+    .collection('warnings')
+    .add({
+      username,
+      reason: reason || 'Rule violation',
+      warnedBy,
+      createdAt: now,
+    })
+
+  return { id: docRef.id, username, reason, warnedBy, createdAt: now }
+}
+
+// Get warnings for a community
+export const getWarnings = async (communityId, limit = 50) => {
+  const db = getDb()
+  const snap = await db.collection('communities').doc(communityId)
+    .collection('warnings')
+    .orderBy('createdAt', 'desc')
+    .limit(limit)
+    .get()
+
+  return snap.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    createdAt: toDate(doc.data().createdAt),
+  }))
+}
+
 export default {
   createReport,
   getReports,
@@ -285,4 +343,7 @@ export default {
   unbanUser,
   isUserBanned,
   getBans,
+  deleteChatMessage,
+  warnUser,
+  getWarnings,
 }

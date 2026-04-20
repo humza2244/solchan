@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import axios from 'axios'
 import { connectSocket } from '../services/socket.js'
 import { API_BASE_URL } from '../services/api.js'
@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import DOMPurify from 'dompurify'
 import ModPanel from '../components/ModPanel.jsx'
 import ReportModal from '../components/ReportModal.jsx'
+import CTOPanel from '../components/CTOPanel.jsx'
 
 const CopyCA = ({ address }) => {
   const [copied, setCopied] = useState(false)
@@ -102,7 +103,7 @@ const renderContent = (content) => {
 
 const CommunityThreadList = () => {
   const { id } = useParams()
-  const { user } = useAuth()
+  const { user, getToken, isLoggedIn, displayName } = useAuth()
   const [community, setCommunity] = useState(null)
   const [threads, setThreads] = useState([])
   const [loading, setLoading] = useState(true)
@@ -116,6 +117,20 @@ const CommunityThreadList = () => {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [hasJoined, setHasJoined] = useState(false)
   const [joinLoading, setJoinLoading] = useState(false)
+  const [chatAnon, setChatAnon] = useState(false)
+  // Live community chat state
+  const [chatMessages, setChatMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatSending, setChatSending] = useState(false)
+  const [chatError, setChatError] = useState('')
+  const [chatSocket, setChatSocket] = useState(null)
+  const [showChat, setShowChat] = useState(false)
+  const chatEndRef = useRef(null)
+  // CA panel state
+  const [caInput, setCAInput] = useState('')
+  const [caLoading, setCALoading] = useState(false)
+  const [caMsg, setCAMsg] = useState('')
+  const [caErr, setCAErr] = useState('')
 
   // Check bookmark status
   useEffect(() => {
@@ -178,15 +193,25 @@ const CommunityThreadList = () => {
     if (id) loadData(true)
   }, [id, loadData])
 
-  // Socket for live user count
+  // Socket for live user count + community chat
   useEffect(() => {
     const socket = connectSocket()
     if (socket && id) {
+      setChatSocket(socket)
       socket.emit('join-community', id)
       socket.on('user-count', (count) => setLiveUsers(count))
+      socket.on('messages', (msgs) => setChatMessages(msgs.slice(-102))) // keep last 102
+      socket.on('message', (msg) => setChatMessages(prev => [...prev, msg].slice(-102)))
+      socket.on('error', (err) => {
+        setChatError(err.message || 'Error')
+        setTimeout(() => setChatError(''), 4000)
+      })
       return () => {
         socket.emit('leave-community', id)
         socket.off('user-count')
+        socket.off('messages')
+        socket.off('message')
+        socket.off('error')
       }
     }
   }, [id])
@@ -197,13 +222,81 @@ const CommunityThreadList = () => {
     return () => clearInterval(interval)
   }, [id, loadData])
 
+  // Dynamic page title
+  useEffect(() => {
+    if (community) {
+      document.title = `/${community.ticker}/ - ${community.coinName} — solchan`
+    }
+    return () => { document.title = 'solchan — memecoin community boards' }
+  }, [community])
+
+  // Scroll chat to bottom when new messages arrive
+  useEffect(() => {
+    if (showChat) chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatMessages, showChat])
+
+  const handleSendChat = (e) => {
+    e.preventDefault()
+    const text = chatInput.trim()
+    if (!text || chatSending || !chatSocket) return
+    if (text.length < 2) { setChatError('Message too short'); return }
+    setChatSending(true)
+    const author = (isLoggedIn && !chatAnon) ? displayName : 'Anonymous'
+    chatSocket.emit('new-message', { communityId: id, content: text, author })
+    setChatInput('')
+    setChatSending(false)
+  }
+
   const handleDeleteThread = async (threadId) => {
     if (!confirm('Delete this thread and all its replies?')) return
     try {
-      await axios.delete(`${API_BASE_URL}/mod/thread/${threadId}?communityId=${id}`)
+      const token = await getToken()
+      await axios.delete(`${API_BASE_URL}/mod/thread/${threadId}?communityId=${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       setThreads(prev => prev.filter(t => t.id !== threadId))
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete thread')
+    }
+  }
+
+  const handleDeleteChatMessage = async (messageId) => {
+    if (!confirm('Delete this chat message?')) return
+    try {
+      const token = await getToken()
+      await axios.delete(`${API_BASE_URL}/mod/message/${messageId}?communityId=${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      setChatMessages(prev => prev.filter(m => m.id !== messageId))
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to delete message')
+    }
+  }
+
+  const handleSetCA = async (e) => {
+    e.preventDefault()
+    setCAErr('')
+    setCAMsg('')
+    if (!caInput.trim()) return
+    setCALoading(true)
+    try {
+      const token = await getToken()
+      const res = await axios.put(
+        `${API_BASE_URL}/communities/${id}/ca`,
+        { contractAddress: caInput.trim() },
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      )
+      setCommunity(res.data)
+      setCAMsg('✓ Contract address saved!')
+      setCAInput('')
+    } catch (err) {
+      if (err.response?.status === 409 && err.response?.data?.existingId) {
+        setCAErr(`This CA is already used by another community.`)
+      } else {
+        setCAErr(err.response?.data?.error || 'Failed to update contract address')
+      }
+    } finally {
+      setCALoading(false)
     }
   }
 
@@ -213,6 +306,7 @@ const CommunityThreadList = () => {
         <div className="loading-container">
           <div className="spinner"></div>
           <span className="loading-text">Loading community...</span>
+          <span className="loading-hint">First load may take a moment while the server wakes up</span>
         </div>
       </div>
     )
@@ -307,6 +401,36 @@ const CommunityThreadList = () => {
         onContentDeleted={() => loadData(false)}
       />
 
+      {/* CTO Panel — shown when community is eligible for takeover */}
+      <CTOPanel
+        community={community}
+        onCTOApproved={() => loadData(true)}
+      />
+
+      {/* Set CA Panel — shown to creator/mod when CA is missing */}
+      {isMod && !community.contractAddress && (
+        <div className="set-ca-panel">
+          <h4 className="set-ca-title">📋 Add Contract Address</h4>
+          <p className="set-ca-desc">Your community doesn't have a contract address yet. Add it once the token launches.</p>
+          {caMsg && <div className="mod-success">{caMsg}</div>}
+          {caErr && <div className="mod-error">{caErr}</div>}
+          <form onSubmit={handleSetCA} className="set-ca-form">
+            <input
+              type="text"
+              value={caInput}
+              onChange={(e) => setCAInput(e.target.value)}
+              placeholder="Paste contract address here..."
+              className="ca-input set-ca-input"
+              disabled={caLoading}
+              required
+            />
+            <button type="submit" disabled={caLoading} className="set-ca-btn">
+              {caLoading ? 'Saving...' : 'Save CA'}
+            </button>
+          </form>
+        </div>
+      )}
+
       {/* Community Rules Panel */}
       {(community.rules || isMod) && (
         <details className="community-rules-panel" style={{ marginTop: 12 }}>
@@ -376,6 +500,69 @@ const CommunityThreadList = () => {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Live Community Chat */}
+      <div className="community-chat-wrapper">
+        <button
+          className="members-panel-toggle"
+          onClick={() => setShowChat(!showChat)}
+          style={{ marginTop: 8 }}
+        >
+          💬 Live Chat ({chatMessages.length})
+        </button>
+        {showChat && (
+          <div className="community-chat-panel">
+            <div className="chat-messages">
+              {chatMessages.length === 0 ? (
+                <p className="members-empty">No messages yet — say something!</p>
+              ) : (
+                chatMessages.map((msg, i) => (
+                  <div key={msg.id || i} className="chat-message">
+                    <span className="chat-author">{msg.author}</span>
+                    <span className="chat-content">{msg.content}</span>
+                    <span className="chat-time">
+                      {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                    </span>
+                    {isMod && msg.id && (
+                      <button
+                        className="chat-delete-btn"
+                        onClick={() => handleDeleteChatMessage(msg.id)}
+                        title="Delete message"
+                      >🗑</button>
+                    )}
+                  </div>
+                ))
+              )}
+              <div ref={chatEndRef} />
+            </div>
+            {chatError && <div className="chat-error">{chatError}</div>}
+            <form onSubmit={handleSendChat} className="chat-input-row">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Type a message..."
+                className="chat-input"
+                maxLength={500}
+                disabled={chatSending}
+              />
+              <button type="submit" className="chat-send-btn" disabled={chatSending || !chatInput.trim()}>
+                Send
+              </button>
+            </form>
+            {isLoggedIn && (
+              <label className="chat-anon-toggle">
+                <input
+                  type="checkbox"
+                  checked={chatAnon}
+                  onChange={(e) => setChatAnon(e.target.checked)}
+                />
+                Post as Anonymous
+              </label>
             )}
           </div>
         )}

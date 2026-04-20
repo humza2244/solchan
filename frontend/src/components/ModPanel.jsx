@@ -4,16 +4,19 @@ import { API_BASE_URL } from '../services/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const ModPanel = ({ communityId, community, onContentDeleted }) => {
-  const { user } = useAuth()
+  const { user, getToken } = useAuth()
   const [reports, setReports] = useState([])
   const [moderators, setModerators] = useState([])
   const [modDetails, setModDetails] = useState([])
   const [creatorUsername, setCreatorUsername] = useState(null)
   const [bans, setBans] = useState([])
+  const [warnings, setWarnings] = useState([])
   const [newModUsername, setNewModUsername] = useState('')
   const [banUsername, setBanUsername] = useState('')
   const [banReason, setBanReason] = useState('')
   const [banDuration, setBanDuration] = useState('')
+  const [warnUsername, setWarnUsername] = useState('')
+  const [warnReason, setWarnReason] = useState('')
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -29,10 +32,13 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
     const loadData = async () => {
       setLoading(true)
       try {
-        const [reportsRes, modsRes, bansRes] = await Promise.allSettled([
-          axios.get(`${API_BASE_URL}/mod/${communityId}/reports`),
+        const token = await getToken()
+        const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+        const [reportsRes, modsRes, bansRes, warningsRes] = await Promise.allSettled([
+          axios.get(`${API_BASE_URL}/mod/${communityId}/reports`, authHeaders),
           axios.get(`${API_BASE_URL}/mod/${communityId}/mods`),
-          axios.get(`${API_BASE_URL}/mod/${communityId}/bans`),
+          axios.get(`${API_BASE_URL}/mod/${communityId}/bans`, authHeaders),
+          axios.get(`${API_BASE_URL}/mod/${communityId}/warnings`, authHeaders),
         ])
 
         if (reportsRes.status === 'fulfilled') setReports(reportsRes.value.data)
@@ -42,6 +48,7 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
           setCreatorUsername(modsRes.value.data.creatorUsername || null)
         }
         if (bansRes.status === 'fulfilled') setBans(bansRes.value.data || [])
+        if (warningsRes.status === 'fulfilled') setWarnings(warningsRes.value.data || [])
       } catch (err) {
         console.error('Error loading mod data:', err)
       } finally {
@@ -65,13 +72,15 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
 
   const handleResolveReport = async (reportId, action, contentType, contentId) => {
     try {
+      const token = await getToken()
+      const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
       if (action === 'resolved') {
         const endpoint = contentType === 'thread' ? 'thread' : 'reply'
-        await axios.delete(`${API_BASE_URL}/mod/${endpoint}/${contentId}?communityId=${communityId}`)
+        await axios.delete(`${API_BASE_URL}/mod/${endpoint}/${contentId}?communityId=${communityId}`, authHeaders)
         onContentDeleted?.()
       }
 
-      await axios.post(`${API_BASE_URL}/mod/resolve/${reportId}`, { action, communityId })
+      await axios.post(`${API_BASE_URL}/mod/resolve/${reportId}`, { action, communityId }, authHeaders)
       setReports(prev => prev.filter(r => r.id !== reportId))
       showMsg(action === 'resolved' ? 'Content deleted & report resolved' : 'Report dismissed')
     } catch (err) {
@@ -84,7 +93,9 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
     if (!newModUsername.trim()) return
 
     try {
-      await axios.post(`${API_BASE_URL}/mod/${communityId}/mods`, { username: newModUsername.trim() })
+      const token = await getToken()
+      const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+      await axios.post(`${API_BASE_URL}/mod/${communityId}/mods`, { username: newModUsername.trim() }, authHeaders)
       showMsg(`${newModUsername} added as moderator`)
       setNewModUsername('')
       // Refresh mods list
@@ -99,7 +110,9 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
   const handleRemoveMod = async (userId) => {
     if (!confirm('Remove this moderator?')) return
     try {
-      await axios.delete(`${API_BASE_URL}/mod/${communityId}/mods/${userId}`)
+      const token = await getToken()
+      const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+      await axios.delete(`${API_BASE_URL}/mod/${communityId}/mods/${userId}`, authHeaders)
       setModerators(prev => prev.filter(m => m !== userId))
       setModDetails(prev => prev.filter(m => m.uid !== userId))
       showMsg('Moderator removed')
@@ -113,27 +126,54 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
     if (!banUsername.trim()) return
 
     try {
+      const token = await getToken()
+      const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
       await axios.post(`${API_BASE_URL}/mod/${communityId}/ban`, {
         username: banUsername.trim(),
         reason: banReason.trim() || 'Rule violation',
         duration: banDuration ? Number(banDuration) : null,
-      })
+      }, authHeaders)
       showMsg(`${banUsername} has been banned`)
       setBanUsername('')
       setBanReason('')
       setBanDuration('')
       // Refresh bans list
-      const bansRes = await axios.get(`${API_BASE_URL}/mod/${communityId}/bans`)
+      const bansRes = await axios.get(`${API_BASE_URL}/mod/${communityId}/bans`, authHeaders)
       setBans(bansRes.data || [])
     } catch (err) {
       showErr(err.response?.data?.error || 'Failed to ban user')
     }
   }
 
+  const handleWarnUser = async (e) => {
+    e.preventDefault()
+    if (!warnUsername.trim()) return
+    try {
+      const token = await getToken()
+      const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+      await axios.post(`${API_BASE_URL}/mod/${communityId}/warn`, {
+        username: warnUsername.trim(),
+        reason: warnReason.trim() || 'Rule violation',
+      }, authHeaders)
+      showMsg(`⚠️ Warning issued to ${warnUsername}`)
+      setWarnUsername('')
+      setWarnReason('')
+      // Refresh warnings
+      const token2 = await getToken()
+      const wRes = await axios.get(`${API_BASE_URL}/mod/${communityId}/warnings`,
+        token2 ? { headers: { Authorization: `Bearer ${token2}` } } : {})
+      setWarnings(wRes.data || [])
+    } catch (err) {
+      showErr(err.response?.data?.error || 'Failed to warn user')
+    }
+  }
+
   const handleUnban = async (banId, username) => {
     if (!confirm(`Unban ${username}?`)) return
     try {
-      await axios.delete(`${API_BASE_URL}/mod/${communityId}/ban/${banId}`)
+      const token = await getToken()
+      const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+      await axios.delete(`${API_BASE_URL}/mod/${communityId}/ban/${banId}`, authHeaders)
       setBans(prev => prev.filter(b => b.id !== banId))
       showMsg(`${username} unbanned`)
     } catch (err) {
@@ -172,6 +212,12 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
                 onClick={() => setActiveTab('bans')}
               >
                 Bans {bans.length > 0 && <span className="report-badge">{bans.length}</span>}
+              </button>
+              <button
+                className={`mod-tab ${activeTab === 'warnings' ? 'active' : ''}`}
+                onClick={() => setActiveTab('warnings')}
+              >
+                Warnings {warnings.length > 0 && <span className="report-badge">{warnings.length}</span>}
               </button>
               {isCreator && (
                 <button
@@ -281,6 +327,53 @@ const ModPanel = ({ communityId, community, onContentDeleted }) => {
                       >
                         Unban
                       </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ====== WARNINGS TAB ====== */}
+          {activeTab === 'warnings' && (
+            <div className="mod-bans">
+              <form onSubmit={handleWarnUser} className="ban-form">
+                <div className="ban-form-row">
+                  <input
+                    type="text"
+                    value={warnUsername}
+                    onChange={(e) => setWarnUsername(e.target.value)}
+                    placeholder="Username to warn..."
+                    className="mod-input"
+                    required
+                  />
+                </div>
+                <div className="ban-form-row">
+                  <input
+                    type="text"
+                    value={warnReason}
+                    onChange={(e) => setWarnReason(e.target.value)}
+                    placeholder="Reason for warning..."
+                    className="mod-input ban-reason-input"
+                  />
+                  <button type="submit" className="mod-btn mod-btn-warn">⚠️ Warn User</button>
+                </div>
+              </form>
+
+              <div className="bans-list">
+                <h4>Issued Warnings ({warnings.length})</h4>
+                {warnings.length === 0 ? (
+                  <p className="mod-empty">No warnings issued yet</p>
+                ) : (
+                  warnings.map(w => (
+                    <div key={w.id} className="ban-item warning-item">
+                      <div className="ban-info">
+                        <span className="ban-username">⚠️ {w.username}</span>
+                        <span className="ban-reason">— {w.reason}</span>
+                        <span className="ban-expiry" style={{ background: '#e8a000' }}>
+                          {w.createdAt ? new Date(w.createdAt).toLocaleDateString() : ''}
+                        </span>
+                      </div>
                     </div>
                   ))
                 )}

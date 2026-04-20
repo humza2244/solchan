@@ -1,6 +1,6 @@
 import express from 'express'
 import { requireAuth } from '../middleware/auth.js'
-import { createUserProfile, getUserProfile } from '../services/userProfileService.js'
+import { createUserProfile, getUserProfile, linkTwitterToProfile } from '../services/userProfileService.js'
 import { sanitizeInput } from '../utils/sanitize.js'
 
 const router = express.Router()
@@ -8,7 +8,7 @@ const router = express.Router()
 // POST /api/auth/register - Create user profile after Firebase account creation
 router.post('/register', requireAuth, async (req, res) => {
   try {
-    const { username } = req.body
+    const { username, twitterHandle } = req.body
 
     if (!username || !username.trim()) {
       return res.status(400).json({ error: 'Username is required' })
@@ -25,8 +25,10 @@ router.post('/register', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Username can only contain letters, numbers, and underscores' })
     }
 
-    const profile = await createUserProfile(req.userId, sanitizedUsername)
-    
+    const sanitizedTwitterHandle = twitterHandle ? sanitizeInput(twitterHandle.replace('@', '').trim(), 50) : null
+
+    const profile = await createUserProfile(req.userId, sanitizedUsername, sanitizedTwitterHandle)
+
     res.status(201).json({
       message: 'Profile created successfully',
       profile,
@@ -44,7 +46,7 @@ router.post('/register', requireAuth, async (req, res) => {
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const profile = await getUserProfile(req.userId)
-    
+
     if (!profile) {
       return res.status(404).json({ error: 'Profile not found' })
     }
@@ -53,6 +55,28 @@ router.get('/me', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Error fetching profile:', error.message)
     res.status(500).json({ error: 'Failed to fetch profile' })
+  }
+})
+
+// POST /api/auth/link-x - Link a Twitter/X account to existing profile
+router.post('/link-x', requireAuth, async (req, res) => {
+  try {
+    const { twitterHandle } = req.body
+
+    if (!twitterHandle) {
+      return res.status(400).json({ error: 'twitterHandle is required' })
+    }
+
+    const cleanHandle = sanitizeInput(twitterHandle.replace('@', '').trim(), 50)
+    const profile = await linkTwitterToProfile(req.userId, cleanHandle)
+
+    res.json({
+      message: 'X account linked successfully',
+      profile,
+    })
+  } catch (error) {
+    console.error('Error linking X account:', error.message)
+    res.status(500).json({ error: 'Failed to link X account' })
   }
 })
 

@@ -2,30 +2,36 @@ import { getDb, toDate, FieldValue } from '../config/firebase.js'
 import Community from '../models/Community.js'
 import Message from '../models/Message.js'
 
+const CTO_VOTE_THRESHOLD = 5 // votes needed to auto-approve a CTO
 
-
-// Create a new community (prevents duplicates by contract address)
+// Create a new community (CA is now optional)
 export const createCommunity = async (communityData) => {
   const db = getDb()
   const now = new Date()
-  const normalizedCA = communityData.contractAddress.trim()
 
-  // Check for existing community with same contract address
-  const existing = await db.collection('communities')
-    .where('contractAddressLower', '==', normalizedCA.toLowerCase())
-    .limit(1)
-    .get()
+  // If CA provided, check global uniqueness
+  if (communityData.contractAddress) {
+    const normalizedCA = communityData.contractAddress.trim()
+    const existing = await db.collection('communities')
+      .where('contractAddressLower', '==', normalizedCA.toLowerCase())
+      .limit(1)
+      .get()
 
-  if (!existing.empty) {
-    const existingDoc = existing.docs[0]
-    return new Community({ id: existingDoc.id, ...existingDoc.data(), createdAt: toDate(existingDoc.data().createdAt) })
+    if (!existing.empty) {
+      const existingDoc = existing.docs[0]
+      const err = new Error('Contract address already in use')
+      err.code = 'DUPLICATE_CA'
+      err.existingId = existingDoc.id
+      err.existingData = { id: existingDoc.id, ...existingDoc.data() }
+      throw err
+    }
   }
 
-  const docRef = await db.collection('communities').add({
+  const docData = {
     ticker: communityData.ticker,
     coinName: communityData.coinName,
-    contractAddress: normalizedCA,
-    contractAddressLower: normalizedCA.toLowerCase(),
+    contractAddress: communityData.contractAddress?.trim() || null,
+    contractAddressLower: communityData.contractAddress?.trim().toLowerCase() || null,
     description: communityData.description || null,
     imageUrl: communityData.imageUrl || null,
     creatorId: communityData.creatorId || null,
@@ -36,13 +42,56 @@ export const createCommunity = async (communityData) => {
     hasBeenKoth: false,
     becameKothAt: null,
     moderators: [],
+    rules: null,
     // Lowercase copies for search
     tickerLower: communityData.ticker.toLowerCase(),
     coinNameLower: communityData.coinName.toLowerCase(),
-  })
+  }
 
+  const docRef = await db.collection('communities').add(docData)
   const doc = await docRef.get()
   return new Community({ id: doc.id, ...doc.data(), createdAt: toDate(doc.data().createdAt) })
+}
+
+// Set or update contract address on an existing community (creator/mod only)
+export const updateCommunityCA = async (communityId, contractAddress, requestingUserId) => {
+  const db = getDb()
+  const normalizedCA = contractAddress.trim()
+
+  if (normalizedCA.length < 20) {
+    throw new Error('Invalid contract address — must be at least 20 characters')
+  }
+
+  // Check global CA uniqueness
+  const existing = await db.collection('communities')
+    .where('contractAddressLower', '==', normalizedCA.toLowerCase())
+    .limit(1)
+    .get()
+
+  if (!existing.empty && existing.docs[0].id !== communityId) {
+    const err = new Error('Contract address already in use by another community')
+    err.code = 'DUPLICATE_CA'
+    err.existingId = existing.docs[0].id
+    throw err
+  }
+
+  // Verify the community exists and requester is creator/mod
+  const communityDoc = await db.collection('communities').doc(communityId).get()
+  if (!communityDoc.exists) throw new Error('Community not found')
+
+  const data = communityDoc.data()
+  const isMod = data.creatorId === requestingUserId || (data.moderators || []).includes(requestingUserId)
+  // Allow if no creator (community was created anonymously)
+  if (!isMod && data.creatorId !== null) {
+    throw new Error('Only the creator or a moderator can set the contract address')
+  }
+
+  await db.collection('communities').doc(communityId).update({
+    contractAddress: normalizedCA,
+    contractAddressLower: normalizedCA.toLowerCase(),
+  })
+
+  return await getCommunityById(communityId)
 }
 
 // Get community by ID
@@ -156,7 +205,6 @@ export const getAllCommunities = async (limit = 50) => {
 export const getPopularCommunities = async (limit = 50) => {
   const db = getDb()
 
-  // Get all communities and sort by message count (Firestore doesn't support complex aggregate ORDER BY)
   const snap = await db.collection('communities')
     .orderBy('messageCount', 'desc')
     .limit(limit)
@@ -269,7 +317,6 @@ export const getKOTH = async () => {
   const db = getDb()
 
   try {
-    // Check if there's already a KOTH
     const kothSnap = await db.collection('communities')
       .where('hasBeenKoth', '==', true)
       .orderBy('becameKothAt', 'asc')
@@ -288,7 +335,6 @@ export const getKOTH = async () => {
       })
     }
 
-    // No KOTH yet — find the most active community
     const snap = await db.collection('communities')
       .orderBy('messageCount', 'desc')
       .limit(1)
@@ -299,7 +345,6 @@ export const getKOTH = async () => {
     const doc = snap.docs[0]
     const data = doc.data()
 
-    // Crown it as KOTH
     const now = new Date()
     await db.collection('communities').doc(doc.id).update({
       hasBeenKoth: true,
@@ -324,21 +369,18 @@ export const getKOTH = async () => {
 export const trackMember = async (communityId, { author, userId }) => {
   const db = getDb()
   const now = new Date()
-  
-  // Use a stable key: userId for logged-in users, author name for anon
+
   const memberKey = userId || `anon_${(author || 'Anonymous').toLowerCase().replace(/[^a-z0-9]/g, '_')}`
-  
+
   const memberRef = db.collection('communityMembers').doc(`${communityId}_${memberKey}`)
   const memberDoc = await memberRef.get()
-  
+
   if (memberDoc.exists) {
-    // Update existing member
     await memberRef.update({
       lastPostAt: now,
       postCount: FieldValue.increment(1),
     })
   } else {
-    // New member
     await memberRef.set({
       communityId,
       userId: userId || null,
@@ -348,8 +390,7 @@ export const trackMember = async (communityId, { author, userId }) => {
       lastPostAt: now,
       postCount: 1,
     })
-    
-    // Increment unique users count on community
+
     await db.collection('communities').doc(communityId).update({
       uniqueUsersCount: FieldValue.increment(1),
     })
@@ -360,15 +401,15 @@ export const trackMember = async (communityId, { author, userId }) => {
 export const joinCommunity = async (communityId, { author, userId }) => {
   const db = getDb()
   const now = new Date()
-  
+
   const memberKey = userId || `anon_${(author || 'Anonymous').toLowerCase().replace(/[^a-z0-9]/g, '_')}`
   const memberRef = db.collection('communityMembers').doc(`${communityId}_${memberKey}`)
   const memberDoc = await memberRef.get()
-  
+
   if (memberDoc.exists) {
     return { alreadyJoined: true }
   }
-  
+
   await memberRef.set({
     communityId,
     userId: userId || null,
@@ -378,26 +419,25 @@ export const joinCommunity = async (communityId, { author, userId }) => {
     lastPostAt: null,
     postCount: 0,
   })
-  
+
   await db.collection('communities').doc(communityId).update({
     uniqueUsersCount: FieldValue.increment(1),
   })
-  
+
   return { joined: true }
 }
 
 // Get all members of a community
 export const getCommunityMembers = async (communityId, limit = 100) => {
   const db = getDb()
-  
+
   try {
-    // Primary query (requires composite index)
     const snap = await db.collection('communityMembers')
       .where('communityId', '==', communityId)
       .orderBy('postCount', 'desc')
       .limit(limit)
       .get()
-    
+
     return snap.docs.map(doc => {
       const data = doc.data()
       return {
@@ -410,13 +450,12 @@ export const getCommunityMembers = async (communityId, limit = 100) => {
       }
     })
   } catch (err) {
-    // Fallback: query without ordering (index may still be building)
     console.warn('Members index not ready, using fallback query')
     const snap = await db.collection('communityMembers')
       .where('communityId', '==', communityId)
       .limit(limit)
       .get()
-    
+
     const members = snap.docs.map(doc => {
       const data = doc.data()
       return {
@@ -428,10 +467,176 @@ export const getCommunityMembers = async (communityId, limit = 100) => {
         lastPostAt: toDate(data.lastPostAt),
       }
     })
-    
-    // Sort in memory
+
     return members.sort((a, b) => b.postCount - a.postCount)
   }
+}
+
+// ============================================================
+// CTO (Community Takeover) System
+// ============================================================
+
+/**
+ * Submit a CTO request for an eligible community.
+ * Eligible = no creatorId, or last message > 30 days ago.
+ */
+export const submitCTORequest = async (communityId, requestingUserId, reason) => {
+  const db = getDb()
+  const community = await getCommunityById(communityId)
+  if (!community) throw new Error('Community not found')
+
+  // Check eligibility
+  const daysSinceLastPost = community.lastMessageAt
+    ? (Date.now() - new Date(community.lastMessageAt).getTime()) / (1000 * 60 * 60 * 24)
+    : 9999
+
+  const noCreator = !community.creatorId
+  const isInactive = daysSinceLastPost >= 30
+
+  if (!noCreator && !isInactive) {
+    throw new Error('Community is not eligible for CTO — it is active and has a creator')
+  }
+
+  // Don't allow creator to CTO their own community
+  if (community.creatorId === requestingUserId) {
+    throw new Error('You are already the creator of this community')
+  }
+
+  // Check for existing pending request from this user
+  const existingReq = await db.collection('ctoRequests')
+    .where('communityId', '==', communityId)
+    .where('requesterId', '==', requestingUserId)
+    .where('status', '==', 'pending')
+    .limit(1)
+    .get()
+
+  if (!existingReq.empty) {
+    throw new Error('You already have a pending CTO request for this community')
+  }
+
+  const now = new Date()
+  const docRef = await db.collection('ctoRequests').add({
+    communityId,
+    requesterId: requestingUserId,
+    reason: reason || 'Team inactive',
+    status: 'pending',
+    upvotes: 0,
+    downvotes: 0,
+    voters: [],
+    createdAt: now,
+    resolvedAt: null,
+  })
+
+  // Mark community as having a pending CTO
+  await db.collection('communities').doc(communityId).update({ ctoStatus: 'pending' })
+
+  const doc = await docRef.get()
+  return { id: doc.id, ...doc.data() }
+}
+
+/**
+ * Vote on a CTO request. Auto-approves if upvotes >= threshold.
+ */
+export const voteCTORequest = async (ctoRequestId, userId, vote) => {
+  const db = getDb()
+  const reqRef = db.collection('ctoRequests').doc(ctoRequestId)
+  const reqDoc = await reqRef.get()
+
+  if (!reqDoc.exists) throw new Error('CTO request not found')
+  const data = reqDoc.data()
+
+  if (data.status !== 'pending') throw new Error('This CTO request is no longer pending')
+  if (data.requesterId === userId) throw new Error('You cannot vote on your own CTO request')
+  if ((data.voters || []).includes(userId)) throw new Error('You have already voted on this request')
+
+  const upvoteDelta = vote === 'up' ? 1 : 0
+  const downvoteDelta = vote === 'down' ? 1 : 0
+  const newUpvotes = (data.upvotes || 0) + upvoteDelta
+  const newDownvotes = (data.downvotes || 0) + downvoteDelta
+
+  await reqRef.update({
+    upvotes: newUpvotes,
+    downvotes: newDownvotes,
+    voters: FieldValue.arrayUnion(userId),
+  })
+
+  // Auto-approve if threshold met
+  if (newUpvotes >= CTO_VOTE_THRESHOLD) {
+    await approveCTORequest(ctoRequestId, data)
+    return { status: 'approved', message: 'CTO approved! You are now the community creator.' }
+  }
+
+  return { status: 'pending', upvotes: newUpvotes, downvotes: newDownvotes }
+}
+
+/**
+ * Internal: Execute the approved CTO — transfer creator role.
+ */
+const approveCTORequest = async (ctoRequestId, requestData) => {
+  const db = getDb()
+  const now = new Date()
+
+  // Update CTO request status
+  await db.collection('ctoRequests').doc(ctoRequestId).update({
+    status: 'approved',
+    resolvedAt: now,
+  })
+
+  // Transfer creator role on community
+  const communityRef = db.collection('communities').doc(requestData.communityId)
+  const communityDoc = await communityRef.get()
+  if (!communityDoc.exists) return
+
+  const communityData = communityDoc.data()
+  const oldCreatorId = communityData.creatorId
+
+  // New creator, demote old creator to regular member (not mod)
+  const newModerators = (communityData.moderators || []).filter(id => id !== requestData.requesterId)
+  if (oldCreatorId && !newModerators.includes(oldCreatorId)) {
+    // Old creator becomes a mod (they still have some power)
+    newModerators.push(oldCreatorId)
+  }
+
+  await communityRef.update({
+    creatorId: requestData.requesterId,
+    moderators: newModerators,
+    ctoStatus: 'approved',
+    lastCTOAt: now,
+    previousCreatorId: oldCreatorId || null,
+  })
+}
+
+/**
+ * Get CTO requests for a community.
+ */
+export const getCTORequests = async (communityId) => {
+  const db = getDb()
+  const snap = await db.collection('ctoRequests')
+    .where('communityId', '==', communityId)
+    .orderBy('createdAt', 'desc')
+    .limit(10)
+    .get()
+
+  const requests = []
+  for (const doc of snap.docs) {
+    const data = doc.data()
+    // Resolve requester username
+    let requesterUsername = 'Unknown'
+    try {
+      const profileDoc = await db.collection('userProfiles').doc(data.requesterId).get()
+      if (profileDoc.exists) requesterUsername = profileDoc.data().username
+    } catch {}
+
+    requests.push({
+      id: doc.id,
+      ...data,
+      requesterUsername,
+      createdAt: toDate(data.createdAt),
+      resolvedAt: toDate(data.resolvedAt),
+    })
+  }
+
+  return requests
 }
 
 export default {
@@ -443,7 +648,12 @@ export default {
   getMessages,
   addMessage,
   updateCommunityInfo,
+  updateCommunityCA,
   getKOTH,
   trackMember,
   getCommunityMembers,
+  joinCommunity,
+  submitCTORequest,
+  voteCTORequest,
+  getCTORequests,
 }

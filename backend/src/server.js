@@ -124,24 +124,84 @@ app.get('/api/health', async (req, res) => {
   }
 })
 
-// Stats endpoint
+// Stats endpoint (cached for 60 seconds)
+let statsCache = null
+let statsCacheTime = 0
+const STATS_CACHE_TTL = 60000 // 60 seconds
+
 app.get('/api/stats', async (req, res) => {
   try {
+    const now = Date.now()
+    if (statsCache && (now - statsCacheTime) < STATS_CACHE_TTL) {
+      return res.json(statsCache)
+    }
+
     const db = getDb()
+    // Use count() aggregation if available, otherwise use select() for efficiency
     const [commSnap, threadSnap, replySnap] = await Promise.all([
-      db.collection('communities').get(),
-      db.collection('threads').get(),
-      db.collection('replies').get(),
+      db.collection('communities').select().get(),
+      db.collection('threads').select().get(),
+      db.collection('replies').select().get(),
     ])
-    res.json({
+    
+    statsCache = {
       communities: commSnap.size,
       threads: threadSnap.size,
       replies: replySnap.size,
-    })
+    }
+    statsCacheTime = now
+    
+    res.json(statsCache)
   } catch (error) {
-    res.json({ communities: 0, threads: 0, replies: 0 })
+    res.json(statsCache || { communities: 0, threads: 0, replies: 0 })
   }
 })
+
+// ===== Anti-spam helpers (in-memory, per-socket) =====
+// Map: socketId -> { count, windowStart, recentContents: Map<content, timestamp> }
+const socketMsgState = new Map()
+const MSG_RATE_LIMIT = 5      // max messages per window
+const MSG_WINDOW_MS = 10000   // 10 seconds
+const DEDUP_WINDOW_MS = 30000 // 30 seconds — same content from same socket is rejected
+const MIN_MSG_LENGTH = 2
+
+const checkSpam = (socketId, content) => {
+  const now = Date.now()
+  let state = socketMsgState.get(socketId)
+  if (!state) {
+    state = { count: 0, windowStart: now, recentContents: new Map() }
+    socketMsgState.set(socketId, state)
+  }
+
+  // Reset window
+  if (now - state.windowStart > MSG_WINDOW_MS) {
+    state.count = 0
+    state.windowStart = now
+  }
+
+  // Rate limit
+  if (state.count >= MSG_RATE_LIMIT) {
+    return { spam: true, reason: 'Rate limit: slow down! Max 5 messages per 10 seconds.' }
+  }
+
+  // Duplicate content check
+  const normalised = content.trim().toLowerCase()
+  const lastSent = state.recentContents.get(normalised)
+  if (lastSent && (now - lastSent) < DEDUP_WINDOW_MS) {
+    return { spam: true, reason: 'Duplicate: same message sent recently.' }
+  }
+
+  // Passed — record
+  state.count++
+  state.recentContents.set(normalised, now)
+
+  // Prune old entries
+  for (const [k, t] of state.recentContents) {
+    if (now - t > DEDUP_WINDOW_MS * 2) state.recentContents.delete(k)
+  }
+
+  return { spam: false }
+}
 
 // WebSocket connection handling
 io.on('connection', (socket) => {
@@ -181,14 +241,22 @@ io.on('connection', (socket) => {
       return
     }
 
-    if (content.trim().length === 0 || content.length > 5000) {
-      socket.emit('error', { message: 'Message must be between 1 and 5000 characters' })
+    const trimmed = content.trim()
+    if (trimmed.length < MIN_MSG_LENGTH || trimmed.length > 5000) {
+      socket.emit('error', { message: `Message must be ${MIN_MSG_LENGTH}–5000 characters` })
+      return
+    }
+
+    // Anti-spam check
+    const spamCheck = checkSpam(socket.id, trimmed)
+    if (spamCheck.spam) {
+      socket.emit('error', { message: spamCheck.reason })
       return
     }
 
     try {
       const message = await addMessage(communityId, {
-        content: content.trim(),
+        content: trimmed,
         author: author || 'Anonymous',
       }, null)
 
@@ -229,14 +297,22 @@ io.on('connection', (socket) => {
       return
     }
 
-    if (content.trim().length === 0 || content.length > 5000) {
-      socket.emit('error', { message: 'Reply must be between 1 and 5000 characters' })
+    const trimmed = content.trim()
+    if (trimmed.length < MIN_MSG_LENGTH || trimmed.length > 5000) {
+      socket.emit('error', { message: `Reply must be ${MIN_MSG_LENGTH}–5000 characters` })
+      return
+    }
+
+    // Anti-spam check
+    const spamCheck = checkSpam(socket.id, trimmed)
+    if (spamCheck.spam) {
+      socket.emit('error', { message: spamCheck.reason })
       return
     }
 
     try {
       const reply = await addReply(threadId, {
-        content: content.trim(),
+        content: trimmed,
         author: author || 'Anonymous',
         imageUrl: imageUrl || null,
       })
@@ -249,7 +325,10 @@ io.on('connection', (socket) => {
     }
   })
 
-  socket.on('disconnect', () => {})
+  socket.on('disconnect', () => {
+    // Clean up spam state when socket disconnects
+    socketMsgState.delete(socket.id)
+  })
 })
 
 // Error handling middleware
