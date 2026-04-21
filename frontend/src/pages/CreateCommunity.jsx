@@ -110,13 +110,29 @@ const CreateCommunity = () => {
   return (
     <div className="create-community">
       <h2>Create a Community</h2>
-      <p style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>
-        You can create a community now and add the contract address later once it's deployed.
-        <br />
-        {!isLoggedIn && (
-          <span> <Link to="/login">Log in</Link> to become the community creator with full mod powers.</span>
-        )}
-      </p>
+
+      {!isLoggedIn ? (
+        <div style={{ textAlign: 'center', padding: '30px 10px' }}>
+          <p style={{ fontSize: 14, color: '#666', marginBottom: 16 }}>
+            You need an account to create a community. Anonymous posting is available inside existing communities.
+          </p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/login" style={{
+              display: 'inline-block', padding: '10px 24px', background: '#800000',
+              color: '#fff', borderRadius: 4, textDecoration: 'none', fontWeight: 600, fontSize: 14,
+            }}>Login</Link>
+            <Link to="/register" style={{
+              display: 'inline-block', padding: '10px 24px', background: '#E5E9F0',
+              color: '#34345C', borderRadius: 4, textDecoration: 'none', fontWeight: 600, fontSize: 14,
+              border: '1px solid #B7C5D9',
+            }}>Create Account</Link>
+          </div>
+        </div>
+      ) : (
+        <>
+        <p style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>
+          You can create a community now and add the contract address later once it's deployed.
+        </p>
 
       {error && (
         <div className="error-message">
@@ -211,6 +227,8 @@ const CreateCommunity = () => {
           {loading ? 'Creating Community...' : 'Create Community'}
         </button>
       </form>
+      </>
+      )}
     </div>
   )
 }

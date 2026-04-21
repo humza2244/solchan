@@ -21,11 +21,20 @@ const CopyCA = ({ address }) => {
 
 const CommunityImage = ({ community, size = 'card' }) => {
   const [imgError, setImgError] = useState(false)
-  const className = size === 'koth' ? 'koth-placeholder-img' : 'community-placeholder-img'
-  
+
   if (community.imageUrl && !imgError) {
-    return <img src={community.imageUrl} alt={community.coinName} onError={() => setImgError(true)} />
+    const isKoth = size === 'koth'
+    return (
+      <img
+        src={community.imageUrl}
+        alt={community.coinName}
+        className={isKoth ? 'koth-image-horizontal' : 'community-card-img'}
+        onError={() => setImgError(true)}
+      />
+    )
   }
+
+  const className = size === 'koth' ? 'koth-placeholder-img' : 'community-placeholder-img'
   return <div className={className}>{community.ticker?.slice(0, 4)}</div>
 }
 
@@ -58,23 +67,22 @@ const Home = () => {
     localStorage.setItem('hasSeenWelcome', 'true')
   }
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
     navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    setSearchQuery('')
   }
 
   useEffect(() => {
     const loadCommunities = async () => {
-      setLoading(true)
-      
-      await Promise.allSettled([
+      await Promise.all([
         axios.get(`${API_BASE_URL}/communities/koth`)
           .then(res => setKoth(res.data))
           .catch(() => setKoth(null)),
-        
+
         axios.get(`${API_BASE_URL}/communities`, {
-          params: { popular: true, limit: 3 }
+          params: { popular: true, limit: 12 }
         })
           .then(res => setPopularCommunities(res.data))
           .catch(() => setPopularCommunities([])),
@@ -96,7 +104,7 @@ const Home = () => {
   }, [])
 
   useEffect(() => {
-    document.title = 'solchan — memecoin community boards'
+    document.title = 'solchan -- memecoin community boards'
   }, [])
 
   return (
@@ -117,7 +125,7 @@ const Home = () => {
                 <span className="step-number">1</span>
                 <div>
                   <strong>No sign up needed</strong>
-                  <p>Just pick a community and start posting. You're automatically "Anonymous" — no email, no wallet, nothing.</p>
+                  <p>Just pick a community and start posting. You're automatically "Anonymous" -- no email, no wallet, nothing.</p>
                 </div>
               </div>
               <div className="welcome-step">
@@ -136,7 +144,7 @@ const Home = () => {
               </div>
             </div>
             <button className="welcome-got-it" onClick={handleCloseModal}>
-              Got it, let me in →
+              Got it, let me in
             </button>
           </div>
         </div>
@@ -169,28 +177,16 @@ const Home = () => {
             <div className="section-header">
               <h2>* Your Bookmarks</h2>
             </div>
-            <div className="bookmarked-communities-list">
-              {bookmarks.map((b) => (
-                <span key={b.id} className="bookmarked-chip">
-                  <Link to={`/community/${b.id}`} style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', color: 'inherit' }}>
-                    {b.imageUrl ? (
-                      <img src={b.imageUrl} alt={b.ticker} />
-                    ) : (
-                      <span className="chip-placeholder">{b.ticker?.slice(0, 3)}</span>
-                    )}
-                    {b.ticker}
-                  </Link>
-                  <button
-                    className="remove-bookmark"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      const updated = bookmarks.filter(x => x.id !== b.id)
-                      localStorage.setItem('bookmarkedCommunities', JSON.stringify(updated))
-                      window.location.reload()
-                    }}
-                    title="Remove bookmark"
-                  >×</button>
-                </span>
+            <div className="bookmarked-chips">
+              {bookmarks.map(b => (
+                <Link key={b.id} to={`/community/${b.id}`} className="bookmarked-chip">
+                  {b.imageUrl ? (
+                    <img src={b.imageUrl} alt={b.ticker} className="community-card-img" />
+                  ) : (
+                    <div className="bookmark-placeholder">{b.ticker?.slice(0, 2)}</div>
+                  )}
+                  <span>{b.ticker}</span>
+                </Link>
               ))}
             </div>
           </div>
@@ -223,7 +219,7 @@ const Home = () => {
                       window.location.reload()
                     }}
                     title="Stop watching"
-                  >×</button>
+                  >x</button>
                 </div>
               ))}
             </div>
@@ -238,8 +234,8 @@ const Home = () => {
         </div>
         <div className="what-is-content">
           <p>
-            An anonymous imageboard for memecoin communities — like 4chan but for crypto. 
-            Every coin gets its own board. <strong>No sign up required</strong> — just search for a 
+            An anonymous imageboard for memecoin communities -- like 4chan but for crypto. 
+            Every coin gets its own board. <strong>No sign up required</strong> -- just search for a 
             coin, click a community, and start posting.
           </p>
           <div className="feature-pills">
@@ -320,7 +316,7 @@ const Home = () => {
                         }
                       </div>
                       <div className="community-stats">
-                        {community.messageCount} msgs • {community.uniqueUsersCount} users
+                        {community.messageCount} msgs {'\u2022'} {community.uniqueUsersCount} users
                       </div>
                       {community.lastMessageAt && (
                         <div className="community-last-active">
@@ -335,12 +331,12 @@ const Home = () => {
           )}
 
           {/* New Communities */}
-          {newCommunities.length > 0 ? (
-            <div className="recent-communities">
+          {newCommunities.length > 0 && (
+            <div className="recent-communities" style={{ marginTop: 30 }}>
               <div className="section-header">
                 <h2>New Communities</h2>
               </div>
-              <p className="communities-subtitle">Recently created</p>
+              <p className="communities-subtitle">Recently created boards</p>
               <div className="communities-list">
                 {newCommunities.map((community) => (
                   <Link
@@ -359,7 +355,7 @@ const Home = () => {
                         }
                       </div>
                       <div className="community-stats">
-                        {community.messageCount} msgs • {community.uniqueUsersCount} users
+                        {community.messageCount} msgs {'\u2022'} {community.uniqueUsersCount} users
                       </div>
                       {community.lastMessageAt && (
                         <div className="community-last-active">
@@ -369,18 +365,6 @@ const Home = () => {
                     </div>
                   </Link>
                 ))}
-              </div>
-            </div>
-          ) : (
-            <div className="recent-communities">
-              <div className="section-header">
-                <h2>New Communities</h2>
-              </div>
-              <div className="no-threads">
-                <p>No communities yet. Be the first to create one!</p>
-                <Link to="/create-community" className="create-thread-btn">
-                  Create a Community
-                </Link>
               </div>
             </div>
           )}

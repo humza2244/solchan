@@ -5,11 +5,9 @@ import { useAuth } from '../context/AuthContext.jsx'
 const Layout = ({ children }) => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isLoggedIn, displayName, logout, loading, twitterHandle, linkX, profile } = useAuth()
+  const { isLoggedIn, displayName, logout, loading } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [showScrollTop, setShowScrollTop] = useState(false)
-  const [linkingX, setLinkingX] = useState(false)
-  const [xLinkMsg, setXLinkMsg] = useState('')
 
   // Ensure dark mode is always off
   useEffect(() => {
@@ -46,27 +44,6 @@ const Layout = ({ children }) => {
     navigate('/')
   }
 
-  const handleLinkX = async (e) => {
-    e.preventDefault()
-    setLinkingX(true)
-    try {
-      const handle = await linkX()
-      setXLinkMsg(handle ? `@${handle} linked!` : 'X linked!')
-      setTimeout(() => setXLinkMsg(''), 3000)
-    } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
-        if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/configuration-not-found') {
-          setXLinkMsg('X login not configured in Firebase')
-        } else {
-          setXLinkMsg('Failed to link X')
-        }
-        setTimeout(() => setXLinkMsg(''), 4000)
-      }
-    } finally {
-      setLinkingX(false)
-    }
-  }
-
   return (
     <div className="layout">
       <header className="header">
@@ -90,24 +67,6 @@ const Layout = ({ children }) => {
               isLoggedIn ? (
                 <>
                   <Link to={`/user/${encodeURIComponent(displayName)}`} className="nav-user">{displayName}</Link>
-                  {twitterHandle ? (
-                    <span className="nav-x-handle" title="X account linked">
-                      X @{twitterHandle}
-                    </span>
-                  ) : (
-                    xLinkMsg ? (
-                      <span className="nav-x-linked">{xLinkMsg}</span>
-                    ) : (
-                      <button
-                        className="nav-link-x-btn"
-                        onClick={handleLinkX}
-                        disabled={linkingX}
-                        title="Connect your X (Twitter) account"
-                      >
-                        {linkingX ? 'Connecting...' : 'Link X'}
-                      </button>
-                    )
-                  )}
                   <span className="nav-divider">|</span>
                   <a href="#" onClick={handleLogout} className="nav-link">Logout</a>
                 </>
@@ -144,7 +103,7 @@ const Layout = ({ children }) => {
         title="Scroll to top"
         aria-label="Scroll to top"
       >
-        ↑
+        Up
       </button>
     </div>
   )
