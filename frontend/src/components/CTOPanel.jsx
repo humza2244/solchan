@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '../services/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
-const CTO_VOTE_THRESHOLD = 5
 const INACTIVE_DAYS = 30
 
 /**
- * CTOPanel — shows CTO eligibility info, request form, and vote UI.
+ * CTOPanel -- shows CTO eligibility info, request form, and vote UI.
+ * CTO requires 35% of community members to vote in favor.
  * Props:
  *  - community: community object with { id, creatorId, lastMessageAt, ctoStatus }
  *  - onCTOApproved: callback when CTO is approved (refetch community)
@@ -16,11 +16,13 @@ const INACTIVE_DAYS = 30
 const CTOPanel = ({ community, onCTOApproved }) => {
   const { isLoggedIn, user, getToken, displayName } = useAuth()
   const [requests, setRequests] = useState([])
+  const [threshold, setThreshold] = useState(2)
+  const [memberCount, setMemberCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [reason, setReason] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [voting, setVoting] = useState(null) // requestId being voted on
+  const [voting, setVoting] = useState(null)
   const [msg, setMsg] = useState('')
   const [err, setErr] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -36,9 +38,9 @@ const CTOPanel = ({ community, onCTOApproved }) => {
   const isCreator = user && community.creatorId === user.uid
 
   const eligibilityReason = noCreator
-    ? 'This community has no creator — anyone can claim it.'
+    ? 'This community has no creator -- anyone can claim it.'
     : isInactive
-    ? `No activity for ${Math.floor(daysSinceLast)} days — team appears inactive.`
+    ? `No activity for ${Math.floor(daysSinceLast)} days -- team appears inactive.`
     : null
 
   useEffect(() => {
@@ -50,7 +52,15 @@ const CTOPanel = ({ community, onCTOApproved }) => {
     setLoading(true)
     try {
       const res = await axios.get(`${API_BASE_URL}/communities/${community.id}/cto`)
-      setRequests(res.data)
+      // Backend returns { requests, threshold, memberCount }
+      if (res.data.requests) {
+        setRequests(res.data.requests)
+        setThreshold(res.data.threshold || 2)
+        setMemberCount(res.data.memberCount || 0)
+      } else {
+        // Fallback for old format (plain array)
+        setRequests(Array.isArray(res.data) ? res.data : [])
+      }
     } catch (e) {
       console.error('Error fetching CTO requests:', e.message)
     } finally {
@@ -93,10 +103,11 @@ const CTOPanel = ({ community, onCTOApproved }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       if (res.data.status === 'approved') {
-        showMsg('OK CTO approved! The community has a new creator.')
+        showMsg('CTO approved! The community has a new creator.')
         onCTOApproved?.()
       } else {
-        showMsg(`Vote recorded! ${res.data.upvotes || 0}/${CTO_VOTE_THRESHOLD} votes needed.`)
+        const t = res.data.threshold || threshold
+        showMsg(`Vote recorded! ${res.data.upvotes || 0}/${t} votes needed (35% of members).`)
         fetchRequests()
       }
     } catch (e) {
@@ -123,6 +134,12 @@ const CTOPanel = ({ community, onCTOApproved }) => {
             <span className="cto-badge-icon"></span>
             <span>{eligibilityReason}</span>
           </div>
+
+          {memberCount > 0 && (
+            <div style={{ fontSize: 11, color: '#666', marginBottom: 8, padding: '0 4px' }}>
+              Approval requires {threshold} votes (35% of {memberCount} members)
+            </div>
+          )}
 
           {msg && <div className="mod-success">{msg}</div>}
           {err && <div className="mod-error">{err}</div>}
@@ -156,7 +173,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
                       Cancel
                     </button>
                   </div>
-                  <small>Needs {CTO_VOTE_THRESHOLD} upvotes from community members to be approved.</small>
+                  <small>Needs {threshold} upvotes (35% of community members) to be approved.</small>
                 </form>
               )}
             </div>
@@ -181,15 +198,15 @@ const CTOPanel = ({ community, onCTOApproved }) => {
                   <div className="cto-request-header">
                     <span className="cto-requester"> {req.requesterUsername}</span>
                     <span className={`cto-status-badge ${req.status}`}>
-                      {req.status === 'approved' ? 'OK Approved' : req.status === 'rejected' ? 'X Rejected' : ' Pending'}
+                      {req.status === 'approved' ? 'Approved' : req.status === 'rejected' ? 'Rejected' : 'Pending'}
                     </span>
                   </div>
                   <p className="cto-reason">"{req.reason}"</p>
                   <div className="cto-vote-row">
                     <span className="cto-votes">
-                       {req.upvotes || 0} / {CTO_VOTE_THRESHOLD} needed
+                       {req.upvotes || 0} / {threshold} needed
                     </span>
-                    <span className="cto-votes-down"> {req.downvotes || 0}</span>
+                    <span className="cto-votes-down"> {req.downvotes || 0} against</span>
                     {req.status === 'pending' && isLoggedIn && user?.uid !== req.requesterId && (
                       <div className="cto-vote-btns">
                         <button
@@ -198,7 +215,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
                           disabled={voting === req.id}
                           title="Support this CTO request"
                         >
-                          {voting === req.id ? '...' : ' Support'}
+                          {voting === req.id ? '...' : 'Support'}
                         </button>
                         <button
                           className="cto-vote-down-btn"
@@ -206,7 +223,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
                           disabled={voting === req.id}
                           title="Oppose this CTO request"
                         >
-                          
+                          Oppose
                         </button>
                       </div>
                     )}

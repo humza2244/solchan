@@ -2,7 +2,8 @@ import { getDb, toDate, FieldValue } from '../config/firebase.js'
 import Community from '../models/Community.js'
 import Message from '../models/Message.js'
 
-const CTO_VOTE_THRESHOLD = 5 // votes needed to auto-approve a CTO
+const CTO_VOTE_PERCENT = 0.35 // 35% of community members needed to approve CTO
+const CTO_MIN_VOTES = 2 // minimum votes required even for tiny communities
 
 // Create a new community (CA is now optional)
 export const createCommunity = async (communityData) => {
@@ -560,13 +561,19 @@ export const voteCTORequest = async (ctoRequestId, userId, vote) => {
     voters: FieldValue.arrayUnion(userId),
   })
 
+  // Calculate dynamic threshold: 35% of community members (min 2)
+  const communityRef = db.collection('communities').doc(data.communityId)
+  const communityDoc = await communityRef.get()
+  const memberCount = communityDoc.exists ? (communityDoc.data().memberCount || communityDoc.data().uniqueUsersCount || 1) : 1
+  const dynamicThreshold = Math.max(CTO_MIN_VOTES, Math.ceil(memberCount * CTO_VOTE_PERCENT))
+
   // Auto-approve if threshold met
-  if (newUpvotes >= CTO_VOTE_THRESHOLD) {
+  if (newUpvotes >= dynamicThreshold) {
     await approveCTORequest(ctoRequestId, data)
     return { status: 'approved', message: 'CTO approved! You are now the community creator.' }
   }
 
-  return { status: 'pending', upvotes: newUpvotes, downvotes: newDownvotes }
+  return { status: 'pending', upvotes: newUpvotes, downvotes: newDownvotes, threshold: dynamicThreshold }
 }
 
 /**
@@ -611,6 +618,12 @@ const approveCTORequest = async (ctoRequestId, requestData) => {
  */
 export const getCTORequests = async (communityId) => {
   const db = getDb()
+
+  // Get community member count for threshold calculation
+  const communityDoc = await db.collection('communities').doc(communityId).get()
+  const memberCount = communityDoc.exists ? (communityDoc.data().memberCount || communityDoc.data().uniqueUsersCount || 1) : 1
+  const threshold = Math.max(CTO_MIN_VOTES, Math.ceil(memberCount * CTO_VOTE_PERCENT))
+
   const snap = await db.collection('ctoRequests')
     .where('communityId', '==', communityId)
     .orderBy('createdAt', 'desc')
@@ -636,7 +649,7 @@ export const getCTORequests = async (communityId) => {
     })
   }
 
-  return requests
+  return { requests, threshold, memberCount }
 }
 
 export default {
