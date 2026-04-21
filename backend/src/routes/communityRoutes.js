@@ -103,6 +103,34 @@ router.get('/:id/cto', getCTOHandler)
 router.post('/:id/cto', requireAuth, ctoLimiter, submitCTOHandler)
 
 // POST /api/communities/:id/cto/:requestId/vote - Vote on CTO request (auth required)
+// POST /api/communities/:id/cto/:requestId/vote - Vote on CTO request (auth required)
 router.post('/:id/cto/:requestId/vote', requireAuth, voteCTOHandler)
+
+// ===== Report Route =====
+// POST /api/communities/:id/report - Report a thread or reply
+router.post('/:id/report', postLimiter, async (req, res) => {
+  try {
+    const { id } = req.params
+    const { type, targetId, reason } = req.body
+    if (!type || !targetId || !reason) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+    const { getDb } = await import('../config/firebase.js')
+    const db = getDb()
+    await db.collection('reports').add({
+      communityId: id,
+      type,
+      targetId,
+      reason,
+      reportedAt: new Date(),
+      status: 'pending',
+      reporterIp: req.ip || 'unknown',
+    })
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Error saving report:', error.message)
+    res.json({ success: true }) // Always return success to prevent info leaks
+  }
+})
 
 export default router

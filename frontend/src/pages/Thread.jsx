@@ -6,6 +6,8 @@ import DOMPurify from 'dompurify'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext.jsx'
 import ReportModal from '../components/ReportModal.jsx'
+import ImageLightbox from '../components/ImageLightbox.jsx'
+import ReportButton from '../components/ReportButton.jsx'
 
 // Relative time helper
 const timeAgo = (dateStr) => {
@@ -677,12 +679,10 @@ const Thread = () => {
           </span>
         </div>
         {thread.imageUrl && (
-          <div className={`op-image ${expandedImages.has(thread.postNumber) ? 'expanded' : ''}`}>
-            <img 
-              src={thread.imageUrl} 
+          <div className="op-image">
+            <ImageLightbox
+              src={thread.imageUrl}
               alt="Thread image"
-              onClick={() => toggleImage(thread.postNumber)}
-              title="Click to expand/collapse"
               onError={(e) => { e.target.style.display = 'none' }}
             />
           </div>
@@ -735,12 +735,10 @@ const Thread = () => {
               </span>
             </div>
             {reply.imageUrl && (
-              <div className={`reply-image ${expandedImages.has(reply.postNumber) ? 'expanded' : ''}`}>
-                <img 
-                  src={reply.imageUrl} 
+              <div className="reply-image">
+                <ImageLightbox
+                  src={reply.imageUrl}
                   alt="Reply image"
-                  onClick={() => toggleImage(reply.postNumber)}
-                  title="Click to expand/collapse"
                   onError={(e) => { e.target.style.display = 'none' }}
                 />
               </div>
@@ -756,6 +754,7 @@ const Thread = () => {
                 ))}
               </div>
             )}
+            <ReportButton type="reply" targetId={reply.id} communityId={communityId} />
             <div style={{ clear: 'both' }}></div>
           </div>
         ))}

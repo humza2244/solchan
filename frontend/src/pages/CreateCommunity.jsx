@@ -10,6 +10,7 @@ const CreateCommunity = () => {
   const [coinName, setCoinName] = useState('')
   const [contractAddress, setContractAddress] = useState('')
   const [description, setDescription] = useState('')
+  const [rules, setRules] = useState('')
   const [image, setImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [error, setError] = useState('')
@@ -76,6 +77,7 @@ const CreateCommunity = () => {
           coinName: coinName.trim(),
           contractAddress: ca || undefined,
           description: description.trim(),
+          rules: rules.trim() || undefined,
         },
         { headers }
       )
@@ -204,6 +206,20 @@ const CreateCommunity = () => {
             rows={5}
             maxLength={1000}
           />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="rules">Community Rules <span className="optional-badge">Optional</span></label>
+          <textarea
+            id="rules"
+            value={rules}
+            onChange={(e) => setRules(e.target.value)}
+            disabled={loading}
+            placeholder="e.g. 1. No spam\n2. No doxxing\n3. Keep it on-topic"
+            rows={4}
+            maxLength={1000}
+          />
+          <small>Rules show at the top of your community. Max 1000 characters.</small>
         </div>
 
         <div className="form-group">

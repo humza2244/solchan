@@ -354,7 +354,12 @@ const CommunityThreadList = () => {
           <CopyCA address={community.contractAddress} />
         </div>
         {community.description && <p style={{ fontSize: 13, color: '#4a4a6a', marginTop: 6 }}>{community.description}</p>}
-        
+        {community.rules && (
+          <div className="community-rules-box">
+            <strong>Rules</strong>
+            <pre className="community-rules-text">{community.rules}</pre>
+          </div>
+        )}
         <div className="community-header-stats">
           <span>{community.messageCount || 0} messages</span>
           <span>{threads.length} threads</span>
