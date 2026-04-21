@@ -569,7 +569,8 @@ const CommunityThreadList = () => {
       </div>
 
       {threads.length === 0 ? (
-        <div className="no-threads">
+        <div className="no-threads" style={{ textAlign: 'center' }}>
+          <img src="/mascot.png" alt="solchan mascot" style={{ width: 70, height: 'auto', marginBottom: 10, opacity: 0.75 }} />
           <p>No threads yet. Be the first to start one!</p>
           <Link to={`/community/${id}/new-thread`} className="create-thread-btn">
             Start a New Thread

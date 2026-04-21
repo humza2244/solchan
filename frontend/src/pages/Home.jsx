@@ -114,8 +114,9 @@ const Home = () => {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content welcome-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={handleCloseModal}>
-              
+              X
             </button>
+            <img src="/mascot.png" alt="solchan mascot" style={{ width: 80, height: 'auto', margin: '0 auto 10px', display: 'block' }} />
             <h2> Welcome to solchan</h2>
             <p className="welcome-subtitle">
               The anonymous imageboard for memecoin communities.
@@ -152,6 +153,7 @@ const Home = () => {
 
       {/* Logo */}
       <div className="home-logo">
+        <img src="/mascot.png" alt="solchan mascot" className="home-mascot" />
         <h1>solchan</h1>
       </div>
 
@@ -285,6 +287,7 @@ const Home = () => {
       {/* Content */}
       {loading ? (
         <div className="loading-container">
+          <img src="/mascot.png" alt="loading" style={{ width: 60, height: 'auto', marginBottom: 12, opacity: 0.7 }} />
           <div className="spinner"></div>
           <span className="loading-text">Loading communities...</span>
           <span className="loading-hint">First load may take a moment while the server wakes up</span>

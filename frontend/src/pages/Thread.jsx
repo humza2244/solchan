@@ -521,9 +521,10 @@ const Thread = () => {
     return (
       <div className="thread-page">
         <div className="no-threads" style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <img src="/mascot.png" alt="solchan mascot" style={{ width: 80, height: 'auto', marginBottom: 12, opacity: 0.8 }} />
           <div style={{ fontSize: 36, marginBottom: 12, color: '#ccc', fontWeight: 800 }}>404</div>
           <p style={{ fontSize: 16, marginBottom: 16, color: '#666' }}>Thread not found or has been deleted</p>
-          <Link to="/" className="back-link" style={{ fontSize: 14 }}>← Back to Home</Link>
+          <Link to="/" className="back-link" style={{ fontSize: 14 }}>Back to Home</Link>
         </div>
       </div>
     )
