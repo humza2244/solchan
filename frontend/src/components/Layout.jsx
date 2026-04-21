@@ -81,19 +81,26 @@ const Layout = ({ children }) => {
           </nav>
         </div>
       </header>
-      <main className="main">
+      <main className="main page-fade-in">
         <div className="container">
           {children}
         </div>
       </main>
       <footer className="footer">
         <div className="container">
+          <div className="footer-brand">
+            <img src="/mascot.png" alt="solchan" className="footer-mascot" />
+            <div>
+              <strong>solchan</strong>
+              <span className="footer-tagline">the imageboard for degens</span>
+            </div>
+          </div>
           <div className="footer-links">
             <Link to="/">Home</Link>
             <Link to="/create-community">Create Community</Link>
             <a href="https://github.com/realdoomsman/solchan" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
-          <p>&copy; {new Date().getFullYear()} solchan</p>
+          <p className="footer-copy">&copy; {new Date().getFullYear()} solchan. All rights reserved.</p>
         </div>
       </footer>
 

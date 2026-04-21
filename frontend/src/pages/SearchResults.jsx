@@ -22,7 +22,7 @@ const CopyCA = ({ address }) => {
 const CommunityImage = ({ community }) => {
   const [imgErr, setImgErr] = useState(false)
   if (community.imageUrl && !imgErr) {
-    return <img src={community.imageUrl} alt={community.coinName} onError={() => setImgErr(true)} />
+    return <img src={community.imageUrl} alt={community.coinName} className="community-card-img" onError={() => setImgErr(true)} />
   }
   return (
     <div className="community-placeholder-img">
@@ -67,7 +67,7 @@ const SearchResults = () => {
       <div className="search-results-header">
         <h1>Search Results</h1>
         <p>Showing results for: <strong>{query}</strong></p>
-        <Link to="/" className="back-home-link">← Back to Home</Link>
+        <Link to="/" className="back-home-link">Back to Home</Link>
       </div>
 
       {loading ? (
@@ -79,6 +79,7 @@ const SearchResults = () => {
         </div>
       ) : results.length === 0 ? (
         <div className="no-results-section">
+          <img src="/mascot.png" alt="solchan mascot" style={{ width: 80, height: 'auto', marginBottom: 12, opacity: 0.75 }} />
           <h2>No communities found</h2>
           <p>No communities match "{query}"</p>
           <p>Try searching by:</p>

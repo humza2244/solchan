@@ -112,7 +112,7 @@ const CommunityThreadList = () => {
   const [reportTarget, setReportTarget] = useState(null)
   const [members, setMembers] = useState([])
   const [showMembers, setShowMembers] = useState(false)
-  const [sortMode, setSortMode] = useState('bump')
+  const [sortMode, setSortMode] = useState(() => localStorage.getItem('threadSortMode') || 'bump')
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('threadViewMode') || 'list')
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [hasJoined, setHasJoined] = useState(false)
@@ -584,7 +584,7 @@ const CommunityThreadList = () => {
               <button
                 key={s.key}
                 className={`sort-btn ${sortMode === s.key ? 'active' : ''}`}
-                onClick={() => setSortMode(s.key)}
+                onClick={() => { setSortMode(s.key); localStorage.setItem('threadSortMode', s.key) }}
               >{s.label}</button>
             ))}
             <div className="view-toggle">

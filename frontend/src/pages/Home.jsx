@@ -371,6 +371,18 @@ const Home = () => {
               </div>
             </div>
           )}
+
+          {/* Empty state - no communities at all */}
+          {popularCommunities.length === 0 && newCommunities.length === 0 && (
+            <div className="empty-home-state">
+              <img src="/mascot.png" alt="solchan mascot" className="empty-state-mascot" />
+              <h3>No communities yet</h3>
+              <p>Be the first to create a board for your favorite memecoin.</p>
+              <Link to="/create-community" className="empty-state-cta">
+                Create the First Community
+              </Link>
+            </div>
+          )}
         </>
       )}
     </div>
@@ -378,3 +390,4 @@ const Home = () => {
 }
 
 export default Home
+

@@ -132,7 +132,7 @@ body {
 .footer {
   background-color: #EEF2FF;
   border-top: 1px solid #B7C5D9;
-  padding: 16px 0;
+  padding: 20px 0 16px;
   text-align: center;
   color: #666;
   font-size: 12px;
@@ -140,6 +140,39 @@ body {
 
 .footer p {
   margin: 0;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.footer-mascot {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.footer-brand strong {
+  font-size: 14px;
+  color: #AF0A0F;
+}
+
+.footer-tagline {
+  display: block;
+  font-size: 10px;
+  color: #999;
+  letter-spacing: 0.3px;
+}
+
+.footer-copy {
+  font-size: 10px;
+  color: #aaa;
+  margin-top: 6px;
 }
 
 .footer-links {
@@ -4187,7 +4220,107 @@ a.post-name:hover {
 }
 
 /* ===========================
-   DARK MODE — CTO + CA + WARN
+   PAGE TRANSITIONS
    =========================== */
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
+.page-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ===========================
+   EMPTY HOME STATE
+   =========================== */
+
+.empty-home-state {
+  text-align: center;
+  padding: 50px 20px;
+  background: #F0E0D6;
+  border: 1px solid #D9C5B4;
+  border-radius: 6px;
+  margin: 20px auto;
+  max-width: 500px;
+}
+
+.empty-state-mascot {
+  width: 100px;
+  height: auto;
+  margin-bottom: 16px;
+  opacity: 0.85;
+}
+
+.empty-home-state h3 {
+  font-size: 20px;
+  color: #34345C;
+  margin-bottom: 8px;
+}
+
+.empty-home-state p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.empty-state-cta {
+  display: inline-block;
+  padding: 12px 28px;
+  background: #800000;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.empty-state-cta:hover {
+  background: #a00;
+  transform: translateY(-1px);
+}
+
+/* ===========================
+   NO RESULTS SECTION
+   =========================== */
+
+.no-results-section {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.no-results-section h2 {
+  color: #34345C;
+  margin-bottom: 8px;
+}
+
+.no-results-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 16px;
+}
+
+.no-results-section li {
+  color: #666;
+  font-size: 13px;
+  padding: 2px 0;
+}
+
+.create-community-link {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #800000;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.create-community-link:hover {
+  background: #a00;
+}
