@@ -513,7 +513,6 @@ const Thread = () => {
         <div className="loading-container">
           <div className="spinner"></div>
           <span className="loading-text">Loading thread...</span>
-          <span className="loading-hint">First load may take a moment while the server wakes up</span>
         </div>
       </div>
     )

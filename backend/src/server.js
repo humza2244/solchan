@@ -389,6 +389,23 @@ const startServer = async () => {
       console.log(` Server running on http://localhost:${PORT}`)
       console.log(` WebSocket server ready`)
       console.log(` Firestore connected`)
+
+      // Keepalive: self-ping every 4 minutes to prevent Render/Railway from sleeping
+      const KEEPALIVE_URL = process.env.RENDER_EXTERNAL_URL || process.env.RAILWAY_PUBLIC_DOMAIN
+        ? `https://${process.env.RENDER_EXTERNAL_URL || process.env.RAILWAY_PUBLIC_DOMAIN}/api/health`
+        : null
+      if (KEEPALIVE_URL) {
+        setInterval(() => {
+          fetch(KEEPALIVE_URL).catch(() => {})
+        }, 4 * 60 * 1000) // every 4 minutes
+        console.log(` Keepalive enabled → ${KEEPALIVE_URL}`)
+      } else {
+        // Fallback: ping localhost
+        setInterval(() => {
+          fetch(`http://localhost:${PORT}/api/health`).catch(() => {})
+        }, 4 * 60 * 1000)
+        console.log(` Keepalive enabled (localhost)`)
+      }
     })
   } catch (error) {
     console.error(' Failed to start server:', error)
