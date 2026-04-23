@@ -115,7 +115,13 @@ export const searchCommunitiesHandler = async (req, res) => {
       return res.status(400).json({ error: 'Search query too long' })
     }
 
-    const communities = await searchCommunities(q)
+    // Sanitize: strip HTML tags and special chars that could cause issues
+    const sanitized = q.replace(/<[^>]*>/g, '').replace(/[<>"'&]/g, '').trim()
+    if (!sanitized) {
+      return res.json([])
+    }
+
+    const communities = await searchCommunities(sanitized)
     res.json(communities.map(c => c.toJSON()))
   } catch (error) {
     console.error('Error searching communities:', error.message)
@@ -128,7 +134,13 @@ export const getCommunityHandler = async (req, res) => {
   try {
     const { id } = req.params
 
-    const community = await getCommunityById(id)
+    let community
+    try {
+      community = await getCommunityById(id)
+    } catch (lookupErr) {
+      // Invalid ID format or Firestore error — treat as not found
+      return res.status(404).json({ error: 'Community not found' })
+    }
 
     if (!community) {
       return res.status(404).json({ error: 'Community not found' })

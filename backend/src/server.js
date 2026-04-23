@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import rateLimit from 'express-rate-limit'
+import compression from 'compression'
 import communityRoutes from './routes/communityRoutes.js'
 import userProfileRoutes from './routes/userProfileRoutes.js'
 import threadRoutes from './routes/threadRoutes.js'
@@ -63,6 +64,9 @@ const io = new Server(httpServer, {
     methods: ['GET', 'POST'],
     credentials: true,
   },
+  maxHttpBufferSize: 50_000, // 50KB max per WS message (prevents payload abuse)
+  pingTimeout: 30_000,
+  pingInterval: 25_000,
 })
 
 setSocketIO(io)
@@ -73,6 +77,9 @@ const PORT = process.env.PORT || 5001
 if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
   app.set('trust proxy', 1)
 }
+
+// Compression — gzip all responses
+app.use(compression())
 
 // Security middleware
 app.use(helmet({
@@ -176,6 +183,24 @@ const MSG_RATE_LIMIT = 5      // max messages per window
 const MSG_WINDOW_MS = 10000   // 10 seconds
 const DEDUP_WINDOW_MS = 30000 // 30 seconds — same content from same socket is rejected
 const MIN_MSG_LENGTH = 2
+
+// Periodic cleanup of orphaned socketMsgState entries (runs every 60s)
+setInterval(() => {
+  const now = Date.now()
+  const connectedIds = new Set()
+  for (const [id] of io.sockets.sockets) connectedIds.add(id)
+  for (const [socketId, state] of socketMsgState) {
+    if (!connectedIds.has(socketId)) socketMsgState.delete(socketId)
+  }
+  // Hard cap: if somehow still huge, prune oldest
+  if (socketMsgState.size > 20000) {
+    const entries = [...socketMsgState.entries()]
+    entries.sort((a, b) => a[1].windowStart - b[1].windowStart)
+    for (let i = 0; i < entries.length - 10000; i++) {
+      socketMsgState.delete(entries[i][0])
+    }
+  }
+}, 60_000)
 
 const checkSpam = (socketId, content) => {
   const now = Date.now()
@@ -284,7 +309,7 @@ io.on('connection', (socket) => {
   socket.on('join-thread', async (threadId) => {
     try {
       socket.join(`thread-${threadId}`)
-      const replies = await getRepliesByThread(threadId, 1000)
+      const replies = await getRepliesByThread(threadId, 500)
       socket.emit('thread-replies', replies.map(r => r.toJSON()))
       // Broadcast user count to thread
       const room = io.sockets.adapter.rooms.get(`thread-${threadId}`)
@@ -370,5 +395,26 @@ const startServer = async () => {
     process.exit(1)
   }
 }
+
+// Graceful shutdown — drain sockets and close cleanly
+const shutdown = (signal) => {
+  console.log(`\n${signal} received — shutting down gracefully...`)
+  // Stop accepting new connections
+  io.close(() => {
+    console.log(' Socket.IO closed')
+  })
+  httpServer.close(() => {
+    console.log(' HTTP server closed')
+    process.exit(0)
+  })
+  // Force kill after 10s if something hangs
+  setTimeout(() => {
+    console.error(' Forced shutdown after timeout')
+    process.exit(1)
+  }, 10_000)
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGINT', () => shutdown('SIGINT'))
 
 startServer()

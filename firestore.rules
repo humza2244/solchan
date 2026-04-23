@@ -1,9 +1,11 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow all reads and writes for now (backend handles auth)
+    // All database access goes through the backend Admin SDK,
+    // which bypasses these rules entirely.
+    // Deny all direct client-side access to prevent data manipulation.
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }

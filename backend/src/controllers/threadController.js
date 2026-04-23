@@ -16,12 +16,22 @@ import { trackMember } from '../services/communityService.js'
 const ipSpamMap = new Map()
 const IP_DEDUP_WINDOW_MS = 2 * 60 * 1000 // 2 minutes
 
-const checkIpSpam = (ip, content) => {
-  // Clean expired entries occasionally
+// Periodic cleanup of expired entries (every 60s)
+setInterval(() => {
   const now = Date.now()
-  if (ipSpamMap.size > 5000) {
-    for (const [k, t] of ipSpamMap) {
-      if (now - t > IP_DEDUP_WINDOW_MS * 2) ipSpamMap.delete(k)
+  for (const [k, t] of ipSpamMap) {
+    if (now - t > IP_DEDUP_WINDOW_MS * 2) ipSpamMap.delete(k)
+  }
+}, 60_000)
+
+const checkIpSpam = (ip, content) => {
+  const now = Date.now()
+  // Emergency prune if too large
+  if (ipSpamMap.size > 10000) {
+    const entries = [...ipSpamMap.entries()]
+    entries.sort((a, b) => a[1] - b[1])
+    for (let i = 0; i < entries.length - 5000; i++) {
+      ipSpamMap.delete(entries[i][0])
     }
   }
   const key = `${ip}::${content.trim().toLowerCase().slice(0, 200)}`
@@ -142,14 +152,19 @@ export const getThreadHandler = async (req, res) => {
   try {
     const { threadId } = req.params
 
-    const thread = await getThreadById(threadId)
+    let thread
+    try {
+      thread = await getThreadById(threadId)
+    } catch (lookupErr) {
+      return res.status(404).json({ error: 'Thread not found' })
+    }
     if (!thread) {
       return res.status(404).json({ error: 'Thread not found' })
     }
 
     let replies = []
     try {
-      replies = await getRepliesByThread(threadId, 1000)
+      replies = await getRepliesByThread(threadId, 500)
     } catch (replyError) {
       console.error('Warning: Could not load replies:', replyError.message)
     }

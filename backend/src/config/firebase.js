@@ -32,6 +32,14 @@ export const FieldValue = {
     if (usingRealFirebase) return admin.firestore.FieldValue.delete()
     return { _type: 'delete' }
   },
+  arrayUnion: (...elements) => {
+    if (usingRealFirebase) return admin.firestore.FieldValue.arrayUnion(...elements)
+    return { _type: 'arrayUnion', _elements: elements }
+  },
+  arrayRemove: (...elements) => {
+    if (usingRealFirebase) return admin.firestore.FieldValue.arrayRemove(...elements)
+    return { _type: 'arrayRemove', _elements: elements }
+  },
 }
 
 // ── Date helper ──────────────────────────────────────────────────
@@ -184,12 +192,23 @@ class DocRef {
     for (const [k, v] of Object.entries(data)) {
       if (v && v._type === 'increment') resolved[k] = (existing[k] || 0) + v._value
       else if (v && v._type === 'delete') { /* skip */ }
+      else if (v && v._type === 'arrayUnion') {
+        const arr = Array.isArray(existing[k]) ? [...existing[k]] : []
+        for (const el of v._elements) { if (!arr.includes(el)) arr.push(el) }
+        resolved[k] = arr
+      }
+      else if (v && v._type === 'arrayRemove') {
+        const arr = Array.isArray(existing[k]) ? [...existing[k]] : []
+        resolved[k] = arr.filter(el => !v._elements.includes(el))
+      }
       else resolved[k] = v
     }
     col.set(this._id, { ...existing, ...resolved })
     saveToDisk()
   }
   async delete() { getCol(this._c).delete(this._id); saveToDisk() }
+  // Subcollection support: doc('x').collection('bans') → stored as flat collection 'communities/x/bans'
+  collection(name) { return new ColRef(`${this._c}/${this._id}/${name}`) }
 }
 
 class DocSnap {
@@ -202,6 +221,7 @@ class Query {
   where(f, op, v) { const q = this._clone(); q._f.push({ f, op, v }); return q }
   orderBy(f, d = 'asc') { const q = this._clone(); q._o.push({ f, d }); return q }
   limit(n) { const q = this._clone(); q._l = n; return q }
+  select(...fields) { return this } // no-op for local store — real Firestore uses this for efficiency
   async get() {
     const col = getCol(this._c)
     let res = []

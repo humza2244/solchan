@@ -9,10 +9,10 @@ export const connectSocket = () => {
     socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
       reconnection: true,
-      reconnectionAttempts: 10,
+      reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
-      reconnectionDelayMax: 10000,
-      timeout: 10000,
+      reconnectionDelayMax: 30000,
+      timeout: 15000,
     })
 
     socket.on('connect', () => {
