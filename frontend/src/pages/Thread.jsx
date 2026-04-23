@@ -383,7 +383,7 @@ const Thread = () => {
       }, 10000)
 
       setNewReply('')
-      setName('Anonymous')
+      setName(isLoggedIn ? displayName : 'Anonymous')
       setImage(null)
       setImagePreview(null)
       
@@ -754,7 +754,7 @@ const Thread = () => {
                 ))}
               </div>
             )}
-            <ReportButton type="reply" targetId={reply.id} communityId={communityId} />
+            <ReportButton type="reply" targetId={reply.id} communityId={thread.communityId} />
             <div style={{ clear: 'both' }}></div>
           </div>
         ))}

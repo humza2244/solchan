@@ -81,10 +81,10 @@ export const updateCommunityCA = async (communityId, contractAddress, requesting
   if (!communityDoc.exists) throw new Error('Community not found')
 
   const data = communityDoc.data()
-  const isMod = data.creatorId === requestingUserId || (data.moderators || []).includes(requestingUserId)
-  // Allow if no creator (community was created anonymously)
-  if (!isMod && data.creatorId !== null) {
-    throw new Error('Only the creator or a moderator can set the contract address')
+  // Only the creator can update the CA (not mods)
+  // Allow if no creator (community was created anonymously — first authenticated user can claim)
+  if (data.creatorId !== null && data.creatorId !== requestingUserId) {
+    throw new Error('Only the community creator can set the contract address')
   }
 
   await db.collection('communities').doc(communityId).update({
@@ -487,15 +487,17 @@ export const submitCTORequest = async (communityId, requestingUserId, reason) =>
   if (!community) throw new Error('Community not found')
 
   // Check eligibility
-  const daysSinceLastPost = community.lastMessageAt
-    ? (Date.now() - new Date(community.lastMessageAt).getTime()) / (1000 * 60 * 60 * 24)
-    : 9999
+  // Fall back to createdAt when no messages yet — prevents brand-new communities from being immediately eligible
+  const activityRef = community.lastMessageAt || community.createdAt
+  const hoursSinceLastActivity = activityRef
+    ? (Date.now() - new Date(activityRef).getTime()) / (1000 * 60 * 60)
+    : 0
 
   const noCreator = !community.creatorId
-  const isInactive = daysSinceLastPost >= 30
+  const isInactive = hoursSinceLastActivity >= 2
 
-  if (!noCreator && !isInactive) {
-    throw new Error('Community is not eligible for CTO — it is active and has a creator')
+  if (!noCreator || !isInactive) {
+    throw new Error('Community is not eligible for CTO — it must have no creator and be inactive for 2+ hours')
   }
 
   // Don't allow creator to CTO their own community

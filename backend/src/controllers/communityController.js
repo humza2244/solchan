@@ -196,12 +196,14 @@ export const createMessageHandler = async (req, res) => {
 export const getAllCommunitiesHandler = async (req, res) => {
   try {
     const popular = req.query.popular === 'true'
+    const recent = req.query.recent === 'true'
     const limit = Math.min(parseInt(req.query.limit) || 50, 100)
 
     let communities
     if (popular) {
       communities = await getPopularCommunities(limit)
     } else {
+      // recent=true is the same as default (newest first) — getAllCommunities is already sorted desc
       communities = await getAllCommunities(limit)
     }
 

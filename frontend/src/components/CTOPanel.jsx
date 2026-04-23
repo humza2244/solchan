@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '../services/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
-const INACTIVE_DAYS = 30
+const INACTIVE_HOURS = 2
 
 /**
  * CTOPanel -- shows CTO eligibility info, request form, and vote UI.
@@ -29,18 +29,22 @@ const CTOPanel = ({ community, onCTOApproved }) => {
 
   // Check eligibility
   const noCreator = !community.creatorId
-  const daysSinceLast = community.lastMessageAt
-    ? (Date.now() - new Date(community.lastMessageAt).getTime()) / (1000 * 60 * 60 * 24)
-    : 9999
-  const isInactive = daysSinceLast >= INACTIVE_DAYS
-  const isEligible = noCreator || isInactive
+  // Use lastMessageAt if it exists, otherwise fall back to createdAt
+  // This prevents brand-new communities from being immediately CTO-eligible
+  const activityRef = community.lastMessageAt || community.createdAt
+  const hoursSinceLast = activityRef
+    ? (Date.now() - new Date(activityRef).getTime()) / (1000 * 60 * 60)
+    : 0
+  const isInactive = hoursSinceLast >= INACTIVE_HOURS
+  // Only eligible if BOTH no creator AND inactive (or truly no creator and no createdAt)
+  const isEligible = (noCreator && isInactive) || (!community.creatorId && !community.createdAt)
 
   const isCreator = user && community.creatorId === user.uid
 
   const eligibilityReason = noCreator
     ? 'This community has no creator -- anyone can claim it.'
     : isInactive
-    ? `No activity for ${Math.floor(daysSinceLast)} days -- team appears inactive.`
+    ? `No activity for ${Math.floor(hoursSinceLast)} hours -- team appears inactive.`
     : null
 
   useEffect(() => {

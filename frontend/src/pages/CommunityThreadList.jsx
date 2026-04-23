@@ -354,12 +354,6 @@ const CommunityThreadList = () => {
           <CopyCA address={community.contractAddress} />
         </div>
         {community.description && <p style={{ fontSize: 13, color: '#4a4a6a', marginTop: 6 }}>{community.description}</p>}
-        {community.rules && (
-          <div className="community-rules-box">
-            <strong>Rules</strong>
-            <pre className="community-rules-text">{community.rules}</pre>
-          </div>
-        )}
         <div className="community-header-stats">
           <span>{community.messageCount || 0} messages</span>
           <span>{threads.length} threads</span>
@@ -412,8 +406,8 @@ const CommunityThreadList = () => {
         onCTOApproved={() => loadData(true)}
       />
 
-      {/* Set CA Panel — shown to creator/mod when CA is missing */}
-      {isMod && !community.contractAddress && (
+      {/* Set CA Panel — shown to creator only when CA is missing */}
+      {user && community.creatorId === user.uid && !community.contractAddress && (
         <div className="set-ca-panel">
           <h4 className="set-ca-title"> Add Contract Address</h4>
           <p className="set-ca-desc">Your community doesn't have a contract address yet. Add it once the token launches.</p>

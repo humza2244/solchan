@@ -240,14 +240,7 @@ const Home = () => {
             Every coin gets its own board. <strong>No sign up required</strong> -- just search for a 
             coin, click a community, and start posting.
           </p>
-          <div className="feature-pills">
-            <span className="feature-pill">No registration needed</span>
-            <span className="feature-pill">Real-time chat</span>
-            <span className="feature-pill">Image posting</span>
-            <span className="feature-pill">Text formatting</span>
-            <span className="feature-pill">Thread pinning</span>
-            <span className="feature-pill">Anonymous posting</span>
-          </div>
+
         </div>
       </div>
 

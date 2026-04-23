@@ -80,10 +80,18 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }))
 
-// Rate limiting
-const generalLimiter = rateLimit({
+// Rate limiting — generous for reads, tighter for writes
+const readLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 60,
+  max: 300, // 300 GETs/min per IP — plenty for homepage (fires 4 at once)
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+const writeLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 30, // 30 POSTs/min per IP
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -94,7 +102,10 @@ app.use(cors(corsOptions))
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'))
 app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({ extended: true, limit: '1mb' }))
-app.use('/api/', generalLimiter)
+app.use('/api/', (req, res, next) => {
+  if (req.method === 'GET') return readLimiter(req, res, next)
+  return writeLimiter(req, res, next)
+})
 
 // Serve uploaded images statically (for local dev without R2)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
@@ -106,28 +117,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/mod', moderationRoutes)
 app.use('/api', authenticateUser, threadRoutes)
 
-// Clear all demo data (one-time use, remove after production launch)
-app.delete('/api/admin/clear-data', async (req, res) => {
-  try {
-    const db = getDb()
-    const collections = ['communities', 'threads', 'replies', 'messages', 'counters']
-    let deleted = 0
-    for (const col of collections) {
-      const snap = await db.collection(col).get()
-      if (!snap.empty) {
-        for (const doc of snap.docs) {
-          await db.collection(col).doc(doc.id).delete()
-          deleted++
-        }
-      }
-    }
-    invalidatePopularCoinsCache()
-    res.json({ message: `Cleared ${deleted} documents from ${collections.length} collections` })
-  } catch (error) {
-    console.error('Error clearing data:', error.message)
-    res.status(500).json({ error: 'Failed to clear data' })
-  }
-})
+// NOTE: Admin clear-data endpoint removed for production security.
 
 // Health check
 app.get('/api/health', async (req, res) => {
