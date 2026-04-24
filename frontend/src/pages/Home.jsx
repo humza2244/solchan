@@ -232,7 +232,7 @@ const Home = () => {
       </div>
 
       {/* What is CoinTalk? */}
-      <div className="what-is-solchan">
+      <div className="what-is-cointalk">
         <div className="what-is-header">
           <h2>What is CoinTalk?</h2>
         </div>

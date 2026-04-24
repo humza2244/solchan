@@ -1,5 +1,5 @@
 /**
- * Solchan PRODUCTION Stress Test
+ * CoinTalk PRODUCTION Stress Test
  * Hits the live backend with concurrent HTTP + WebSocket load
  * Simulates real user patterns at scale
  */
@@ -373,7 +373,7 @@ async function phase6_sustained() {
 // ═══════════════════════════════════════════════════════════════
 async function main() {
   console.log('╔═══════════════════════════════════════════════╗')
-  console.log('║  SOLCHAN PRODUCTION STRESS TEST               ║')
+  console.log('║  COINTALK PRODUCTION STRESS TEST               ║')
   console.log('╚═══════════════════════════════════════════════╝')
   console.log(`  Target:  ${PROD_URL}`)
   console.log(`  Time:    ${new Date().toLocaleString()}`)

@@ -69,7 +69,7 @@ Creates tables, triggers, and schema updates. Safe to run multiple times (idempo
 - **Supabase Database** is used for storing data (text, IDs, timestamps)
 - **Cloudflare R2** is used for storing images (files)
 - Resetting the database does NOT delete images from R2
-- If you want to clean R2 images too, manually delete them from Cloudflare Dashboard → R2 → solchan-images
+- If you want to clean R2 images too, manually delete them from Cloudflare Dashboard → R2 → cointalk-images
 
 ---
 

@@ -38,8 +38,8 @@ const corsOptions = {
     if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) return callback(null, true)
     // Allow any vercel.app deployment (covers preview deployments)
     if (origin.endsWith('.vercel.app')) return callback(null, true)
-    // Allow cointalk.fun (and legacy solchan.fun during migration)
-    if (origin === 'https://cointalk.fun' || origin === 'https://www.cointalk.fun' || origin === 'https://solchan.fun' || origin === 'https://www.solchan.fun') return callback(null, true)
+    // Allow cointalk.fun
+    if (origin === 'https://cointalk.fun' || origin === 'https://www.cointalk.fun') return callback(null, true)
     // Allow explicitly configured origins
     if (configuredOrigins.includes(origin)) return callback(null, true)
     // Block everything else
@@ -57,7 +57,7 @@ const io = new Server(httpServer, {
       if (!origin) return callback(null, true)
       if (origin.startsWith('http://localhost')) return callback(null, true)
       if (origin.endsWith('.vercel.app')) return callback(null, true)
-      if (origin === 'https://cointalk.fun' || origin === 'https://www.cointalk.fun' || origin === 'https://solchan.fun' || origin === 'https://www.solchan.fun') return callback(null, true)
+      if (origin === 'https://cointalk.fun' || origin === 'https://www.cointalk.fun') return callback(null, true)
       if (configuredOrigins.includes(origin)) return callback(null, true)
       callback(new Error('Not allowed'))
     },
