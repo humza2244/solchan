@@ -14,6 +14,7 @@ export class Community {
     this.uniqueUsersCount = data.unique_users_count || data.uniqueUsersCount || 0
     this.lastMessageAt = data.last_message_at || data.lastMessageAt || null
     this.rules = data.rules || null
+    this.bannerUrl = data.banner_url || data.bannerUrl || null
     this.ctoStatus = data.ctoStatus || null // 'pending' | 'approved' | null
   }
 
@@ -32,6 +33,7 @@ export class Community {
       uniqueUsersCount: this.uniqueUsersCount,
       lastMessageAt: this.lastMessageAt,
       rules: this.rules,
+      bannerUrl: this.bannerUrl,
       ctoStatus: this.ctoStatus,
     }
   }

@@ -85,13 +85,6 @@ const Layout = ({ children }) => {
         </div>
       </header>
 
-      {/* Banner - homepage only */}
-      {location.pathname === '/' && (
-        <div className="site-banner">
-          <img src="/banner.png" alt="CoinTalk banner" />
-        </div>
-      )}
-
       <main className="main page-fade-in">
         <div className="container">
           {children}

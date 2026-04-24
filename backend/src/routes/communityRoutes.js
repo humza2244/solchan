@@ -133,4 +133,33 @@ router.post('/:id/report', postLimiter, async (req, res) => {
   }
 })
 
+// POST /api/communities/:id/banner - Upload community banner (creator only)
+router.post('/:id/banner', requireAuth, upload.single('banner'), async (req, res) => {
+  try {
+    const { id } = req.params
+    if (!req.file) return res.status(400).json({ error: 'No banner image provided' })
+
+    const { getDb } = await import('../config/firebase.js')
+    const { uploadToR2 } = await import('../services/storageService.js')
+    const db = getDb()
+
+    // Verify creator
+    const doc = await db.collection('communities').doc(id).get()
+    if (!doc.exists) return res.status(404).json({ error: 'Community not found' })
+    if (doc.data().creatorId !== req.userId) {
+      return res.status(403).json({ error: 'Only the community creator can upload a banner' })
+    }
+
+    // Upload to R2
+    const filename = `banners/${id}_${Date.now()}.${req.file.mimetype.split('/')[1] || 'png'}`
+    const bannerUrl = await uploadToR2(req.file.buffer, filename, req.file.mimetype)
+
+    await db.collection('communities').doc(id).update({ bannerUrl })
+    res.json({ bannerUrl })
+  } catch (error) {
+    console.error('Error uploading banner:', error.message)
+    res.status(500).json({ error: 'Failed to upload banner' })
+  }
+})
+
 export default router
