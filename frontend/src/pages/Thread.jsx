@@ -718,11 +718,11 @@ const Thread = () => {
           {thread.isLocked && <span className="lock-indicator"></span>}
           {myPosts.has(String(thread.postNumber)) && <span className="you-marker">(You)</span>}
           <span className="post-actions">
-            <button className="report-btn" onClick={() => setReportTarget({ type: 'thread', id: thread.id })} title="Report"></button>
-            {isMod && <button className="pin-btn" onClick={handleTogglePin} title={thread.isPinned ? 'Unpin' : 'Pin'}>{thread.isPinned ? '' : ''}</button>}
-            {isMod && <button className="lock-btn" onClick={handleToggleLock} title={thread.isLocked ? 'Unlock' : 'Lock'}>{thread.isLocked ? '' : ''}</button>}
-            {isMod && <button className="delete-btn" onClick={() => handleDeleteThread(thread.id)} title="Delete Thread"></button>}
-            {isMod && <button className="ban-btn" onClick={() => handleBanUser(thread.author)} title="Ban User"></button>}
+            <button className="report-btn" onClick={() => setReportTarget({ type: 'thread', id: thread.id })} title="Report">Report</button>
+            {isMod && <button className="pin-btn" onClick={handleTogglePin} title={thread.isPinned ? 'Unpin' : 'Pin'}>{thread.isPinned ? 'Unpin' : 'Pin'}</button>}
+            {isMod && <button className="lock-btn" onClick={handleToggleLock} title={thread.isLocked ? 'Unlock' : 'Lock'}>{thread.isLocked ? 'Unlock' : 'Lock'}</button>}
+            {isMod && <button className="delete-btn" onClick={() => handleDeleteThread(thread.id)} title="Delete">Delete</button>}
+            {isMod && <button className="ban-btn" onClick={() => handleBanUser(thread.author)} title="Ban User">Ban</button>}
           </span>
         </div>
         {thread.imageUrl && (
@@ -777,9 +777,9 @@ const Thread = () => {
               </span>
               {myPosts.has(String(reply.postNumber)) && <span className="you-marker">(You)</span>}
               <span className="post-actions">
-                <button className="report-btn" onClick={() => setReportTarget({ type: 'reply', id: reply.id })} title="Report"></button>
-                {isMod && <button className="delete-btn" onClick={() => handleDeleteReply(reply.id)} title="Delete Reply"></button>}
-                {isMod && <button className="ban-btn" onClick={() => handleBanUser(reply.author)} title="Ban User"></button>}
+                <button className="report-btn" onClick={() => setReportTarget({ type: 'reply', id: reply.id })} title="Report">Report</button>
+                {isMod && <button className="delete-btn" onClick={() => handleDeleteReply(reply.id)} title="Delete">Delete</button>}
+                {isMod && <button className="ban-btn" onClick={() => handleBanUser(reply.author)} title="Ban User">Ban</button>}
               </span>
             </div>
             {reply.imageUrl && (

@@ -1953,28 +1953,47 @@ a:hover {
   margin-left: 6px;
 }
 
-.report-btn, .delete-btn {
+.report-btn, .delete-btn, .ban-btn, .pin-btn, .lock-btn {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 11px;
-  padding: 1px 3px;
-  opacity: 0.3;
-  transition: opacity 0.2s;
+  font-weight: 600;
+  padding: 1px 5px;
+  opacity: 0;
+  transition: opacity 0.15s;
   vertical-align: middle;
+  border-radius: 3px;
+  font-family: var(--font-body);
 }
 
 .op-post:hover .report-btn,
 .op-post:hover .delete-btn,
+.op-post:hover .ban-btn,
+.op-post:hover .pin-btn,
+.op-post:hover .lock-btn,
 .reply-box:hover .report-btn,
 .reply-box:hover .delete-btn,
+.reply-box:hover .ban-btn,
 .thread-preview:hover .report-btn,
 .thread-preview:hover .delete-btn {
-  opacity: 0.7;
+  opacity: 1;
 }
 
-.report-btn:hover { opacity: 1 !important; }
-.delete-btn:hover { opacity: 1 !important; color: #2a2a2a; }
+.report-btn { color: #888; }
+.report-btn:hover { color: var(--sketch-blue); background: rgba(74,127,165,0.08); }
+
+.delete-btn { color: var(--doodle-red); }
+.delete-btn:hover { background: rgba(196, 64, 64, 0.08); opacity: 1 !important; }
+
+.ban-btn { color: #c07030; }
+.ban-btn:hover { background: rgba(192, 112, 48, 0.08); opacity: 1 !important; }
+
+.pin-btn { color: var(--sketch-blue); }
+.pin-btn:hover { background: rgba(74,127,165,0.08); opacity: 1 !important; }
+
+.lock-btn { color: #666; }
+.lock-btn:hover { background: rgba(0,0,0,0.05); opacity: 1 !important; }
 
 /* ===========================
    REPORT MODAL

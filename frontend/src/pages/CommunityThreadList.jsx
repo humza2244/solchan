@@ -668,7 +668,7 @@ const CommunityThreadList = () => {
                       onClick={() => setReportTarget({ type: 'thread', id: thread.id })}
                       title="Report"
                     >
-                      
+                      Report
                     </button>
                     {isMod && (
                       <button
@@ -676,7 +676,7 @@ const CommunityThreadList = () => {
                         onClick={() => handleDeleteThread(thread.id)}
                         title="Delete Thread"
                       >
-                        
+                        Delete
                       </button>
                     )}
                   </span>
