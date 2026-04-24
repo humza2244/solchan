@@ -345,47 +345,7 @@ const CommunityThreadList = () => {
         </div>
       )}
 
-      {/* Community Banner */}
-      {community.bannerUrl && (
-        <div className="community-banner">
-          <img src={community.bannerUrl} alt={`${community.coinName} banner`} />
-        </div>
-      )}
 
-      {/* Banner upload for creator */}
-      {user && community.creatorId === user.uid && (
-        <div className="banner-upload-row">
-          <label className="banner-upload-btn">
-            {community.bannerUrl ? 'Change Banner' : '+ Add Banner'}
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={async (e) => {
-                const file = e.target.files[0]
-                if (!file) return
-                if (file.size > 5 * 1024 * 1024) {
-                  alert('Banner must be under 5MB')
-                  return
-                }
-                try {
-                  const token = await getToken()
-                  const formData = new FormData()
-                  formData.append('banner', file)
-                  const res = await axios.post(
-                    `${API_BASE_URL}/communities/${id}/banner`,
-                    formData,
-                    { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
-                  )
-                  setCommunity(prev => ({ ...prev, bannerUrl: res.data.bannerUrl }))
-                } catch (err) {
-                  alert(err.response?.data?.error || 'Failed to upload banner')
-                }
-              }}
-            />
-          </label>
-        </div>
-      )}
 
       <div className="thread-header-nav">
         <Link to="/" className="back-link">← Back to Home</Link>
