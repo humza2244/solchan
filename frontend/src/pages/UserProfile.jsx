@@ -3,12 +3,16 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { API_BASE_URL } from '../services/api.js'
 import DOMPurify from 'dompurify'
+import { useAuth } from '../context/AuthContext.jsx'
 
 const UserProfile = () => {
   const { author } = useParams()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [profileData, setProfileData] = useState(null)
+  const { displayName, linkTwitter, isLoggedIn } = useAuth()
+  const isOwnProfile = isLoggedIn && displayName === author
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -24,7 +28,13 @@ const UserProfile = () => {
       }
     }
 
-    if (author) loadPosts()
+    if (author) {
+      loadPosts()
+      // Load profile data for twitter info
+      axios.get(`${API_BASE_URL}/auth/profile/${encodeURIComponent(author)}`)
+        .then(res => setProfileData(res.data))
+        .catch(() => {}) // Profile may not exist for anonymous users
+    }
   }, [author])
 
   const truncateContent = (content, maxLen = 200) => {
@@ -57,12 +67,46 @@ const UserProfile = () => {
           {author.charAt(0).toUpperCase()}
         </div>
         <div className="user-profile-info">
-          <h2 className="user-profile-name">{author}</h2>
+          <h2 className="user-profile-name">
+            {author}
+            {profileData?.twitterHandle && (
+              <span className="verified-badge" title={`Verified via @${profileData.twitterHandle} on X`}>
+                ✓
+              </span>
+            )}
+          </h2>
+          {profileData?.twitterHandle && (
+            <a 
+              href={`https://x.com/${profileData.twitterHandle}`}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="twitter-handle-link"
+            >
+              @{profileData.twitterHandle}
+            </a>
+          )}
           <div className="user-profile-stats">
             <span>{posts.length} total posts</span>
             <span>{threadCount} threads</span>
             <span>{replyCount} replies</span>
           </div>
+          {isOwnProfile && !profileData?.twitterHandle && (
+            <button
+              className="connect-x-btn"
+              onClick={async () => {
+                try {
+                  await linkTwitter()
+                  // Reload profile
+                  const res = await axios.get(`${API_BASE_URL}/auth/profile/${encodeURIComponent(author)}`)
+                  setProfileData(res.data)
+                } catch (err) {
+                  setError(err.message || 'Failed to link X account')
+                }
+              }}
+            >
+              Connect X to verify
+            </button>
+          )}
         </div>
       </div>
 

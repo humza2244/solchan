@@ -112,4 +112,59 @@ router.post('/link-x', requireAuth, async (req, res) => {
   }
 })
 
+// POST /api/auth/link-twitter - Alias for link-x (frontend compatibility)
+router.post('/link-twitter', requireAuth, async (req, res) => {
+  try {
+    const { twitterHandle, twitterId, avatarUrl } = req.body
+
+    if (!twitterHandle) {
+      return res.status(400).json({ error: 'twitterHandle is required' })
+    }
+
+    const cleanHandle = sanitizeInput(twitterHandle.replace('@', '').trim(), 50)
+    const profile = await linkTwitterToProfile(req.userId, cleanHandle, {
+      twitterId: twitterId || null,
+      avatarUrl: avatarUrl || null,
+    })
+
+    res.json({
+      message: 'Twitter account linked successfully',
+      profile,
+    })
+  } catch (error) {
+    console.error('Error linking Twitter account:', error.message)
+    res.status(500).json({ error: 'Failed to link Twitter account' })
+  }
+})
+
+// GET /api/auth/profile/:username - Public profile lookup by username
+router.get('/profile/:username', async (req, res) => {
+  try {
+    const { username } = req.params
+    const { getDb } = await import('../config/firebase.js')
+    const db = getDb()
+    const snap = await db.collection('userProfiles')
+      .where('usernameLower', '==', decodeURIComponent(username).toLowerCase())
+      .limit(1)
+      .get()
+
+    if (snap.empty) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const data = snap.docs[0].data()
+    // Return only public fields
+    res.json({
+      username: data.username,
+      twitterHandle: data.twitterHandle || null,
+      isXUser: data.isXUser || false,
+      avatarUrl: data.avatarUrl || null,
+      createdAt: data.createdAt,
+    })
+  } catch (error) {
+    console.error('Error fetching public profile:', error.message)
+    res.status(500).json({ error: 'Failed to fetch profile' })
+  }
+})
+
 export default router

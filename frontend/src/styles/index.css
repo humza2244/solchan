@@ -4567,3 +4567,50 @@ a.post-name:hover {
   border-color: var(--doodle-red);
   background: rgba(196, 64, 64, 0.06);
 }
+
+/* ===========================
+   VERIFIED BADGE + TWITTER
+   =========================== */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sketch-blue);
+  color: #fff;
+  font-size: 11px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-weight: bold;
+}
+
+.twitter-handle-link {
+  display: inline-block;
+  color: var(--sketch-blue);
+  font-size: 12px;
+  margin-top: 2px;
+  text-decoration: none;
+}
+
+.twitter-handle-link:hover {
+  text-decoration: underline;
+}
+
+.connect-x-btn {
+  display: inline-block;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.connect-x-btn:hover {
+  background: #333;
+}

@@ -6,8 +6,10 @@ import {
   signOut,
   sendEmailVerification,
   GoogleAuthProvider,
+  TwitterAuthProvider,
   signInWithPopup,
   sendPasswordResetEmail,
+  linkWithPopup,
 } from 'firebase/auth'
 import { auth } from '../config/firebase.js'
 import axios from 'axios'
@@ -126,6 +128,83 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  /**
+   * Login (or register) with Twitter/X.
+   */
+  const loginWithTwitter = async () => {
+    const provider = new TwitterAuthProvider()
+    const credential = await signInWithPopup(auth, provider)
+    const token = await credential.user.getIdToken()
+    setAuthToken(token)
+
+    const twitterUser = credential.user
+    const displayName = twitterUser.displayName || 'user'
+    const avatarUrl = twitterUser.photoURL || null
+
+    // Extract Twitter handle from provider data
+    const twitterProvider = twitterUser.providerData?.find(p => p.providerId === 'twitter.com')
+    const twitterHandle = twitterProvider?.displayName || displayName
+
+    try {
+      const res = await axios.get(`${API_BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setProfile(res.data)
+
+      // If profile doesn't have twitter linked, link it now
+      if (!res.data.twitterHandle) {
+        await axios.post(`${API_BASE_URL}/auth/link-twitter`, {
+          twitterHandle,
+          twitterId: twitterUser.uid,
+        }, { headers: { Authorization: `Bearer ${token}` } })
+      }
+
+      return { needsUsername: false }
+    } catch (err) {
+      if (err.response?.status === 404) {
+        const cleanName = displayName.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 20) || 'user'
+        const regRes = await axios.post(`${API_BASE_URL}/auth/register`, {
+          username: cleanName,
+          avatarUrl,
+          isTwitterUser: true,
+          twitterHandle,
+        }, { headers: { Authorization: `Bearer ${token}` } })
+
+        setProfile(regRes.data.profile)
+        return { needsUsername: false, profile: regRes.data.profile }
+      }
+      throw err
+    }
+  }
+
+  /**
+   * Link Twitter/X to an existing account for verification
+   */
+  const linkTwitter = async () => {
+    if (!user) throw new Error('Must be logged in to link Twitter')
+    const provider = new TwitterAuthProvider()
+    try {
+      const result = await linkWithPopup(user, provider)
+      const twitterProvider = result.user.providerData?.find(p => p.providerId === 'twitter.com')
+      const twitterHandle = twitterProvider?.displayName || result.user.displayName
+
+      const token = await result.user.getIdToken()
+      await axios.post(`${API_BASE_URL}/auth/link-twitter`, {
+        twitterHandle,
+        twitterId: result.user.uid,
+      }, { headers: { Authorization: `Bearer ${token}` } })
+
+      // Refresh profile
+      await fetchProfile(result.user, token)
+      return { success: true, twitterHandle }
+    } catch (err) {
+      if (err.code === 'auth/credential-already-in-use') {
+        throw new Error('This Twitter account is already linked to another user')
+      }
+      throw err
+    }
+  }
+
   const logout = async () => {
     await signOut(auth)
     setUser(null)
@@ -161,6 +240,8 @@ export const AuthProvider = ({ children }) => {
       avatarUrl,
       login,
       loginWithGoogle,
+      loginWithTwitter,
+      linkTwitter,
       register,
       logout,
       resetPassword,
