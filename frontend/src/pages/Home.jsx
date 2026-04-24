@@ -104,7 +104,7 @@ const Home = () => {
   }, [])
 
   useEffect(() => {
-    document.title = 'solchan -- memecoin community boards'
+    document.title = 'CoinTalk -- memecoin community boards'
   }, [])
 
   return (
@@ -116,8 +116,8 @@ const Home = () => {
             <button className="modal-close" onClick={handleCloseModal}>
               X
             </button>
-            <img src="/mascot.png" alt="solchan mascot" style={{ width: 80, height: 'auto', margin: '0 auto 10px', display: 'block' }} />
-            <h2> Welcome to solchan</h2>
+            <img src="/mascot.png" alt="CoinTalk mascot" style={{ width: 80, height: 'auto', margin: '0 auto 10px', display: 'block' }} />
+            <h2> Welcome to CoinTalk</h2>
             <p className="welcome-subtitle">
               The anonymous imageboard for memecoin communities.
             </p>
@@ -153,8 +153,8 @@ const Home = () => {
 
       {/* Logo */}
       <div className="home-logo">
-        <img src="/mascot.png" alt="solchan mascot" className="home-mascot" />
-        <h1>solchan</h1>
+        <img src="/mascot.png" alt="CoinTalk mascot" className="home-mascot" />
+        <h1>CoinTalk</h1>
       </div>
 
       {/* Live Stats */}
@@ -229,10 +229,10 @@ const Home = () => {
         )
       })()}
 
-      {/* What is solchan? */}
+      {/* What is CoinTalk? */}
       <div className="what-is-solchan">
         <div className="what-is-header">
-          <h2>What is solchan?</h2>
+          <h2>What is CoinTalk?</h2>
         </div>
         <div className="what-is-content">
           <p>
@@ -367,7 +367,7 @@ const Home = () => {
           {/* Empty state - no communities at all */}
           {popularCommunities.length === 0 && newCommunities.length === 0 && (
             <div className="empty-home-state">
-              <img src="/mascot.png" alt="solchan mascot" className="empty-state-mascot" />
+              <img src="/mascot.png" alt="CoinTalk mascot" className="empty-state-mascot" />
               <h3>No communities yet</h3>
               <p>Be the first to create a board for your favorite memecoin.</p>
               <Link to="/create-community" className="empty-state-cta">

@@ -24,7 +24,7 @@ if (isR2Configured) {
   console.log(' Using local file storage (R2 not configured)')
 }
 
-const BUCKET_NAME = process.env.R2_BUCKET_NAME || 'solchan-images'
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || 'cointalk-images'
 const PUBLIC_URL = process.env.R2_PUBLIC_URL
 const LOCAL_UPLOAD_DIR = path.join(__dirname, '../../uploads')
 

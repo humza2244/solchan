@@ -10,7 +10,7 @@ const NotFound = () => {
     }}>
       <img
         src="/mascot.png"
-        alt="solchan mascot"
+        alt="CoinTalk mascot"
         style={{ width: 120, height: 'auto', marginBottom: 16, opacity: 0.85 }}
       />
       <h1 style={{ fontSize: 48, color: '#AF0A0F', marginBottom: 8, fontWeight: 800 }}>404</h1>

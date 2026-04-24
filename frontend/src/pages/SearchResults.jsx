@@ -79,7 +79,7 @@ const SearchResults = () => {
         </div>
       ) : results.length === 0 ? (
         <div className="no-results-section">
-          <img src="/mascot.png" alt="solchan mascot" style={{ width: 80, height: 'auto', marginBottom: 12, opacity: 0.75 }} />
+          <img src="/mascot.png" alt="CoinTalk mascot" style={{ width: 80, height: 'auto', marginBottom: 12, opacity: 0.75 }} />
           <h2>No communities found</h2>
           <p>No communities match "{query}"</p>
           <p>Try searching by:</p>

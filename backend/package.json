@@ -1,7 +1,7 @@
 {
   "name": "chan-app-backend",
   "version": "1.0.0",
-  "description": "Solchan backend API",
+  "description": "CoinTalk backend API",
   "type": "module",
   "main": "src/server.js",
   "scripts": {

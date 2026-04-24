@@ -1,7 +1,7 @@
 {
   "name": "chan-app",
   "version": "1.0.0",
-  "description": "solchan - 4chan-style memecoin community boards",
+  "description": "CoinTalk - memecoin community boards",
   "private": true,
   "workspaces": [
     "frontend",

@@ -45,7 +45,7 @@ const XLinkPrompt = ({ onComplete, onCancel }) => {
         <div className="x-link-header">
           <span className="x-logo">X</span>
           <h3>Welcome! Choose a Username</h3>
-          <p>Your X account is connected. Pick a username to use on solchan.</p>
+          <p>Your X account is connected. Pick a username to use on CoinTalk.</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}

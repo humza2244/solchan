@@ -1,4 +1,4 @@
-// Firebase client config for Solchan frontend
+// Firebase client config for CoinTalk frontend
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 

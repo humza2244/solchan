@@ -89,9 +89,9 @@ const Layout = ({ children }) => {
       <footer className="footer">
         <div className="container">
           <div className="footer-brand">
-            <img src="/mascot.png" alt="solchan" className="footer-mascot" />
+            <img src="/mascot.png" alt="CoinTalk" className="footer-mascot" />
             <div>
-              <strong>solchan</strong>
+              <strong>CoinTalk</strong>
               <span className="footer-tagline">the imageboard for degens</span>
             </div>
           </div>
@@ -100,7 +100,7 @@ const Layout = ({ children }) => {
             <Link to="/create-community">Create Community</Link>
             <a href="https://github.com/realdoomsman/solchan" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
-          <p className="footer-copy">&copy; {new Date().getFullYear()} solchan. All rights reserved.</p>
+          <p className="footer-copy">&copy; {new Date().getFullYear()} CoinTalk. All rights reserved.</p>
         </div>
       </footer>
 
