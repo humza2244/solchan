@@ -81,15 +81,21 @@ export const updateCommunityCA = async (communityId, contractAddress, requesting
   if (!communityDoc.exists) throw new Error('Community not found')
 
   const data = communityDoc.data()
-  // Only the creator can update the CA (not mods)
-  // Allow if no creator (community was created anonymously — first authenticated user can claim)
+  // Only the ORIGINAL creator can update the CA (not mods, not CTO recipients)
   if (data.creatorId !== null && data.creatorId !== requestingUserId) {
     throw new Error('Only the community creator can set the contract address')
+  }
+
+  // CA can only be set ONCE — if caUpdatedAt exists, block the update
+  if (data.caUpdatedAt) {
+    throw new Error('Contract address has already been set and cannot be changed')
   }
 
   await db.collection('communities').doc(communityId).update({
     contractAddress: normalizedCA,
     contractAddressLower: normalizedCA.toLowerCase(),
+    caUpdatedAt: new Date(),
+    caUpdatedBy: requestingUserId,
   })
 
   return await getCommunityById(communityId)

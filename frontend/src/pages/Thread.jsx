@@ -42,6 +42,43 @@ const getPosterID = (author) => {
   return Math.abs(hash).toString(36).slice(0, 6).toUpperCase()
 }
 
+const LikeButton = ({ type, id, initialLikes = [] }) => {
+  const likedKey = `liked_${type}_${id}`
+  const [liked, setLiked] = useState(() => localStorage.getItem(likedKey) === '1')
+  const [count, setCount] = useState(initialLikes.length)
+
+  const toggle = async (e) => {
+    e.stopPropagation()
+    try {
+      const endpoint = type === 'threads'
+        ? `${API_BASE_URL}/threads/${id}/like`
+        : `${API_BASE_URL}/replies/${id}/like`
+      const res = await axios.post(endpoint)
+      setLiked(res.data.liked)
+      setCount(res.data.likeCount)
+      if (res.data.liked) {
+        localStorage.setItem(likedKey, '1')
+      } else {
+        localStorage.removeItem(likedKey)
+      }
+    } catch {
+      // Toggle locally as fallback
+      setLiked(!liked)
+      setCount(c => liked ? c - 1 : c + 1)
+    }
+  }
+
+  return (
+    <button
+      onClick={toggle}
+      className={`like-btn ${liked ? 'liked' : ''}`}
+      title={liked ? 'Unlike' : 'Like'}
+    >
+      {liked ? '♥' : '♡'} {count > 0 ? count : ''}
+    </button>
+  )
+}
+
 const Thread = () => {
   const { id } = useParams()
   const { isLoggedIn, displayName, user, getToken } = useAuth()
@@ -697,6 +734,7 @@ const Thread = () => {
             ))}
           </div>
         )}
+        <LikeButton type="threads" id={id} initialLikes={thread.likes || []} />
         <div style={{ clear: 'both' }}></div>
       </div>
       {/* Thread Stats Bar */}
@@ -754,6 +792,7 @@ const Thread = () => {
               </div>
             )}
             <ReportButton type="reply" targetId={reply.id} communityId={thread.communityId} />
+            <LikeButton type="replies" id={reply.id} initialLikes={reply.likes || []} />
             <div style={{ clear: 'both' }}></div>
           </div>
         ))}

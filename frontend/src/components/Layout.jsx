@@ -49,10 +49,13 @@ const Layout = ({ children }) => {
       <header className="header">
         <div className="container">
           <nav className="nav">
-            <Link to="/" onClick={handleHomeClick}>Home</Link>
-            <span className="nav-divider">|</span>
-            <Link to="/create-community" className="nav-link">Create a Community</Link>
-            <span className="nav-divider">|</span>
+            <Link to="/" onClick={handleHomeClick} style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+              <img src="/mascot.png" alt="CoinTalk" style={{ width: 28, height: 28, borderRadius: '50%' }} />
+              <span style={{ fontFamily: "'Caveat', cursive", fontSize: 22, fontWeight: 700, color: '#2a2a2a' }}>CoinTalk</span>
+            </Link>
+            <span className="nav-divider">·</span>
+            <Link to="/create-community" className="nav-link">+ New Board</Link>
+            <span className="nav-divider">·</span>
             <form onSubmit={handleNavSearch} className="nav-search">
               <input
                 type="text"
@@ -62,18 +65,18 @@ const Layout = ({ children }) => {
                 className="nav-search-input"
               />
             </form>
-            <span className="nav-divider">|</span>
+            <span className="nav-divider">·</span>
             {!loading && (
               isLoggedIn ? (
                 <>
                   <Link to={`/user/${encodeURIComponent(displayName)}`} className="nav-user">{displayName}</Link>
-                  <span className="nav-divider">|</span>
+                  <span className="nav-divider">·</span>
                   <a href="#" onClick={handleLogout} className="nav-link">Logout</a>
                 </>
               ) : (
                 <>
                   <Link to="/login" className="nav-link">Login</Link>
-                  <span className="nav-divider">|</span>
+                  <span className="nav-divider">·</span>
                   <Link to="/register" className="nav-link">Register</Link>
                 </>
               )
@@ -81,6 +84,14 @@ const Layout = ({ children }) => {
           </nav>
         </div>
       </header>
+
+      {/* Banner - homepage only */}
+      {location.pathname === '/' && (
+        <div className="site-banner">
+          <img src="/banner.png" alt="CoinTalk banner" />
+        </div>
+      )}
+
       <main className="main page-fade-in">
         <div className="container">
           {children}
@@ -92,13 +103,12 @@ const Layout = ({ children }) => {
             <img src="/mascot.png" alt="CoinTalk" className="footer-mascot" />
             <div>
               <strong>CoinTalk</strong>
-              <span className="footer-tagline">the imageboard for degens</span>
+              <span className="footer-tagline">where degens talk coins</span>
             </div>
           </div>
           <div className="footer-links">
             <Link to="/">Home</Link>
-            <Link to="/create-community">Create Community</Link>
-            <a href="https://github.com/realdoomsman/solchan" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <Link to="/create-community">Create Board</Link>
           </div>
           <p className="footer-copy">&copy; {new Date().getFullYear()} CoinTalk. All rights reserved.</p>
         </div>
@@ -110,7 +120,7 @@ const Layout = ({ children }) => {
         title="Scroll to top"
         aria-label="Scroll to top"
       >
-        Up
+        ↑
       </button>
     </div>
   )

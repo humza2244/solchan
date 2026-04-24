@@ -1,6 +1,7 @@
 import express from 'express'
 import multer from 'multer'
 import rateLimit from 'express-rate-limit'
+import { autoModerator } from '../middleware/automod.js'
 import {
   createThreadHandler,
   uploadThreadImageHandler,
@@ -48,7 +49,7 @@ const replyLimiter = rateLimit({
 router.get('/communities/:communityId/threads', getThreadsHandler)
 
 // POST /api/communities/:communityId/threads - Create a new thread
-router.post('/communities/:communityId/threads', createLimiter, createThreadHandler)
+router.post('/communities/:communityId/threads', createLimiter, autoModerator, createThreadHandler)
 
 // POST /api/threads/:threadId/image - Upload image for a thread
 router.post('/threads/:threadId/image', upload.single('image'), uploadThreadImageHandler)
@@ -57,7 +58,7 @@ router.post('/threads/:threadId/image', upload.single('image'), uploadThreadImag
 router.get('/threads/:threadId', getThreadHandler)
 
 // POST /api/threads/:threadId/replies - Add a reply to a thread (with optional image)
-router.post('/threads/:threadId/replies', replyLimiter, upload.single('image'), addReplyHandler)
+router.post('/threads/:threadId/replies', replyLimiter, autoModerator, upload.single('image'), addReplyHandler)
 
 // POST /api/replies/:replyId/image - Upload image for a reply
 router.post('/replies/:replyId/image', upload.single('image'), uploadReplyImageHandler)
@@ -74,6 +75,43 @@ router.get('/users/:author/posts', async (req, res) => {
   } catch (error) {
     console.error('Error fetching user posts:', error.message)
     res.status(500).json({ error: 'Failed to fetch user posts' })
+  }
+})
+
+// Like rate limiter
+const likeLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 30,
+  message: { error: 'Too many likes. Slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// POST /api/threads/:threadId/like — Toggle like on a thread
+router.post('/threads/:threadId/like', likeLimiter, async (req, res) => {
+  try {
+    const { threadId } = req.params
+    const userId = req.headers['x-user-id'] || req.ip
+    const { toggleLike } = await import('../services/threadService.js')
+    const result = await toggleLike('threads', threadId, userId)
+    res.json(result)
+  } catch (error) {
+    console.error('Error toggling thread like:', error.message)
+    res.status(500).json({ error: 'Failed to toggle like' })
+  }
+})
+
+// POST /api/replies/:replyId/like — Toggle like on a reply
+router.post('/replies/:replyId/like', likeLimiter, async (req, res) => {
+  try {
+    const { replyId } = req.params
+    const userId = req.headers['x-user-id'] || req.ip
+    const { toggleLike } = await import('../services/threadService.js')
+    const result = await toggleLike('replies', replyId, userId)
+    res.json(result)
+  } catch (error) {
+    console.error('Error toggling reply like:', error.message)
+    res.status(500).json({ error: 'Failed to toggle like' })
   }
 })
 

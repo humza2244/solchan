@@ -317,6 +317,25 @@ export const getPostsByAuthor = async (authorName, limit = 50) => {
   return allPosts.slice(0, limit)
 }
 
+// Toggle like on a thread or reply
+export const toggleLike = async (collection, docId, userId) => {
+  const db = getDb()
+  const docRef = db.collection(collection).doc(docId)
+  const doc = await docRef.get()
+  if (!doc.exists) throw new Error('Document not found')
+
+  const likes = doc.data().likes || []
+  const alreadyLiked = likes.includes(userId)
+
+  if (alreadyLiked) {
+    await docRef.update({ likes: FieldValue.arrayRemove(userId) })
+    return { liked: false, likeCount: likes.length - 1 }
+  } else {
+    await docRef.update({ likes: FieldValue.arrayUnion(userId) })
+    return { liked: true, likeCount: likes.length + 1 }
+  }
+}
+
 export default {
   createThread,
   getThreadsByCommunity,
@@ -327,4 +346,5 @@ export default {
   getThreadWithPreview,
   togglePinThread,
   getPostsByAuthor,
+  toggleLike,
 }

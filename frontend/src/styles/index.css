@@ -1,7 +1,20 @@
 /* ===========================
-   COINTALK - Global Styles
-   4chan-inspired community boards
+   COINTALK - Hand-Drawn Doodle Style
    =========================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --ink: #2a2a2a;
+  --paper: #fefcf3;
+  --paper-alt: #f5f0e8;
+  --sketch-blue: #4a7fa5;
+  --doodle-red: #c44040;
+  --border: #d4d0c8;
+  --font-hand: 'Caveat', cursive;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius: 12px;
+}
 
 * {
   margin: 0;
@@ -10,12 +23,11 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
-  background: linear-gradient(to bottom, #E6D5C3 0%, #F0E0D6 50%, #EEF2FF 100%);
-  background-attachment: fixed;
-  color: #000;
-  line-height: 1.5;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -32,10 +44,26 @@ body {
    HEADER
    =========================== */
 .header {
-  background-color: #EEF2FF;
-  border-bottom: 1px solid #B7C5D9;
-  padding: 5px 0;
+  background-color: var(--paper);
+  border-bottom: 2px dashed var(--border);
+  padding: 10px 0;
   margin-bottom: 10px;
+}
+
+/* Banner */
+.site-banner {
+  max-width: 900px;
+  margin: 0 auto 20px;
+  text-align: center;
+  padding: 0 15px;
+}
+
+.site-banner img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 2px dashed var(--border);
 }
 
 .header .container {
@@ -53,12 +81,12 @@ body {
 
 .nav a {
   text-decoration: none;
-  color: #0000EE;
+  color: #4a7fa5;
   font-weight: normal;
 }
 
 .nav a:visited {
-  color: #CC1105;
+  color: #c44040;
 }
 
 .nav a:hover {
@@ -72,12 +100,12 @@ body {
 
 .nav-link {
   text-decoration: none;
-  color: #0000EE;
+  color: #4a7fa5;
   font-weight: normal;
 }
 
 .nav-link:visited {
-  color: #CC1105;
+  color: #c44040;
 }
 
 .nav-link:hover {
@@ -85,7 +113,7 @@ body {
 }
 
 .nav-user {
-  color: #117743;
+  color: #4a7fa5;
   font-weight: bold;
   font-size: 12px;
 }
@@ -102,7 +130,7 @@ body {
   font-size: 12px;
   font-family: Arial, Helvetica, sans-serif;
   background: #FFF;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   color: #000;
   width: 160px;
 }
@@ -113,7 +141,7 @@ body {
 
 .nav-search-input:focus {
   outline: none;
-  border-color: #0F0C5D;
+  border-color: #4a7fa5;
   width: 200px;
   transition: width 0.2s ease;
 }
@@ -130,8 +158,8 @@ body {
    FOOTER
    =========================== */
 .footer {
-  background-color: #EEF2FF;
-  border-top: 1px solid #B7C5D9;
+  background-color: #fefcf3; border-bottom: 2px solid #2a2a2a;
+  border-top: 2px dashed var(--border);
   padding: 20px 0 16px;
   text-align: center;
   color: #666;
@@ -159,7 +187,7 @@ body {
 
 .footer-brand strong {
   font-size: 14px;
-  color: #AF0A0F;
+  font-family: var(--font-hand); color: var(--ink); font-size: 20px;
 }
 
 .footer-tagline {
@@ -191,7 +219,7 @@ body {
 }
 
 .footer-links a:hover {
-  color: #AF0A0F;
+  color: #2a2a2a;
   text-decoration: underline;
 }
 
@@ -203,7 +231,7 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #800000;
+  background: #2a2a2a;
   color: #fff;
   border: none;
   font-size: 18px;
@@ -235,12 +263,12 @@ body {
    LINKS
    =========================== */
 a {
-  color: #0000EE;
+  color: #4a7fa5;
   text-decoration: none;
 }
 
 a:visited {
-  color: #CC1105;
+  color: #c44040;
 }
 
 a:hover {
@@ -274,9 +302,9 @@ a:hover {
 }
 
 .home-logo h1 {
-  font-size: 32px;
-  font-weight: bold;
-  color: #AF0A0F;
+  font-size: 42px;
+  font-family: var(--font-hand); font-weight: 700;
+  color: var(--ink);
   margin: 0;
   display: inline-block;
 }
@@ -297,38 +325,38 @@ a:hover {
 
 .stat-value {
   font-weight: bold;
-  color: #0F0C5D;
+  color: #4a7fa5;
 }
 
 /* What is CoinTalk? */
 .what-is-solchan {
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   margin: 20px 0;
   width: 100%;
   overflow: hidden;
 }
 
 .what-is-header {
-  background: #E5989B;
-  border-bottom: 1px solid #800000;
+  background: #f0ebe0;
+  border-bottom: 1px solid #2a2a2a;
   padding: 5px 10px;
   text-align: left;
 }
 
 .what-is-header h2 {
   font-size: 16px;
-  font-weight: bold;
-  color: #800000;
+  font-family: var(--font-hand); font-weight: 600;
+  color: #2a2a2a;
   margin: 0;
-  text-transform: uppercase;
+  
   letter-spacing: 0.5px;
   text-align: left;
 }
 
 .what-is-content {
   padding: 15px;
-  background: #D6DAF0;
+  background: #f5f0e8;
 }
 
 .what-is-content p {
@@ -347,11 +375,11 @@ a:hover {
 
 .koth-title {
   font-size: 14px;
-  font-weight: bold;
-  color: #800000;
+  font-family: var(--font-hand); font-weight: 600;
+  color: #2a2a2a;
   margin-bottom: 8px;
   text-align: center;
-  text-transform: uppercase;
+  
   letter-spacing: 0.5px;
 }
 
@@ -363,15 +391,15 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #FFD700;
+  background: #fff8e1;
   padding: 10px;
-  border: 2px solid #DAA520;
+  border: 2px solid #d4d0c8;
   text-decoration: none;
   color: #000;
 }
 
 .koth-card-horizontal:hover {
-  background: #FFC700;
+  background: #f5f0e8;
 }
 
 .koth-card-horizontal:visited {
@@ -382,9 +410,9 @@ a:hover {
   width: 60px;
   height: 60px;
   object-fit: cover;
-  border: 2px solid #B7C5D9;
+  border: 2px solid #d4d0c8;
   flex-shrink: 0;
-  border-radius: 4px;
+  border-radius: var(--radius);
 }
 
 /* Community card images */
@@ -392,7 +420,7 @@ a:hover {
   width: 100%;
   height: 100px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: var(--radius);
   display: block;
 }
 
@@ -404,7 +432,7 @@ a:hover {
 .koth-name-horizontal {
   font-size: 14px;
   font-weight: bold;
-  color: #0F0C5D;
+  color: #4a7fa5;
 }
 
 .koth-coin-horizontal {
@@ -420,8 +448,8 @@ a:hover {
 
 /* Search */
 .search-floating {
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   padding: 15px;
   margin: 20px 0;
   width: 100%;
@@ -438,22 +466,22 @@ a:hover {
   flex: 1;
   padding: 10px 15px;
   font-size: 14px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   background: #FFF;
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .search-input-floating:focus {
   outline: none;
-  border-color: #0F0C5D;
+  border-color: #4a7fa5;
 }
 
 .search-btn-floating {
   padding: 10px 20px;
   font-size: 14px;
-  background: #AF0A0F;
+  background: #2a2a2a;
   color: #FFF;
-  border: 1px solid #800000;
+  border: 1px solid #2a2a2a;
   cursor: pointer;
   font-weight: bold;
   white-space: nowrap;
@@ -461,7 +489,7 @@ a:hover {
 }
 
 .search-btn-floating:hover:not(:disabled) {
-  background: #CC1105;
+  background: #c44040;
 }
 
 .search-btn-floating:disabled {
@@ -474,8 +502,8 @@ a:hover {
    SECTION HEADERS
    =========================== */
 .section-header {
-  background: #E5989B;
-  border: 1px solid #800000;
+  background: #f0ebe0;
+  border: 1px solid #2a2a2a;
   padding: 5px 10px;
   margin: -15px -15px 10px -15px;
   text-align: left;
@@ -483,10 +511,10 @@ a:hover {
 
 .section-header h2 {
   font-size: 16px;
-  font-weight: bold;
-  color: #800000;
+  font-family: var(--font-hand); font-weight: 600;
+  color: #2a2a2a;
   margin: 0;
-  text-transform: uppercase;
+  
   letter-spacing: 0.5px;
   text-align: left;
 }
@@ -495,8 +523,8 @@ a:hover {
    COMMUNITIES LIST
    =========================== */
 .recent-communities {
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   padding: 15px;
   margin-bottom: 20px;
   overflow: hidden;
@@ -508,12 +536,12 @@ a:hover {
   margin-bottom: 5px;
   text-align: left;
   font-weight: bold;
-  color: #AF0A0F;
+  color: #2a2a2a;
 }
 
 .communities-subtitle {
   font-size: 12px;
-  color: #34345C;
+  color: #666;
   margin-bottom: 15px;
 }
 
@@ -538,17 +566,17 @@ a:hover {
 }
 
 .community-item {
-  background: #E5E9F0;
+  background: #f5f0e8;
   padding: 12px;
-  border: 1px solid #B7C5D9;
-  border-radius: 6px;
+  border: 1px solid #d4d0c8;
+  border-radius: var(--radius);
   cursor: pointer;
   text-align: center;
   transition: all 0.2s ease;
 }
 
 .community-item:hover {
-  background: #D6DAF0;
+  background: #f5f0e8;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   border-color: #9aa8c4;
@@ -559,7 +587,7 @@ a:hover {
   max-width: 120px;
   height: 120px;
   object-fit: cover;
-  border: 2px solid #B7C5D9;
+  border: 2px solid #d4d0c8;
   margin: 0 auto 8px auto;
   display: block;
 }
@@ -582,14 +610,14 @@ a:hover {
   font-family: 'Courier New', monospace;
   font-size: 10px;
   font-weight: bold;
-  color: #0F0C5D;
+  color: #4a7fa5;
   margin-bottom: 3px;
   text-align: center;
 }
 
 .community-stats {
   font-size: 10px;
-  color: #34345C;
+  color: #666;
   text-align: center;
 }
 
@@ -617,8 +645,8 @@ a:hover {
 }
 
 .modal-content {
-  background: #EFEEE8;
-  border: 2px solid #800000;
+  background: #fefcf3;
+  border: 2px solid #2a2a2a;
   padding: 20px;
   max-width: 500px;
   margin: 20px;
@@ -628,8 +656,8 @@ a:hover {
 
 .modal-content h2 {
   font-size: 18px;
-  font-weight: bold;
-  color: #800000;
+  font-family: var(--font-hand); font-weight: 600;
+  color: #2a2a2a;
   margin: 0 0 15px 0;
 }
 
@@ -648,7 +676,7 @@ a:hover {
   border: none;
   font-size: 24px;
   font-weight: bold;
-  color: #800000;
+  color: #2a2a2a;
   cursor: pointer;
   padding: 0;
   width: 30px;
@@ -657,7 +685,7 @@ a:hover {
 }
 
 .modal-close:hover {
-  color: #CC1105;
+  color: #c44040;
 }
 
 /* ===========================
@@ -667,14 +695,14 @@ a:hover {
   max-width: 500px;
   margin: 30px auto;
   padding: 20px;
-  background: #EFEEE8;
+  background: #fefcf3;
   border: 1px solid #d9d9d9;
 }
 
 .create-community h2 {
-  font-size: 20px;
+  font-family: var(--font-hand); font-size: 28px;
   margin-bottom: 15px;
-  color: #800000;
+  color: #2a2a2a;
 }
 
 .error-message {
@@ -710,7 +738,7 @@ a:hover {
   padding: 8px;
   font-size: 13px;
   border: 1px solid #ccc;
-  border-radius: 2px;
+  border-radius: 8px;
   font-family: inherit;
   box-sizing: border-box;
 }
@@ -739,7 +767,7 @@ a:hover {
   max-width: 200px;
   max-height: 200px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: var(--radius);
   border: 1px solid #ccc;
 }
 
@@ -748,10 +776,10 @@ a:hover {
   padding: 10px 20px;
   font-size: 14px;
   font-weight: bold;
-  background: #800000;
+  background: #2a2a2a;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius);
   cursor: pointer;
 }
 
@@ -779,14 +807,14 @@ a:hover {
   margin-bottom: 10px;
   font-size: 12px;
   padding: 5px 10px;
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   max-width: 900px;
 }
 
 .thread-title {
   font-weight: bold;
-  color: #0F0C5D;
+  color: #4a7fa5;
   display: flex;
   align-items: center;
 }
@@ -794,11 +822,11 @@ a:hover {
 .thread-ca {
   font-family: 'Courier New', monospace;
   font-size: 11px;
-  color: #34345C;
+  color: #666;
 }
 
 .back-link {
-  color: #0000EE;
+  color: #4a7fa5;
   font-size: 13px;
   text-decoration: none;
 }
@@ -817,7 +845,7 @@ a:hover {
 }
 
 .live-users {
-  color: #117743;
+  color: #4a7fa5;
   font-weight: bold;
 }
 
@@ -836,7 +864,7 @@ a:hover {
 }
 
 .post-name {
-  color: #117743;
+  color: #4a7fa5;
   font-weight: bold;
   margin-right: 8px;
 }
@@ -855,11 +883,11 @@ a:hover {
 }
 
 .post-number:hover {
-  color: #800000;
+  color: #2a2a2a;
 }
 
 .post-subject {
-  color: #0F0C5D;
+  color: #4a7fa5;
   font-weight: bold;
   font-size: 13px;
   margin-right: 8px;
@@ -886,13 +914,13 @@ a:hover {
 .op-image img {
   max-width: 250px;
   max-height: 250px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   cursor: pointer;
   object-fit: contain;
 }
 
 .op-image img:hover {
-  border-color: #800000;
+  border-color: #2a2a2a;
 }
 
 .op-content {
@@ -912,8 +940,8 @@ a:hover {
    REPLY BOXES (with box, 4chan style)
    =========================== */
 .reply-box {
-  background: #F0E0D6;
-  border: 1px solid #D9BFB7;
+  background: #f8f4ec;
+  border: 1px solid #d4d0c8;
   border-left: none;
   border-top: none;
   padding: 10px;
@@ -926,7 +954,7 @@ a:hover {
 
 .reply-box.highlighted {
   background: #FFFFCC;
-  border-color: #DAA520;
+  border-color: #d4d0c8;
   box-shadow: 0 0 6px rgba(218, 165, 32, 0.4);
 }
 
@@ -939,13 +967,13 @@ a:hover {
 .reply-image img {
   max-width: 150px;
   max-height: 150px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   cursor: pointer;
   object-fit: contain;
 }
 
 .reply-image img:hover {
-  border-color: #800000;
+  border-color: #2a2a2a;
 }
 
 .reply-content {
@@ -979,21 +1007,21 @@ a:hover {
 
 .open-thread-btn {
   display: inline-block;
-  background: linear-gradient(135deg, #800000 0%, #af0a0f 100%);
+  background: linear-gradient(135deg, #2a2a2a 0%, #af0a0f 100%);
   color: #fff !important;
   text-decoration: none;
   padding: 6px 16px;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 13px;
   font-weight: bold;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(128, 0, 0, 0.25);
+  box-shadow: none;
 }
 
 .open-thread-btn:hover {
   background: linear-gradient(135deg, #a00000 0%, #cc1105 100%);
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(128, 0, 0, 0.35);
+  box-shadow: none;
 }
 
 .thread-subject-link {
@@ -1004,16 +1032,16 @@ a:hover {
 
 .thread-subject-link:hover {
   text-decoration: underline;
-  color: #800000;
+  color: #2a2a2a;
 }
 
 .reply-count-badge {
-  background: #D6DAF0;
-  color: #0F0C5D;
+  background: #f5f0e8;
+  color: #4a7fa5;
   font-weight: bold;
   padding: 1px 6px;
   font-size: 11px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
 }
 
 .thread-stats .reply-count {
@@ -1036,7 +1064,7 @@ a:hover {
 
 .thread-divider {
   border: none;
-  border-top: 1px solid #B7C5D9;
+  border-top: 2px solid #2a2a2a;
   margin: 20px 0;
 }
 
@@ -1048,14 +1076,14 @@ a:hover {
 .view-all-link {
   display: inline-block;
   margin: 10px 0;
-  color: #0000EE;
+  color: #4a7fa5;
   text-decoration: underline;
   font-size: 12px;
   cursor: pointer;
 }
 
 .view-all-link:hover {
-  color: #800000;
+  color: #2a2a2a;
 }
 
 .no-threads {
@@ -1070,13 +1098,13 @@ a:hover {
 
 .create-thread-btn {
   display: inline-block;
-  background: #D6DAF0;
-  color: #0000EE;
+  background: #f5f0e8;
+  color: #4a7fa5;
   padding: 6px 12px;
   font-size: 13px;
   font-weight: bold;
   text-decoration: none;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   cursor: pointer;
   margin: 5px 0;
 }
@@ -1087,7 +1115,7 @@ a:hover {
 }
 
 .create-thread-btn:visited {
-  color: #0000EE;
+  color: #4a7fa5;
 }
 
 /* ===========================
@@ -1095,7 +1123,7 @@ a:hover {
    =========================== */
 .op-content .reply-link,
 .reply-content .reply-link {
-  color: #800000;
+  color: #2a2a2a;
   text-decoration: none;
   cursor: pointer;
   font-weight: bold;
@@ -1117,8 +1145,8 @@ a:hover {
    QUOTE PREVIEW POPUP
    =========================== */
 .quote-preview {
-  background: #F0E0D6;
-  border: 1px solid #D9BFB7;
+  background: #f8f4ec;
+  border: 1px solid #d4d0c8;
   padding: 10px;
   max-width: 400px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -1160,7 +1188,7 @@ a:hover {
   max-width: 90vw;
   max-height: 90vh;
   object-fit: contain;
-  border: 2px solid #B7C5D9;
+  border: 2px solid #d4d0c8;
 }
 
 .lightbox-close {
@@ -1181,7 +1209,7 @@ a:hover {
 }
 
 .lightbox-close:hover {
-  background: #800000;
+  background: #2a2a2a;
 }
 
 /* ===========================
@@ -1190,7 +1218,7 @@ a:hover {
 .post-form-container {
   margin-top: 20px;
   margin-bottom: 60px;
-  background: #EEF2FF;
+  background: #fefcf3;
   padding: 10px;
   max-width: 600px;
   margin-left: 0;
@@ -1209,11 +1237,11 @@ a:hover {
 
 .form-label {
   display: table-cell;
-  background: #D6DAF0;
+  background: #f5f0e8;
   font-size: 13px;
   font-weight: bold;
   padding: 5px 10px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   border-right: none;
   white-space: nowrap;
   vertical-align: middle;
@@ -1228,7 +1256,7 @@ a:hover {
   padding: 5px;
   font-size: 13px;
   font-family: Arial, Helvetica, sans-serif;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   background: #FFF;
   color: #000;
 }
@@ -1236,7 +1264,7 @@ a:hover {
 .form-input:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #0F0C5D;
+  border-color: #4a7fa5;
 }
 
 .form-input::placeholder,
@@ -1252,7 +1280,7 @@ a:hover {
 .form-input-group {
   display: table-cell;
   width: 100%;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   border-left: none;
   padding: 0;
   vertical-align: middle;
@@ -1261,17 +1289,17 @@ a:hover {
 .post-button {
   padding: 5px 15px;
   font-size: 13px;
-  background: #E5E9F0;
+  background: #f5f0e8;
   color: #000;
   border: none;
-  border-left: 1px solid #B7C5D9;
+  border-left: 1px solid #d4d0c8;
   cursor: pointer;
   white-space: nowrap;
   font-weight: normal;
 }
 
 .post-button:hover:not(:disabled) {
-  background: #D6DAF0;
+  background: #f5f0e8;
 }
 
 .post-button:disabled {
@@ -1287,7 +1315,7 @@ a:hover {
   position: fixed;
   right: 24px;
   bottom: 24px;
-  background: linear-gradient(135deg, #800000 0%, #af0a0f 100%);
+  background: linear-gradient(135deg, #2a2a2a 0%, #af0a0f 100%);
   color: #FFF;
   border: none;
   padding: 14px 28px;
@@ -1312,8 +1340,8 @@ a:hover {
   right: 20px;
   top: 80px;
   width: 320px;
-  background: #D6DAF0;
-  border: 2px solid #0F0C5D;
+  background: #f5f0e8;
+  border: 2px solid #4a7fa5;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   z-index: 1000;
   max-height: calc(100vh - 100px);
@@ -1321,7 +1349,7 @@ a:hover {
 }
 
 .floating-form-header {
-  background: #0F0C5D;
+  background: #4a7fa5;
   color: #FFF;
   padding: 8px 12px;
   font-weight: bold;
@@ -1361,7 +1389,7 @@ a:hover {
   width: 100%;
   padding: 6px 8px;
   font-size: 12px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   background: #FFF;
   box-sizing: border-box;
 }
@@ -1370,7 +1398,7 @@ a:hover {
   width: 100%;
   padding: 6px 8px;
   font-size: 12px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   background: #FFF;
   resize: vertical;
   font-family: Arial, Helvetica, sans-serif;
@@ -1389,11 +1417,11 @@ a:hover {
 .floating-image-preview img {
   max-width: 100%;
   max-height: 120px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
 }
 
 .floating-submit-btn {
-  background: #0F0C5D;
+  background: #4a7fa5;
   color: #FFF;
   border: 1px solid #000;
   padding: 8px 16px;
@@ -1422,15 +1450,15 @@ a:hover {
 }
 
 .search-results-header {
-  background: #F0E0D6;
-  border: 1px solid #D9BFB7;
+  background: #f8f4ec;
+  border: 1px solid #d4d0c8;
   padding: 15px;
   margin-bottom: 20px;
   text-align: center;
 }
 
 .search-results-header h1 {
-  color: #AF0A0F;
+  color: #2a2a2a;
   font-size: 28px;
   margin-bottom: 10px;
 }
@@ -1442,7 +1470,7 @@ a:hover {
 
 .back-home-link {
   display: inline-block;
-  color: #0000EE;
+  color: #4a7fa5;
   text-decoration: none;
   margin-top: 10px;
   font-weight: bold;
@@ -1453,15 +1481,15 @@ a:hover {
 }
 
 .loading-section, .no-results-section {
-  background: #F0E0D6;
-  border: 1px solid #D9BFB7;
+  background: #f8f4ec;
+  border: 1px solid #d4d0c8;
   padding: 40px;
   text-align: center;
   margin: 20px 0;
 }
 
 .no-results-section h2 {
-  color: #AF0A0F;
+  color: #2a2a2a;
   margin-bottom: 15px;
 }
 
@@ -1474,7 +1502,7 @@ a:hover {
 
 .create-community-link {
   display: inline-block;
-  background: #0000EE;
+  background: #4a7fa5;
   color: white;
   padding: 10px 20px;
   text-decoration: none;
@@ -1491,13 +1519,13 @@ a:hover {
 }
 
 .search-results-container {
-  background: #F0E0D6;
-  border: 1px solid #D9BFB7;
+  background: #f8f4ec;
+  border: 1px solid #d4d0c8;
   padding: 20px;
 }
 
 .search-results-container h2 {
-  color: #AF0A0F;
+  color: #2a2a2a;
   font-size: 18px;
   margin-bottom: 20px;
   text-align: left;
@@ -1801,8 +1829,8 @@ a:hover {
 .spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid #D6DAF0;
-  border-top: 3px solid #800000;
+  border: 3px solid #f5f0e8;
+  border-top: 3px solid #2a2a2a;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1829,12 +1857,12 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0F0C5D, #800000);
+  background: linear-gradient(135deg, #4a7fa5, #2a2a2a);
   color: #FFF;
   font-size: 28px;
   font-weight: bold;
   margin: 0 auto 8px auto;
-  border: 2px solid #B7C5D9;
+  border: 2px solid #d4d0c8;
   letter-spacing: 1px;
 }
 
@@ -1844,12 +1872,12 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #DAA520, #B8860B);
+  background: linear-gradient(135deg, #d4d0c8, #B8860B);
   color: #FFF;
   font-size: 18px;
   font-weight: bold;
   flex-shrink: 0;
-  border: 2px solid #B7C5D9;
+  border: 2px solid #d4d0c8;
 }
 
 /* ===========================
@@ -1857,9 +1885,9 @@ a:hover {
    =========================== */
 .copy-ca-btn {
   background: none;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   font-size: 10px;
-  color: #0F0C5D;
+  color: #4a7fa5;
   cursor: pointer;
   padding: 1px 5px;
   margin-left: 4px;
@@ -1867,13 +1895,13 @@ a:hover {
 }
 
 .copy-ca-btn:hover {
-  background: #D6DAF0;
+  background: #f5f0e8;
 }
 
 .copy-ca-btn.copied {
-  background: #117743;
+  background: #4a7fa5;
   color: #FFF;
-  border-color: #117743;
+  border-color: #4a7fa5;
 }
 
 /* ===========================
@@ -1886,13 +1914,13 @@ a:hover {
 
 .not-found h1 {
   font-size: 64px;
-  color: #800000;
+  color: #2a2a2a;
   margin-bottom: 10px;
 }
 
 .not-found h2 {
   font-size: 20px;
-  color: #0F0C5D;
+  color: #4a7fa5;
   margin-bottom: 20px;
 }
 
@@ -1903,7 +1931,7 @@ a:hover {
 }
 
 .not-found a {
-  color: #0000EE;
+  color: #4a7fa5;
   font-weight: bold;
 }
 
@@ -1946,21 +1974,21 @@ a:hover {
 }
 
 .report-btn:hover { opacity: 1 !important; }
-.delete-btn:hover { opacity: 1 !important; color: #AF0A0F; }
+.delete-btn:hover { opacity: 1 !important; color: #2a2a2a; }
 
 /* ===========================
    REPORT MODAL
    =========================== */
 .report-modal {
   max-width: 420px;
-  background: #EEF2FF;
+  background: #fefcf3;
 }
 
 .report-modal h3 {
-  color: #AF0A0F;
+  color: #2a2a2a;
   font-size: 15px;
   margin-bottom: 12px;
-  border-bottom: 1px solid #B7C5D9;
+  
   padding-bottom: 8px;
 }
 
@@ -1976,7 +2004,7 @@ a:hover {
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   border-radius: 3px;
   cursor: pointer;
   font-size: 12px;
@@ -1984,22 +2012,22 @@ a:hover {
 }
 
 .report-reason-option:hover {
-  background: #D6DAF0;
+  background: #f5f0e8;
 }
 
 .report-reason-option.selected {
-  background: #D6DAF0;
-  border-color: #34345C;
+  background: #f5f0e8;
+  border-color: #666;
 }
 
 .report-reason-option input[type="radio"] {
-  accent-color: #AF0A0F;
+  accent-color: #2a2a2a;
 }
 
 .report-custom-reason {
   width: 100%;
   padding: 6px 8px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   font-family: Arial, sans-serif;
   font-size: 12px;
   resize: vertical;
@@ -2009,7 +2037,7 @@ a:hover {
 .report-submit-btn {
   width: 100%;
   padding: 8px;
-  background: #AF0A0F;
+  background: #2a2a2a;
   color: #fff;
   border: none;
   cursor: pointer;
@@ -2032,7 +2060,7 @@ a:hover {
 }
 
 .report-success h3 {
-  color: #117743;
+  color: #4a7fa5;
   border: none;
 }
 
@@ -2044,13 +2072,13 @@ a:hover {
 }
 
 .mod-panel-toggle {
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   padding: 6px 14px;
   cursor: pointer;
   font-size: 12px;
   font-weight: bold;
-  color: #34345C;
+  color: #666;
   width: 100%;
   text-align: left;
   transition: background 0.15s;
@@ -2061,8 +2089,8 @@ a:hover {
 }
 
 .mod-panel {
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   border-top: none;
   padding: 10px;
 }
@@ -2078,12 +2106,12 @@ a:hover {
 
 .mod-tab {
   padding: 5px 12px;
-  border: 1px solid #B7C5D9;
-  background: #EEF2FF;
+  border: 1px solid #d4d0c8;
+  background: #fefcf3;
   cursor: pointer;
   font-size: 12px;
   font-weight: bold;
-  color: #34345C;
+  color: #666;
   transition: background 0.15s;
 }
 
@@ -2097,7 +2125,7 @@ a:hover {
 }
 
 .report-badge {
-  background: #AF0A0F;
+  background: #2a2a2a;
   color: #fff;
   border-radius: 50%;
   padding: 1px 5px;
@@ -2107,8 +2135,8 @@ a:hover {
 
 .mod-success {
   background: #e6ffed;
-  border: 1px solid #117743;
-  color: #117743;
+  border: 1px solid #4a7fa5;
+  color: #4a7fa5;
   padding: 6px 10px;
   margin-bottom: 8px;
   font-size: 12px;
@@ -2116,8 +2144,8 @@ a:hover {
 
 .mod-error {
   background: #ffe6e6;
-  border: 1px solid #AF0A0F;
-  color: #AF0A0F;
+  border: 1px solid #2a2a2a;
+  color: #2a2a2a;
   padding: 6px 10px;
   margin-bottom: 8px;
   font-size: 12px;
@@ -2131,8 +2159,8 @@ a:hover {
 }
 
 .report-item {
-  background: #EEF2FF;
-  border: 1px solid #B7C5D9;
+  background: #fefcf3;
+  border: 1px solid #d4d0c8;
   padding: 8px;
   margin-bottom: 6px;
   display: flex;
@@ -2149,9 +2177,9 @@ a:hover {
 }
 
 .report-type {
-  color: #AF0A0F;
+  color: #2a2a2a;
   font-weight: bold;
-  text-transform: uppercase;
+  
   font-size: 10px;
 }
 
@@ -2179,7 +2207,7 @@ a:hover {
 }
 
 .mod-btn-delete {
-  background: #AF0A0F;
+  background: #2a2a2a;
   color: #fff;
   border-color: #8B0000;
 }
@@ -2189,17 +2217,17 @@ a:hover {
 }
 
 .mod-btn-dismiss {
-  background: #EEF2FF;
-  color: #34345C;
-  border-color: #B7C5D9;
+  background: #fefcf3;
+  color: #666;
+  border-color: #d4d0c8;
 }
 
 .mod-btn-dismiss:hover {
-  background: #D6DAF0;
+  background: #f5f0e8;
 }
 
 .mod-btn-add {
-  background: #117743;
+  background: #4a7fa5;
   color: #fff;
   border-color: #0a5c33;
 }
@@ -2209,7 +2237,7 @@ a:hover {
 }
 
 .mod-btn-remove {
-  background: #AF0A0F;
+  background: #2a2a2a;
   color: #fff;
   border-color: #8B0000;
   font-size: 10px;
@@ -2230,15 +2258,15 @@ a:hover {
 .mod-input {
   flex: 1;
   padding: 5px 8px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   font-size: 12px;
 }
 
 .mods-list h4 {
   font-size: 12px;
-  color: #34345C;
+  color: #666;
   margin-bottom: 6px;
-  border-bottom: 1px solid #B7C5D9;
+  
   padding-bottom: 4px;
 }
 
@@ -2247,14 +2275,14 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   padding: 4px 6px;
-  background: #EEF2FF;
-  border: 1px solid #B7C5D9;
+  background: #fefcf3;
+  border: 1px solid #d4d0c8;
   margin-bottom: 4px;
   font-size: 12px;
 }
 
 .mod-id {
-  color: #34345C;
+  color: #666;
   font-family: monospace;
   font-size: 11px;
 }
@@ -2267,13 +2295,13 @@ a:hover {
 }
 
 .members-panel-toggle {
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   padding: 6px 14px;
   cursor: pointer;
   font-size: 12px;
   font-weight: bold;
-  color: #34345C;
+  color: #666;
   width: 100%;
   text-align: left;
   transition: background 0.15s;
@@ -2284,8 +2312,8 @@ a:hover {
 }
 
 .members-panel {
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   border-top: none;
   padding: 10px;
   max-height: 400px;
@@ -2306,8 +2334,8 @@ a:hover {
 }
 
 .member-card {
-  background: #EEF2FF;
-  border: 1px solid #B7C5D9;
+  background: #fefcf3;
+  border: 1px solid #d4d0c8;
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
@@ -2317,7 +2345,7 @@ a:hover {
 .member-name {
   font-weight: bold;
   font-size: 12px;
-  color: #117743;
+  color: #4a7fa5;
 }
 
 .member-stats {
@@ -2338,8 +2366,8 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   padding: 14px 16px;
   margin-bottom: 12px;
 }
@@ -2360,7 +2388,7 @@ a:hover {
 .user-profile-name {
   font-size: 18px;
   font-weight: bold;
-  color: #117743;
+  color: #4a7fa5;
   margin: 0;
 }
 
@@ -2379,8 +2407,8 @@ a:hover {
 }
 
 .user-post-card {
-  background: #EEF2FF;
-  border: 1px solid #B7C5D9;
+  background: #fefcf3;
+  border: 1px solid #d4d0c8;
   padding: 10px 12px;
 }
 
@@ -2414,7 +2442,7 @@ a:hover {
 .user-post-subject {
   font-weight: bold;
   font-size: 13px;
-  color: #0F0C5D;
+  color: #4a7fa5;
   margin-bottom: 4px;
 }
 
@@ -2432,7 +2460,7 @@ a:hover {
 .user-post-thumb img {
   max-height: 80px;
   max-width: 120px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   cursor: pointer;
 }
 
@@ -2445,7 +2473,7 @@ a:hover {
 
 .user-post-link {
   font-size: 11px;
-  color: #34345C;
+  color: #666;
 }
 
 .user-post-link:hover {
@@ -2454,9 +2482,9 @@ a:hover {
 
 .reply-count-badge {
   font-size: 10px;
-  background: #D6DAF0;
+  background: #f5f0e8;
   padding: 1px 6px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   color: #555;
 }
 
@@ -2468,25 +2496,25 @@ a:hover {
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  background: #D6DAF0;
-  border: 1px solid #B7C5D9;
+  background: #f5f0e8;
+  border: 1px solid #d4d0c8;
   margin-bottom: 8px;
 }
 
 .sort-label {
   font-size: 11px;
   font-weight: bold;
-  color: #34345C;
+  color: #666;
   margin-right: 4px;
 }
 
 .sort-btn {
-  background: #EEF2FF;
-  border: 1px solid #B7C5D9;
+  background: #fefcf3;
+  border: 1px solid #d4d0c8;
   padding: 2px 8px;
   font-size: 11px;
   cursor: pointer;
-  color: #34345C;
+  color: #666;
   transition: background 0.15s;
 }
 
@@ -2495,9 +2523,9 @@ a:hover {
 }
 
 .sort-btn.active {
-  background: #34345C;
+  background: #666;
   color: #fff;
-  border-color: #34345C;
+  border-color: #666;
 }
 
 /* ===========================
@@ -2531,18 +2559,19 @@ a:hover {
 }
 
 .auth-box {
-  background: #EEF2FF;
-  border: 1px solid #B7C5D9;
+  background: #fefcf3;
+  border: 1px solid #d4d0c8;
   padding: 24px 28px;
   max-width: 400px;
   width: 100%;
 }
 
 .auth-title {
+  font-family: var(--font-hand);
   font-size: 16px;
-  color: #34345C;
+  color: #666;
   margin: 0 0 14px;
-  border-bottom: 1px solid #B7C5D9;
+  
   padding-bottom: 8px;
 }
 
@@ -2556,14 +2585,14 @@ a:hover {
   display: block;
   font-size: 12px;
   font-weight: bold;
-  color: #34345C;
+  color: #666;
   margin-bottom: 4px;
 }
 
 .auth-field input {
   width: 100%;
   padding: 6px 8px;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   font-size: 13px;
   background: #fff;
   box-sizing: border-box;
@@ -2586,7 +2615,7 @@ a:hover {
 }
 
 .auth-submit {
-  background: #34345C;
+  background: #666;
   color: #fff;
   border: none;
   padding: 8px 16px;
@@ -2611,7 +2640,7 @@ a:hover {
 }
 
 .auth-link {
-  color: #34345C;
+  color: #666;
 }
 
 .auth-link:hover {
@@ -2641,7 +2670,7 @@ a.post-name:hover {
   background: #000;
   color: #000;
   padding: 0 4px;
-  border-radius: 2px;
+  border-radius: 8px;
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -2671,7 +2700,7 @@ a.post-name:hover {
 .view-toggle-btn {
   background: #c9cde8;
   border: 1px solid #b7c5d9;
-  color: #34345C;
+  color: #666;
   padding: 3px 10px;
   font-size: 12px;
   cursor: pointer;
@@ -2679,9 +2708,9 @@ a.post-name:hover {
 }
 
 .view-toggle-btn.active {
-  background: #34345C;
+  background: #666;
   color: #fff;
-  border-color: #34345C;
+  border-color: #666;
 }
 
 .view-toggle-btn:first-of-type {
@@ -2745,7 +2774,7 @@ a.post-name:hover {
 .catalog-card-subject {
   font-weight: 700;
   font-size: 12px;
-  color: #34345C;
+  color: #666;
   margin-bottom: 3px;
   line-height: 1.3;
   word-break: break-word;
@@ -2789,7 +2818,7 @@ a.post-name:hover {
 .bookmark-btn {
   background: none;
   border: 1px solid #b7c5d9;
-  color: #34345C;
+  color: #666;
   padding: 4px 10px;
   cursor: pointer;
   font-size: 13px;
@@ -2845,7 +2874,7 @@ a.post-name:hover {
 .formatting-help-toggle {
   background: none;
   border: none;
-  color: #34345C;
+  color: #666;
   font-size: 11px;
   cursor: pointer;
   text-decoration: underline;
@@ -2871,7 +2900,7 @@ a.post-name:hover {
 .formatting-help-content code {
   background: #c9cde8;
   padding: 1px 4px;
-  border-radius: 2px;
+  border-radius: 8px;
 }
 
 /* ===== BOOKMARKED COMMUNITIES SECTION ===== */
@@ -2905,7 +2934,7 @@ a.post-name:hover {
   padding: 5px 12px;
   border-radius: 3px;
   text-decoration: none;
-  color: #34345C;
+  color: #666;
   font-size: 13px;
   font-weight: 600;
   transition: border-color 0.15s;
@@ -2919,15 +2948,15 @@ a.post-name:hover {
 .bookmarked-chip img {
   width: 20px;
   height: 20px;
-  border-radius: 2px;
+  border-radius: 8px;
   object-fit: cover;
 }
 
 .bookmarked-chip .chip-placeholder {
   width: 20px;
   height: 20px;
-  border-radius: 2px;
-  background: #34345C;
+  border-radius: 8px;
+  background: #666;
   color: white;
   display: flex;
   align-items: center;
@@ -2979,15 +3008,15 @@ a.post-name:hover {
 .community-header-avatar {
   width: 48px;
   height: 48px;
-  border-radius: 4px;
+  border-radius: var(--radius);
   object-fit: cover;
 }
 
 .community-header-avatar-placeholder {
   width: 48px;
   height: 48px;
-  border-radius: 4px;
-  background: #34345C;
+  border-radius: var(--radius);
+  background: #666;
   color: white;
   display: flex;
   align-items: center;
@@ -3047,7 +3076,7 @@ a.post-name:hover {
 .thread-action-btn {
   background: #c9cde8;
   border: 1px solid #b7c5d9;
-  color: #34345C;
+  color: #666;
   padding: 3px 10px;
   font-size: 12px;
   cursor: pointer;
@@ -3061,9 +3090,9 @@ a.post-name:hover {
 }
 
 .thread-action-btn.watched {
-  background: #34345C;
+  background: #666;
   color: #fff;
-  border-color: #34345C;
+  border-color: #666;
 }
 
 .thread-action-btn.copied {
@@ -3093,7 +3122,7 @@ a.post-name:hover {
   padding: 6px 12px;
   border-radius: 3px;
   text-decoration: none;
-  color: #34345C;
+  color: #666;
   font-size: 13px;
   transition: border-color 0.15s;
 }
@@ -3185,7 +3214,7 @@ a.post-name:hover {
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 600;
-  color: #34345C;
+  color: #666;
   user-select: none;
 }
 
@@ -3219,7 +3248,7 @@ a.post-name:hover {
 .scroll-btn {
   width: 36px;
   height: 36px;
-  background: #34345C;
+  background: #666;
   color: white;
   border: none;
   border-radius: 50%;
@@ -3278,7 +3307,7 @@ a.post-name:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #34345C;
+  color: #666;
   transition: all 0.12s;
 }
 
@@ -3344,7 +3373,7 @@ a.post-name:hover {
   padding: 10px;
   background: rgba(0,0,0,0.03);
   border: 1px solid #b7c5d9;
-  border-radius: 4px;
+  border-radius: var(--radius);
 }
 
 .ban-form-row {
@@ -3384,7 +3413,7 @@ a.post-name:hover {
 
 .bans-list h4 {
   font-size: 13px;
-  color: #34345C;
+  color: #666;
   margin-bottom: 8px;
   font-weight: 600;
 }
@@ -3396,7 +3425,7 @@ a.post-name:hover {
   padding: 8px 12px;
   background: #fff5f5;
   border: 1px solid #ffcccc;
-  border-radius: 4px;
+  border-radius: var(--radius);
   margin-bottom: 6px;
 }
 
@@ -3442,7 +3471,7 @@ a.post-name:hover {
   padding: 8px 12px;
   background: rgba(255, 215, 0, 0.1);
   border: 1px solid rgba(255, 215, 0, 0.3);
-  border-radius: 4px;
+  border-radius: var(--radius);
   margin-bottom: 12px;
   font-size: 13px;
 }
@@ -3460,7 +3489,7 @@ a.post-name:hover {
 /* ===== MOD USERNAME IN LIST ===== */
 .mod-username {
   font-weight: 600;
-  color: #34345C;
+  color: #666;
   font-size: 13px;
 }
 
@@ -3471,7 +3500,7 @@ a.post-name:hover {
   padding: 6px 12px;
   background: #f0f0f8;
   border: 1px solid #d0d0e0;
-  border-radius: 4px;
+  border-radius: var(--radius);
   margin-bottom: 4px;
 }
 
@@ -3512,7 +3541,7 @@ a.post-name:hover {
 .step-number {
   min-width: 32px;
   height: 32px;
-  background: #800000;
+  background: #2a2a2a;
   color: #fff;
   border-radius: 50%;
   display: flex;
@@ -3525,7 +3554,7 @@ a.post-name:hover {
 
 .welcome-step strong {
   font-size: 14px;
-  color: #800000;
+  color: #2a2a2a;
   display: block;
   margin-bottom: 3px;
 }
@@ -3540,7 +3569,7 @@ a.post-name:hover {
 .welcome-got-it {
   width: 100%;
   padding: 12px;
-  background: #800000;
+  background: #2a2a2a;
   color: #fff;
   border: none;
   font-size: 15px;
@@ -3566,7 +3595,7 @@ a.post-name:hover {
   display: inline-block;
   padding: 5px 12px;
   background: #D9EAF7;
-  border: 1px solid #B7C5D9;
+  border: 1px solid #d4d0c8;
   border-radius: 20px;
   font-size: 12px;
   color: #333;
@@ -3587,7 +3616,7 @@ a.post-name:hover {
   background: #fff;
   color: #333;
   border: 1px solid #dadce0;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -3677,7 +3706,7 @@ a.post-name:hover {
 .x-link-modal {
   background: #fff;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 28px 24px;
   max-width: 400px;
   width: 100%;
@@ -3717,7 +3746,7 @@ a.post-name:hover {
 
 .community-chat-panel {
   border: 1px solid #b7c5d9;
-  border-radius: 4px;
+  border-radius: var(--radius);
   margin-top: 6px;
   overflow: hidden;
 }
@@ -3743,7 +3772,7 @@ a.post-name:hover {
 
 .chat-author {
   font-weight: 700;
-  color: #800000;
+  color: #2a2a2a;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -3785,7 +3814,7 @@ a.post-name:hover {
 
 .chat-send-btn {
   padding: 7px 16px;
-  background: #800000;
+  background: #2a2a2a;
   color: #fff;
   border: none;
   cursor: pointer;
@@ -3848,7 +3877,7 @@ a.post-name:hover {
    =========================== */
 .set-ca-panel {
   border: 1px dashed #b7c5d9;
-  border-radius: 4px;
+  border-radius: var(--radius);
   padding: 14px 16px;
   margin-top: 10px;
   background: #f8fbff;
@@ -3857,7 +3886,7 @@ a.post-name:hover {
 .set-ca-title {
   margin: 0 0 4px;
   font-size: 13px;
-  color: #34345C;
+  color: #666;
   font-weight: 600;
 }
 
@@ -3879,7 +3908,7 @@ a.post-name:hover {
 
 .set-ca-btn {
   padding: 8px 16px;
-  background: #34345C;
+  background: #666;
   color: #fff;
   border: none;
   border-radius: 3px;
@@ -3959,7 +3988,7 @@ a.post-name:hover {
   padding: 8px 12px;
   background: #fff3cd;
   border: 1px solid #ffc107;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 12px;
   color: #664d03;
   margin-bottom: 12px;
@@ -3980,7 +4009,7 @@ a.post-name:hover {
   background: linear-gradient(135deg, #ff6b35 0%, #f7c59f 100%);
   color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius);
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
@@ -3997,7 +4026,7 @@ a.post-name:hover {
   padding: 12px;
   background: rgba(255,255,255,0.7);
   border: 1px solid #e0c870;
-  border-radius: 4px;
+  border-radius: var(--radius);
 }
 
 .cto-form-label {
@@ -4072,7 +4101,7 @@ a.post-name:hover {
 
 .cto-request-item {
   border: 1px solid #e0c870;
-  border-radius: 4px;
+  border-radius: var(--radius);
   padding: 10px 12px;
   margin-bottom: 8px;
   background: #fff;
@@ -4239,9 +4268,9 @@ a.post-name:hover {
 .empty-home-state {
   text-align: center;
   padding: 50px 20px;
-  background: #F0E0D6;
+  background: #f8f4ec;
   border: 1px solid #D9C5B4;
-  border-radius: 6px;
+  border-radius: var(--radius);
   margin: 20px auto;
   max-width: 500px;
 }
@@ -4255,7 +4284,7 @@ a.post-name:hover {
 
 .empty-home-state h3 {
   font-size: 20px;
-  color: #34345C;
+  color: #666;
   margin-bottom: 8px;
 }
 
@@ -4268,9 +4297,9 @@ a.post-name:hover {
 .empty-state-cta {
   display: inline-block;
   padding: 12px 28px;
-  background: #800000;
+  background: #2a2a2a;
   color: #fff;
-  border-radius: 6px;
+  border-radius: var(--radius);
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
@@ -4292,7 +4321,7 @@ a.post-name:hover {
 }
 
 .no-results-section h2 {
-  color: #34345C;
+  color: #666;
   margin-bottom: 8px;
 }
 
@@ -4311,9 +4340,9 @@ a.post-name:hover {
 .create-community-link {
   display: inline-block;
   padding: 10px 20px;
-  background: #800000;
+  background: #2a2a2a;
   color: #fff;
-  border-radius: 4px;
+  border-radius: var(--radius);
   text-decoration: none;
   font-weight: 600;
   font-size: 13px;
@@ -4345,7 +4374,7 @@ a.post-name:hover {
   max-width: 92vw;
   max-height: 90vh;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: var(--radius);
   box-shadow: 0 8px 40px rgba(0,0,0,0.6);
   cursor: default;
 }
@@ -4360,7 +4389,7 @@ a.post-name:hover {
   font-size: 16px;
   font-weight: 700;
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: var(--radius);
   cursor: pointer;
   transition: background 0.15s;
   z-index: 10000;
@@ -4392,7 +4421,7 @@ a.post-name:hover {
 }
 
 .report-btn:hover {
-  color: #AF0A0F;
+  color: #2a2a2a;
   text-decoration: underline;
 }
 
@@ -4408,7 +4437,7 @@ a.post-name:hover {
   top: 22px;
   background: #fff;
   border: 1px solid #D9C5B4;
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 10px;
   z-index: 100;
   min-width: 200px;
@@ -4418,9 +4447,9 @@ a.post-name:hover {
 .report-header {
   font-size: 12px;
   font-weight: 700;
-  color: #34345C;
+  color: #666;
   margin-bottom: 8px;
-  text-transform: uppercase;
+  
   letter-spacing: 0.5px;
 }
 
@@ -4438,13 +4467,13 @@ a.post-name:hover {
 
 .report-option:hover,
 .report-option.selected {
-  background: #F0E0D6;
-  color: #34345C;
+  background: #f8f4ec;
+  color: #666;
 }
 
 .report-option input {
   margin: 0;
-  accent-color: #AF0A0F;
+  accent-color: #2a2a2a;
 }
 
 .report-actions {
@@ -4454,11 +4483,11 @@ a.post-name:hover {
 }
 
 .report-submit {
-  background: #800000;
+  background: #2a2a2a;
   color: #fff;
   border: none;
   padding: 5px 12px;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -4474,7 +4503,7 @@ a.post-name:hover {
   border: 1px solid #ccc;
   color: #666;
   padding: 5px 10px;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 11px;
   cursor: pointer;
   font-family: inherit;
@@ -4496,7 +4525,7 @@ a.post-name:hover {
 
 .community-rules-box strong {
   font-size: 11px;
-  text-transform: uppercase;
+  
   letter-spacing: 0.5px;
   color: #7a5a00;
   display: block;
@@ -4510,4 +4539,31 @@ a.post-name:hover {
   white-space: pre-wrap;
   margin: 0;
   line-height: 1.6;
+}
+
+/* ===========================
+   LIKE BUTTON
+   =========================== */
+.like-btn {
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #999;
+  margin-top: 6px;
+  transition: all 0.2s ease;
+  float: right;
+}
+
+.like-btn:hover {
+  border-color: var(--doodle-red);
+  color: var(--doodle-red);
+}
+
+.like-btn.liked {
+  color: var(--doodle-red);
+  border-color: var(--doodle-red);
+  background: rgba(196, 64, 64, 0.06);
 }
