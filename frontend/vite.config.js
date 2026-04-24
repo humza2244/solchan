@@ -26,3 +26,4 @@ export default defineConfig({
   },
 })
 
+// CoinTalk v2
