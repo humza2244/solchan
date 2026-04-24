@@ -8,6 +8,8 @@ import {
   GoogleAuthProvider,
   TwitterAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   sendPasswordResetEmail,
   linkWithPopup,
 } from 'firebase/auth'
@@ -57,6 +59,32 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false)
     })
+
+    // Handle redirect result (for browsers that block popups)
+    getRedirectResult(auth).then(async (result) => {
+      if (result?.user) {
+        const token = await result.user.getIdToken()
+        setAuthToken(token)
+        // Try to fetch profile; if 404, auto-register
+        try {
+          const res = await axios.get(`${API_BASE_URL}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          setProfile(res.data)
+        } catch (err) {
+          if (err.response?.status === 404) {
+            const displayName = result.user.displayName || result.user.email?.split('@')[0] || 'user'
+            const cleanName = displayName.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 20) || 'user'
+            const regRes = await axios.post(`${API_BASE_URL}/auth/register`, {
+              username: cleanName,
+              avatarUrl: result.user.photoURL || null,
+            }, { headers: { Authorization: `Bearer ${token}` } })
+            setProfile(regRes.data.profile)
+          }
+        }
+      }
+    }).catch(() => {})
+
     return () => unsubscribe()
   }, [])
 
@@ -87,12 +115,21 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Login (or register) with Google.
-   * - Existing users: fetches profile, done.
-   * - New users: auto-creates profile using their Google display name.
+   * Falls back to redirect if popup is blocked.
    */
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider()
-    const credential = await signInWithPopup(auth, provider)
+    let credential
+    try {
+      credential = await signInWithPopup(auth, provider)
+    } catch (err) {
+      if (err.code === 'auth/popup-blocked') {
+        await signInWithRedirect(auth, provider)
+        return
+      }
+      throw err
+    }
+
     const token = await credential.user.getIdToken()
     setAuthToken(token)
 
@@ -100,7 +137,6 @@ export const AuthProvider = ({ children }) => {
     const displayName = googleUser.displayName || googleUser.email?.split('@')[0] || 'user'
     const avatarUrl = googleUser.photoURL || null
 
-    // Try to fetch existing profile
     try {
       const res = await axios.get(`${API_BASE_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -109,18 +145,12 @@ export const AuthProvider = ({ children }) => {
       return { needsUsername: false }
     } catch (err) {
       if (err.response?.status === 404) {
-        // New user -- auto-create profile from Google info
-        // Clean the display name to create a username
         const cleanName = displayName.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 20) || 'user'
-
         const regRes = await axios.post(`${API_BASE_URL}/auth/register`, {
           username: cleanName,
           avatarUrl,
           isGoogleUser: true,
-        }, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-
+        }, { headers: { Authorization: `Bearer ${token}` } })
         setProfile(regRes.data.profile)
         return { needsUsername: false, profile: regRes.data.profile }
       }
@@ -130,10 +160,21 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Login (or register) with Twitter/X.
+   * Falls back to redirect if popup is blocked.
    */
   const loginWithTwitter = async () => {
     const provider = new TwitterAuthProvider()
-    const credential = await signInWithPopup(auth, provider)
+    let credential
+    try {
+      credential = await signInWithPopup(auth, provider)
+    } catch (err) {
+      if (err.code === 'auth/popup-blocked') {
+        await signInWithRedirect(auth, provider)
+        return
+      }
+      throw err
+    }
+
     const token = await credential.user.getIdToken()
     setAuthToken(token)
 
@@ -141,7 +182,6 @@ export const AuthProvider = ({ children }) => {
     const displayName = twitterUser.displayName || 'user'
     const avatarUrl = twitterUser.photoURL || null
 
-    // Extract Twitter handle from provider data
     const twitterProvider = twitterUser.providerData?.find(p => p.providerId === 'twitter.com')
     const twitterHandle = twitterProvider?.displayName || displayName
 
@@ -151,7 +191,6 @@ export const AuthProvider = ({ children }) => {
       })
       setProfile(res.data)
 
-      // If profile doesn't have twitter linked, link it now
       if (!res.data.twitterHandle) {
         await axios.post(`${API_BASE_URL}/auth/link-twitter`, {
           twitterHandle,
@@ -169,13 +208,13 @@ export const AuthProvider = ({ children }) => {
           isTwitterUser: true,
           twitterHandle,
         }, { headers: { Authorization: `Bearer ${token}` } })
-
         setProfile(regRes.data.profile)
         return { needsUsername: false, profile: regRes.data.profile }
       }
       throw err
     }
   }
+
 
   /**
    * Link Twitter/X to an existing account for verification

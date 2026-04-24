@@ -67,8 +67,11 @@ const Login = () => {
   return (
     <div className="thread-page">
       <div className="create-community">
-        <h2>Login</h2>
-        <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <img src="/mascot.png" alt="CoinTalk" style={{ width: 60, height: 'auto', marginBottom: 8 }} />
+          <h2 style={{ fontFamily: 'var(--font-hand)', fontSize: '32px' }}>Login</h2>
+        </div>
+        <p style={{ fontSize: '12px', color: '#888', marginBottom: '18px', textAlign: 'center' }}>
           Login to post with your username. You can always post anonymously without logging in.
         </p>
 
@@ -101,7 +104,13 @@ const Login = () => {
               navigate('/')
             } catch (err) {
               if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
-                setError(err.message || 'Twitter login failed')
+                if (err.code === 'auth/invalid-credential' || err.code === 'auth/operation-not-allowed') {
+                  setError('X/Twitter login is not yet configured. Use Google or email instead.')
+                } else if (err.code === 'auth/popup-blocked') {
+                  // Redirect fallback handled in AuthContext
+                } else {
+                  setError(err.message || 'Login failed. Try again.')
+                }
               }
             } finally {
               setTwitterLoading(false)
