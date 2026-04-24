@@ -47,7 +47,7 @@ const createLimiter = rateLimit({
 
 const postLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 15,
+  max: 10,
   message: { error: 'Too many messages. Please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,

@@ -83,6 +83,7 @@ export const updateCommunityCAHandler = async (req, res) => {
 
     const community = await updateCommunityCA(id, contractAddress.trim(), req.userId)
     invalidatePopularCoinsCache()
+    invalidateCommunityCache(id) // bust the metadata cache
     res.json(community.toJSON())
   } catch (error) {
     if (error.code === 'DUPLICATE_CA') {
@@ -129,28 +130,38 @@ export const searchCommunitiesHandler = async (req, res) => {
   }
 }
 
+// Simple community metadata cache (60s TTL) to avoid hammering Firestore on auto-refresh
+const communityCache = new Map() // id -> { data, ts }
+const COMMUNITY_CACHE_TTL = 60_000
+
 // GET /api/communities/:id
 export const getCommunityHandler = async (req, res) => {
   try {
     const { id } = req.params
+    const includeMessages = req.query.messages !== 'false'
 
     let community
-    try {
-      community = await getCommunityById(id)
-    } catch (lookupErr) {
-      // Invalid ID format or Firestore error — treat as not found
-      return res.status(404).json({ error: 'Community not found' })
+    const cached = communityCache.get(id)
+    if (cached && Date.now() - cached.ts < COMMUNITY_CACHE_TTL) {
+      community = cached.data
+    } else {
+      try {
+        community = await getCommunityById(id)
+      } catch (lookupErr) {
+        return res.status(404).json({ error: 'Community not found' })
+      }
+      if (!community) return res.status(404).json({ error: 'Community not found' })
+      communityCache.set(id, { data: community, ts: Date.now() })
     }
 
-    if (!community) {
-      return res.status(404).json({ error: 'Community not found' })
-    }
-
+    // Only fetch messages if explicitly requested (socket handles this for live view)
     let messages = []
-    try {
-      messages = await getMessages(id, 100)
-    } catch (msgError) {
-      console.error('Warning: Could not load messages:', msgError.message)
+    if (includeMessages) {
+      try {
+        messages = await getMessages(id, 50) // reduced from 100 to 50
+      } catch (msgError) {
+        console.error('Warning: Could not load messages:', msgError.message)
+      }
     }
 
     res.json({
@@ -162,6 +173,13 @@ export const getCommunityHandler = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch community' })
   }
 }
+
+// Invalidate community cache when community is modified
+export const invalidateCommunityCache = (id) => {
+  if (id) communityCache.delete(id)
+  else communityCache.clear()
+}
+
 
 // GET /api/communities/:id/messages
 export const getCommunityMessagesHandler = async (req, res) => {
@@ -240,11 +258,17 @@ export const uploadCommunityImageHandler = async (req, res) => {
       return res.status(404).json({ error: 'Community not found' })
     }
 
-    const base64 = req.file.buffer.toString('base64')
-    const dataUrl = `data:${req.file.mimetype};base64,${base64}`
+    let imageUrl
+    try {
+      imageUrl = await uploadCommunityImage(id, req.file.buffer, req.file.originalname, req.file.mimetype)
+    } catch (r2Err) {
+      console.warn('R2 upload failed, falling back to base64:', r2Err.message)
+      const base64 = req.file.buffer.toString('base64')
+      imageUrl = `data:${req.file.mimetype};base64,${base64}`
+    }
 
-    const updatedCommunity = await updateCommunityInfo(id, { imageUrl: dataUrl })
-    res.json({ imageUrl: dataUrl, community: updatedCommunity.toJSON() })
+    const updatedCommunity = await updateCommunityInfo(id, { imageUrl })
+    res.json({ imageUrl, community: updatedCommunity.toJSON() })
   } catch (error) {
     console.error('Error uploading image:', error.message)
     res.status(500).json({ error: 'Failed to upload image' })

@@ -45,7 +45,11 @@ export const verifyCaptcha = async (req, res, next) => {
     }
   } catch (error) {
     console.error('hCaptcha verification error:', error.message)
-    // In case of network error, allow through (fail-open for UX)
+    // In production, don't allow through on verification failure
+    if (process.env.NODE_ENV === 'production' && HCAPTCHA_SECRET !== '0x0000000000000000000000000000000000000000') {
+      return res.status(500).json({ error: 'Captcha verification service unavailable. Please try again.' })
+    }
+    // In dev/unconfigured, allow through
     return next()
   }
 }
