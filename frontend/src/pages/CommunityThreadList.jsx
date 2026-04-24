@@ -31,7 +31,7 @@ const CommunityImage = ({ community }) => {
   return (
     <div style={{
       width: 36, height: 36, borderRadius: 4,
-      background: 'linear-gradient(135deg, #0F0C5D, #AF0A0F)',
+      background: 'linear-gradient(135deg, #4a7fa5, #2a2a2a)',
       color: '#fff', fontWeight: 800, fontSize: 12,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       flexShrink: 0,
