@@ -71,7 +71,7 @@ const UserProfile = () => {
             {author}
             {profileData?.twitterHandle && (
               <span className="verified-badge" title={`Verified via @${profileData.twitterHandle} on X`}>
-                ✓
+                v
               </span>
             )}
           </h2>

@@ -18,7 +18,7 @@ const CopyCA = ({ address }) => {
   }
   return (
     <button className={`copy-ca-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>
-      {copied ? 'OK Copied' : 'Copy CA'}
+      {copied ? 'Copied' : 'Copy CA'}
     </button>
   )
 }
@@ -290,7 +290,7 @@ const CommunityThreadList = () => {
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       )
       setCommunity(res.data)
-      setCAMsg('OK Contract address saved!')
+      setCAMsg('Contract address saved!')
       setCAInput('')
     } catch (err) {
       if (err.response?.status === 409 && err.response?.data?.existingId) {
@@ -356,7 +356,7 @@ const CommunityThreadList = () => {
       {user && community.creatorId === user.uid && (
         <div className="banner-upload-row">
           <label className="banner-upload-btn">
-            {community.bannerUrl ? '✎ Change Banner' : '+ Add Banner'}
+            {community.bannerUrl ? 'Change Banner' : '+ Add Banner'}
             <input
               type="file"
               accept="image/*"

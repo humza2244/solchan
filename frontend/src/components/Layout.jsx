@@ -51,7 +51,7 @@ const Layout = ({ children }) => {
           <nav className="nav">
             <Link to="/" onClick={handleHomeClick} style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
               <img src="/mascot.png" alt="CoinTalk" style={{ width: 28, height: 28, borderRadius: '50%' }} />
-              <span style={{ fontFamily: "'Caveat', cursive", fontSize: 22, fontWeight: 700, color: '#2a2a2a' }}>CoinTalk</span>
+              <span style={{ fontSize: 20, fontWeight: 700, color: '#2a2a2a' }}>CoinTalk</span>
             </Link>
             <span className="nav-divider">·</span>
             <Link to="/create-community" className="nav-link">+ New Board</Link>

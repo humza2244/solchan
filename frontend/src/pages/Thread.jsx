@@ -85,7 +85,7 @@ const LikeButton = ({ type, id, initialLikes = [] }) => {
       title={liked ? 'Unlike' : 'Like'}
       disabled={loading}
     >
-      {liked ? '♥' : '♡'} {count > 0 ? count : ''}
+      {liked ? 'Liked' : 'Like'}{count > 0 ? ` (${count})` : ''}
     </button>
   )
 }
@@ -673,7 +673,7 @@ const Thread = () => {
             onClick={handleShareLink}
             title="Copy thread link"
           >
-            {linkCopied ? 'OK Copied!' : ' Share'}
+            {linkCopied ? 'Copied!' : 'Share'}
           </button>
           {liveUsers > 0 && (
             <span className="live-users">{liveUsers} in thread</span>

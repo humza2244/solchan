@@ -164,10 +164,10 @@ const Home = () => {
   }, [])
 
   const tabs = [
-    { id: 'trending', label: '🔥 Trending' },
-    { id: 'new', label: '✨ New' },
-    { id: 'bookmarks', label: `🔖 Bookmarks${bookmarks.length > 0 ? ` (${bookmarks.length})` : ''}` },
-    { id: 'watched', label: `👁 Watched${watchedThreads.length > 0 ? ` (${watchedThreads.length})` : ''}` },
+    { id: 'trending', label: 'Trending' },
+    { id: 'new', label: 'New' },
+    { id: 'bookmarks', label: `Bookmarks${bookmarks.length > 0 ? ` (${bookmarks.length})` : ''}` },
+    { id: 'watched', label: `Watched${watchedThreads.length > 0 ? ` (${watchedThreads.length})` : ''}` },
   ]
 
   return (
@@ -347,7 +347,6 @@ const Home = () => {
             <div className="tab-content-panel">
               {bookmarks.length === 0 ? (
                 <div className="empty-tab-state">
-                  <span style={{ fontSize: 40 }}>🔖</span>
                   <h3>No bookmarks yet</h3>
                   <p>Visit a community and click "Bookmark" to save it here for quick access.</p>
                 </div>
@@ -370,7 +369,7 @@ const Home = () => {
                           className="bookmark-remove-btn"
                           onClick={() => removeBookmark(b.id)}
                           title="Remove bookmark"
-                        >✕</button>
+                        >x</button>
                       </div>
                     ))}
                   </div>
@@ -384,7 +383,6 @@ const Home = () => {
             <div className="tab-content-panel">
               {watchedThreads.length === 0 ? (
                 <div className="empty-tab-state">
-                  <span style={{ fontSize: 40 }}>👁</span>
                   <h3>No watched threads</h3>
                   <p>Open any thread and click "Watch" to track replies here.</p>
                 </div>
@@ -402,7 +400,7 @@ const Home = () => {
                           className="watched-thread-remove"
                           onClick={() => removeWatch(w.id)}
                           title="Stop watching"
-                        >✕</button>
+                        >x</button>
                       </div>
                     ))}
                   </div>

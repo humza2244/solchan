@@ -68,7 +68,7 @@ const Login = () => {
       <div className="create-community">
         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
           <img src="/mascot.png" alt="CoinTalk" style={{ width: 60, height: 'auto', marginBottom: 8 }} />
-          <h2 style={{ fontFamily: 'var(--font-hand)', fontSize: '32px' }}>Login</h2>
+          <h2 style={{ fontSize: '24px', fontWeight: 700 }}>Login</h2>
         </div>
         <p style={{ fontSize: '12px', color: '#888', marginBottom: '18px', textAlign: 'center' }}>
           Login to post with your username. You can always post anonymously without logging in.

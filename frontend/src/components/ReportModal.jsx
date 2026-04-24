@@ -49,11 +49,11 @@ const ReportModal = ({ contentType, contentId, communityId, onClose }) => {
   const modal = (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content report-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕</button>
+        <button className="modal-close" onClick={onClose}>X</button>
         
         {success ? (
           <div className="report-success">
-            <h3>✓ Report Submitted</h3>
+            <h3>Report Submitted</h3>
             <p>A moderator will review your report.</p>
           </div>
         ) : (
