@@ -115,7 +115,10 @@ const CommunityThreadList = () => {
   const [sortMode, setSortMode] = useState(() => localStorage.getItem('threadSortMode') || 'bump')
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('threadViewMode') || 'list')
   const [isBookmarked, setIsBookmarked] = useState(false)
-  const [hasJoined, setHasJoined] = useState(false)
+  const [hasJoined, setHasJoined] = useState(() => {
+    // Persist join state across page refreshes
+    return localStorage.getItem(`joined_${id}`) === '1'
+  })
   const [joinLoading, setJoinLoading] = useState(false)
   const [chatAnon, setChatAnon] = useState(false)
   // Live community chat state
@@ -415,6 +418,7 @@ const CommunityThreadList = () => {
               try {
                 await axios.post(`${API_BASE_URL}/communities/${id}/join`, { author: 'Anonymous' })
                 setHasJoined(true)
+                localStorage.setItem(`joined_${id}`, '1')
               } catch (err) {
                 console.error('Failed to join:', err)
               } finally {

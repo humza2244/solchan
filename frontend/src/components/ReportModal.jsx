@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { API_BASE_URL } from '../services/api.js'
 
@@ -45,14 +46,14 @@ const ReportModal = ({ contentType, contentId, communityId, onClose }) => {
     }
   }
 
-  return (
+  const modal = (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content report-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}></button>
+        <button className="modal-close" onClick={onClose}>✕</button>
         
         {success ? (
           <div className="report-success">
-            <h3>OK Report Submitted</h3>
+            <h3>✓ Report Submitted</h3>
             <p>A moderator will review your report.</p>
           </div>
         ) : (
@@ -96,6 +97,8 @@ const ReportModal = ({ contentType, contentId, communityId, onClose }) => {
       </div>
     </div>
   )
+
+  return createPortal(modal, document.body)
 }
 
 export default ReportModal

@@ -50,6 +50,30 @@ const timeAgo = (dateStr) => {
   return date.toLocaleDateString()
 }
 
+const CommunityCard = ({ community }) => (
+  <Link key={community.id} to={`/community/${community.id}`} className="community-link">
+    <div className="community-item">
+      <CommunityImage community={community} />
+      <div className="community-name">{community.ticker}</div>
+      <div className="community-coin-name">{community.coinName}</div>
+      <div className="community-ca">
+        {community.contractAddress
+          ? <>{community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}<CopyCA address={community.contractAddress} /></>
+          : <span style={{ color: '#aaa', fontStyle: 'italic' }}>No CA yet</span>
+        }
+      </div>
+      <div className="community-stats">
+        {community.messageCount} msgs {'•'} {community.uniqueUsersCount} users
+      </div>
+      {community.lastMessageAt && (
+        <div className="community-last-active">
+          active {timeAgo(community.lastMessageAt)}
+        </div>
+      )}
+    </div>
+  </Link>
+)
+
 const Home = () => {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
@@ -58,9 +82,18 @@ const Home = () => {
   const [newCommunities, setNewCommunities] = useState([])
   const [stats, setStats] = useState({ communities: 0, threads: 0, replies: 0 })
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('homeTab') || 'trending')
   const [showWelcomeModal, setShowWelcomeModal] = useState(() => {
     return !localStorage.getItem('hasSeenWelcome')
   })
+
+  // Bookmarks + watched from localStorage (reactive)
+  const [bookmarks, setBookmarks] = useState(() =>
+    JSON.parse(localStorage.getItem('bookmarkedCommunities') || '[]')
+  )
+  const [watchedThreads, setWatchedThreads] = useState(() =>
+    JSON.parse(localStorage.getItem('watchedThreads') || '[]')
+  )
 
   const handleCloseModal = () => {
     setShowWelcomeModal(false)
@@ -72,6 +105,30 @@ const Home = () => {
     if (!searchQuery.trim()) return
     navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
     setSearchQuery('')
+  }
+
+  const switchTab = (tab) => {
+    setActiveTab(tab)
+    localStorage.setItem('homeTab', tab)
+    // Refresh local storage data when switching to these tabs
+    if (tab === 'bookmarks') {
+      setBookmarks(JSON.parse(localStorage.getItem('bookmarkedCommunities') || '[]'))
+    }
+    if (tab === 'watched') {
+      setWatchedThreads(JSON.parse(localStorage.getItem('watchedThreads') || '[]'))
+    }
+  }
+
+  const removeBookmark = (id) => {
+    const updated = bookmarks.filter(b => b.id !== id)
+    localStorage.setItem('bookmarkedCommunities', JSON.stringify(updated))
+    setBookmarks(updated)
+  }
+
+  const removeWatch = (id) => {
+    const updated = watchedThreads.filter(w => w.id !== id)
+    localStorage.setItem('watchedThreads', JSON.stringify(updated))
+    setWatchedThreads(updated)
   }
 
   useEffect(() => {
@@ -86,7 +143,7 @@ const Home = () => {
         })
           .then(res => setPopularCommunities(res.data))
           .catch(() => setPopularCommunities([])),
-        
+
         axios.get(`${API_BASE_URL}/communities`, {
           params: { recent: true, limit: 12 }
         })
@@ -97,7 +154,6 @@ const Home = () => {
           .then(res => setStats(res.data))
           .catch(() => {}),
       ])
-      
       setLoading(false)
     }
     loadCommunities()
@@ -107,15 +163,20 @@ const Home = () => {
     document.title = 'CoinTalk -- memecoin community boards'
   }, [])
 
+  const tabs = [
+    { id: 'trending', label: '🔥 Trending' },
+    { id: 'new', label: '✨ New' },
+    { id: 'bookmarks', label: `🔖 Bookmarks${bookmarks.length > 0 ? ` (${bookmarks.length})` : ''}` },
+    { id: 'watched', label: `👁 Watched${watchedThreads.length > 0 ? ` (${watchedThreads.length})` : ''}` },
+  ]
+
   return (
     <div className="home">
       {/* Welcome Modal */}
       {showWelcomeModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content welcome-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={handleCloseModal}>
-              X
-            </button>
+            <button className="modal-close" onClick={handleCloseModal}>X</button>
             <img src="/mascot.png" alt="CoinTalk mascot" style={{ width: 80, height: 'auto', margin: '0 auto 10px', display: 'block' }} />
             <h2> Welcome to CoinTalk</h2>
             <p className="welcome-subtitle">
@@ -139,7 +200,7 @@ const Home = () => {
               <div className="welcome-step">
                 <span className="step-number">3</span>
                 <div>
-                  <strong>Post threads & reply</strong>
+                  <strong>Post threads &amp; reply</strong>
                   <p>Start new threads with images, reply to others, use greentext (&gt;like this), and format with **bold** or *italic*.</p>
                 </div>
               </div>
@@ -170,65 +231,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Bookmarked Communities */}
-      {(() => {
-        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedCommunities') || '[]')
-        if (bookmarks.length === 0) return null
-        return (
-          <div className="bookmarked-section">
-            <div className="section-header">
-              <h2>* Your Bookmarks</h2>
-            </div>
-            <div className="bookmarked-chips">
-              {bookmarks.map(b => (
-                <Link key={b.id} to={`/community/${b.id}`} className="bookmarked-chip">
-                  {b.imageUrl ? (
-                    <img src={b.imageUrl} alt={b.ticker} className="community-card-img" />
-                  ) : (
-                    <div className="bookmark-placeholder">{b.ticker?.slice(0, 2)}</div>
-                  )}
-                  <span>{b.ticker}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )
-      })()}
-
-      {/* Watched Threads */}
-      {(() => {
-        const watched = JSON.parse(localStorage.getItem('watchedThreads') || '[]')
-        if (watched.length === 0) return null
-        return (
-          <div className="watched-section">
-            <div className="section-header">
-              <h2> Watched Threads</h2>
-            </div>
-            <div className="watched-threads-list">
-              {watched.map((w) => (
-                <div key={w.id} className="watched-thread-item">
-                  <Link to={`/thread/${w.id}`} className="watched-thread-subject" style={{ textDecoration: 'none', color: 'inherit' }}>
-                    {w.subject}
-                  </Link>
-                  <span className="watched-thread-meta">
-                    {w.lastReplyCount} replies
-                  </span>
-                  <button
-                    className="remove-watch"
-                    onClick={() => {
-                      const updated = watched.filter(x => x.id !== w.id)
-                      localStorage.setItem('watchedThreads', JSON.stringify(updated))
-                      window.location.reload()
-                    }}
-                    title="Stop watching"
-                  >x</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
-      })()}
-
       {/* What is CoinTalk? */}
       <div className="what-is-solchan">
         <div className="what-is-header">
@@ -236,11 +238,10 @@ const Home = () => {
         </div>
         <div className="what-is-content">
           <p>
-            An anonymous imageboard for memecoin communities -- like 4chan but for crypto. 
-            Every coin gets its own board. <strong>No sign up required</strong> -- just search for a 
+            An anonymous imageboard for memecoin communities -- like 4chan but for crypto.
+            Every coin gets its own board. <strong>No sign up required</strong> -- just search for a
             coin, click a community, and start posting.
           </p>
-
         </div>
       </div>
 
@@ -277,7 +278,20 @@ const Home = () => {
         </form>
       </div>
 
-      {/* Content */}
+      {/* Tab Navigation */}
+      <div className="home-tabs">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            className={`home-tab ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => switchTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab Content */}
       {loading ? (
         <div className="loading-container">
           <img src="/mascot.png" alt="loading" style={{ width: 60, height: 'auto', marginBottom: 12, opacity: 0.7 }} />
@@ -286,93 +300,114 @@ const Home = () => {
         </div>
       ) : (
         <>
-          {/* Trending Communities */}
-          {popularCommunities.length > 0 && (
-            <div className="recent-communities">
-              <div className="section-header">
-                <h2>Trending Communities</h2>
-              </div>
-              <p className="communities-subtitle">Most active in the past 24 hours</p>
-              <div className="communities-list">
-                {popularCommunities.map((community) => (
-                  <Link
-                    key={community.id}
-                    to={`/community/${community.id}`}
-                    className="community-link"
-                  >
-                    <div className="community-item">
-                      <CommunityImage community={community} />
-                      <div className="community-name">{community.ticker}</div>
-                      <div className="community-coin-name">{community.coinName}</div>
-                      <div className="community-ca">
-                        {community.contractAddress
-                          ? <>{community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}<CopyCA address={community.contractAddress} /></>
-                          : <span style={{ color: '#aaa', fontStyle: 'italic' }}>No CA yet</span>
-                        }
+          {/* Trending Tab */}
+          {activeTab === 'trending' && (
+            <>
+              {popularCommunities.length > 0 ? (
+                <div className="recent-communities">
+                  <p className="communities-subtitle">Most active in the past 24 hours</p>
+                  <div className="communities-list">
+                    {popularCommunities.map(c => <CommunityCard key={c.id} community={c} />)}
+                  </div>
+                </div>
+              ) : (
+                <div className="empty-home-state">
+                  <img src="/mascot.png" alt="CoinTalk mascot" className="empty-state-mascot" />
+                  <h3>No communities yet</h3>
+                  <p>Be the first to create a board for your favorite memecoin.</p>
+                  <Link to="/create-community" className="empty-state-cta">Create the First Community</Link>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* New Tab */}
+          {activeTab === 'new' && (
+            <>
+              {newCommunities.length > 0 ? (
+                <div className="recent-communities">
+                  <p className="communities-subtitle">Recently created boards</p>
+                  <div className="communities-list">
+                    {newCommunities.map(c => <CommunityCard key={c.id} community={c} />)}
+                  </div>
+                </div>
+              ) : (
+                <div className="empty-home-state">
+                  <img src="/mascot.png" alt="CoinTalk mascot" className="empty-state-mascot" />
+                  <h3>No new communities</h3>
+                  <p>Check back soon or create one!</p>
+                  <Link to="/create-community" className="empty-state-cta">Create Community</Link>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Bookmarks Tab */}
+          {activeTab === 'bookmarks' && (
+            <div className="tab-content-panel">
+              {bookmarks.length === 0 ? (
+                <div className="empty-tab-state">
+                  <span style={{ fontSize: 40 }}>🔖</span>
+                  <h3>No bookmarks yet</h3>
+                  <p>Visit a community and click "Bookmark" to save it here for quick access.</p>
+                </div>
+              ) : (
+                <>
+                  <p className="communities-subtitle">Your saved communities</p>
+                  <div className="bookmarks-grid">
+                    {bookmarks.map(b => (
+                      <div key={b.id} className="bookmark-card">
+                        <Link to={`/community/${b.id}`} className="bookmark-card-link">
+                          {b.imageUrl ? (
+                            <img src={b.imageUrl} alt={b.ticker} className="bookmark-card-img" onError={e => e.target.style.display='none'} />
+                          ) : (
+                            <div className="bookmark-card-placeholder">{b.ticker?.slice(0, 3)}</div>
+                          )}
+                          <div className="bookmark-card-ticker">{b.ticker}</div>
+                          <div className="bookmark-card-name">{b.coinName}</div>
+                        </Link>
+                        <button
+                          className="bookmark-remove-btn"
+                          onClick={() => removeBookmark(b.id)}
+                          title="Remove bookmark"
+                        >✕</button>
                       </div>
-                      <div className="community-stats">
-                        {community.messageCount} msgs {'\u2022'} {community.uniqueUsersCount} users
-                      </div>
-                      {community.lastMessageAt && (
-                        <div className="community-last-active">
-                          active {timeAgo(community.lastMessageAt)}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
-          {/* New Communities */}
-          {newCommunities.length > 0 && (
-            <div className="recent-communities" style={{ marginTop: 30 }}>
-              <div className="section-header">
-                <h2>New Communities</h2>
-              </div>
-              <p className="communities-subtitle">Recently created boards</p>
-              <div className="communities-list">
-                {newCommunities.map((community) => (
-                  <Link
-                    key={community.id}
-                    to={`/community/${community.id}`}
-                    className="community-link"
-                  >
-                    <div className="community-item">
-                      <CommunityImage community={community} />
-                      <div className="community-name">{community.ticker}</div>
-                      <div className="community-coin-name">{community.coinName}</div>
-                      <div className="community-ca">
-                        {community.contractAddress
-                          ? <>{community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}<CopyCA address={community.contractAddress} /></>
-                          : <span style={{ color: '#aaa', fontStyle: 'italic' }}>No CA yet</span>
-                        }
+          {/* Watched Threads Tab */}
+          {activeTab === 'watched' && (
+            <div className="tab-content-panel">
+              {watchedThreads.length === 0 ? (
+                <div className="empty-tab-state">
+                  <span style={{ fontSize: 40 }}>👁</span>
+                  <h3>No watched threads</h3>
+                  <p>Open any thread and click "Watch" to track replies here.</p>
+                </div>
+              ) : (
+                <>
+                  <p className="communities-subtitle">Threads you're following</p>
+                  <div className="watched-threads-panel">
+                    {watchedThreads.map(w => (
+                      <div key={w.id} className="watched-thread-row">
+                        <Link to={`/thread/${w.id}`} className="watched-thread-title">
+                          {w.subject || 'Untitled thread'}
+                        </Link>
+                        <span className="watched-thread-replies">{w.lastReplyCount || 0} replies</span>
+                        <button
+                          className="watched-thread-remove"
+                          onClick={() => removeWatch(w.id)}
+                          title="Stop watching"
+                        >✕</button>
                       </div>
-                      <div className="community-stats">
-                        {community.messageCount} msgs {'\u2022'} {community.uniqueUsersCount} users
-                      </div>
-                      {community.lastMessageAt && (
-                        <div className="community-last-active">
-                          active {timeAgo(community.lastMessageAt)}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Empty state - no communities at all */}
-          {popularCommunities.length === 0 && newCommunities.length === 0 && (
-            <div className="empty-home-state">
-              <img src="/mascot.png" alt="CoinTalk mascot" className="empty-state-mascot" />
-              <h3>No communities yet</h3>
-              <p>Be the first to create a board for your favorite memecoin.</p>
-              <Link to="/create-community" className="empty-state-cta">
-                Create the First Community
-              </Link>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </>
@@ -382,4 +417,3 @@ const Home = () => {
 }
 
 export default Home
-

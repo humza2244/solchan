@@ -30,7 +30,7 @@ const LOCAL_UPLOAD_DIR = path.join(__dirname, '../../uploads')
 
 // Ensure local upload directory exists
 if (!isR2Configured) {
-  const dirs = ['communities', 'threads', 'replies']
+  const dirs = ['communities', 'threads', 'replies', 'banners']
   for (const dir of dirs) {
     const fullPath = path.join(LOCAL_UPLOAD_DIR, dir)
     if (!fs.existsSync(fullPath)) {

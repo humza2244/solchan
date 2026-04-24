@@ -46,14 +46,22 @@ const LikeButton = ({ type, id, initialLikes = [] }) => {
   const likedKey = `liked_${type}_${id}`
   const [liked, setLiked] = useState(() => localStorage.getItem(likedKey) === '1')
   const [count, setCount] = useState(initialLikes.length)
+  const [loading, setLoading] = useState(false)
 
   const toggle = async (e) => {
     e.stopPropagation()
+    if (loading) return // Prevent spam clicks
+    setLoading(true)
+    // Optimistic update
+    const wasLiked = liked
+    setLiked(!wasLiked)
+    setCount(c => wasLiked ? c - 1 : c + 1)
     try {
       const endpoint = type === 'threads'
         ? `${API_BASE_URL}/threads/${id}/like`
         : `${API_BASE_URL}/replies/${id}/like`
       const res = await axios.post(endpoint)
+      // Sync with server truth
       setLiked(res.data.liked)
       setCount(res.data.likeCount)
       if (res.data.liked) {
@@ -62,17 +70,20 @@ const LikeButton = ({ type, id, initialLikes = [] }) => {
         localStorage.removeItem(likedKey)
       }
     } catch {
-      // Toggle locally as fallback
-      setLiked(!liked)
-      setCount(c => liked ? c - 1 : c + 1)
+      // Revert on error
+      setLiked(wasLiked)
+      setCount(c => wasLiked ? c + 1 : c - 1)
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <button
       onClick={toggle}
-      className={`like-btn ${liked ? 'liked' : ''}`}
+      className={`like-btn ${liked ? 'liked' : ''} ${loading ? 'like-loading' : ''}`}
       title={liked ? 'Unlike' : 'Like'}
+      disabled={loading}
     >
       {liked ? '♥' : '♡'} {count > 0 ? count : ''}
     </button>

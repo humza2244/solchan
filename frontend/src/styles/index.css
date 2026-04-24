@@ -4667,3 +4667,240 @@ a.post-name:hover {
 .banner-upload-btn:hover {
   background: rgba(74, 127, 165, 0.08);
 }
+
+/* ===========================
+   HOME TABS
+   =========================== */
+.home-tabs {
+  display: flex;
+  gap: 6px;
+  max-width: 900px;
+  margin: 20px auto 0;
+  padding: 0 10px;
+  border-bottom: 2px dashed var(--border);
+  flex-wrap: wrap;
+}
+
+.home-tab {
+  background: none;
+  border: 2px dashed transparent;
+  border-bottom: none;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  color: #888;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.15s ease;
+  position: relative;
+  bottom: -2px;
+}
+
+.home-tab:hover {
+  color: var(--ink);
+  background: var(--paper-alt);
+}
+
+.home-tab.active {
+  color: var(--ink);
+  background: var(--paper);
+  border-color: var(--border);
+  border-bottom: 2px solid var(--paper);
+}
+
+/* ===========================
+   TAB CONTENT PANELS
+   =========================== */
+.tab-content-panel {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 10px;
+}
+
+.empty-tab-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: #888;
+}
+
+.empty-tab-state h3 {
+  font-family: var(--font-hand);
+  font-size: 22px;
+  color: var(--ink);
+  margin: 12px 0 8px;
+}
+
+.empty-tab-state p {
+  font-size: 13px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+/* Bookmarks Grid */
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.bookmark-card {
+  position: relative;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.bookmark-card:hover {
+  border-color: var(--sketch-blue);
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 rgba(74, 127, 165, 0.12);
+}
+
+.bookmark-card-link {
+  display: block;
+  padding: 14px 10px 10px;
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+}
+
+.bookmark-card-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px dashed var(--border);
+  margin: 0 auto 8px;
+  display: block;
+}
+
+.bookmark-card-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--paper-alt);
+  border: 2px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ink);
+  margin: 0 auto 8px;
+}
+
+.bookmark-card-ticker {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.bookmark-card-name {
+  font-size: 11px;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bookmark-remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255,255,255,0.9);
+  border: 1px dashed #ccc;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.bookmark-remove-btn:hover {
+  color: var(--doodle-red);
+  border-color: var(--doodle-red);
+}
+
+/* Watched Threads Panel */
+.watched-threads-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.watched-thread-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  transition: border-color 0.15s;
+}
+
+.watched-thread-row:hover {
+  border-color: var(--sketch-blue);
+}
+
+.watched-thread-title {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.watched-thread-title:hover {
+  text-decoration: underline;
+  color: var(--sketch-blue);
+}
+
+.watched-thread-replies {
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+  padding: 2px 8px;
+  background: var(--paper-alt);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+
+.watched-thread-remove {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.watched-thread-remove:hover {
+  color: var(--doodle-red);
+}
+
+/* ===========================
+   LIKE BUTTON LOADING STATE
+   =========================== */
+.like-btn:disabled,
+.like-btn.like-loading {
+  cursor: default;
+  opacity: 0.7;
+}

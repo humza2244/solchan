@@ -189,20 +189,25 @@ router.post('/:communityId/mods', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Username is required' })
     }
 
-    // Look up the user's Firebase UID from their profile
-    const { getDb } = await import('../config/firebase.js')
     const db = getDb()
-    const profileSnap = await db.collection('userProfiles')
-      .where('username', '==', username.trim())
-      .limit(1)
-      .get()
 
+    // Run profile lookup and community fetch in parallel for speed
+    const [profileSnap, communityDoc] = await Promise.all([
+      db.collection('userProfiles').where('username', '==', username.trim()).limit(1).get(),
+      db.collection('communities').doc(communityId).get(),
+    ])
+
+    if (!communityDoc.exists) {
+      return res.status(404).json({ error: 'Community not found' })
+    }
+    if (communityDoc.data().creatorId !== req.userId) {
+      return res.status(403).json({ error: 'Only the community creator can add mods' })
+    }
     if (profileSnap.empty) {
       return res.status(404).json({ error: `User "${username}" not found` })
     }
 
     const userId = profileSnap.docs[0].id
-
     await addModerator(communityId, userId, req.userId)
     res.json({ message: `${username} added as moderator` })
   } catch (error) {
@@ -213,6 +218,7 @@ router.post('/:communityId/mods', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Failed to add moderator' })
   }
 })
+
 
 // DELETE /api/mod/:communityId/mods/:userId — Remove a moderator (creator only)
 router.delete('/:communityId/mods/:userId', requireAuth, async (req, res) => {
@@ -342,7 +348,40 @@ router.post('/:communityId/ban', requireAuth, async (req, res) => {
       duration: duration ? Number(duration) : null,
     })
 
-    res.status(201).json({ message: `${username} has been banned`, ban })
+    // Delete all threads and replies by this user in the community
+    try {
+      const db = getDb()
+      const profileSnap = await db.collection('userProfiles')
+        .where('username', '==', username.trim())
+        .limit(1)
+        .get()
+
+      if (!profileSnap.empty) {
+        const bannedUserId = profileSnap.docs[0].id
+
+        // Delete threads
+        const threadsSnap = await db.collection('threads')
+          .where('communityId', '==', communityId)
+          .where('authorId', '==', bannedUserId)
+          .get()
+        const threadDeletes = threadsSnap.docs.map(d => d.ref.delete())
+
+        // Delete replies
+        const repliesSnap = await db.collection('replies')
+          .where('communityId', '==', communityId)
+          .where('authorId', '==', bannedUserId)
+          .get()
+        const replyDeletes = repliesSnap.docs.map(d => d.ref.delete())
+
+        await Promise.all([...threadDeletes, ...replyDeletes])
+      }
+    } catch (cleanupErr) {
+      console.error('Error cleaning up banned user content:', cleanupErr.message)
+      // Don't fail the ban if cleanup fails
+    }
+
+    res.status(201).json({ message: `${username} has been banned and their content removed`, ban })
+
   } catch (error) {
     console.error('Error banning user:', error.message)
     res.status(500).json({ error: 'Failed to ban user' })
