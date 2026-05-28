@@ -70,7 +70,7 @@ const Login = () => {
           
           <h2 style={{ fontSize: '24px', fontWeight: 700 }}>Login</h2>
         </div>
-        <p style={{ fontSize: '12px', color: '#888', marginBottom: '18px', textAlign: 'center' }}>
+        <p style={{ fontSize: '12px', color: '#71767b', marginBottom: '18px', textAlign: 'center' }}>
           Login to post with your username. You can always post anonymously without logging in.
         </p>
 

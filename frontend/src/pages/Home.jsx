@@ -82,7 +82,9 @@ const Home = () => {
   const [newCommunities, setNewCommunities] = useState([])
   const [stats, setStats] = useState({ communities: 0, threads: 0, replies: 0 })
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('homeTab') || 'trending')
+  const [feed, setFeed] = useState([])
+  const [feedLoading, setFeedLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('homeTab') || 'feed')
   const [showWelcomeModal, setShowWelcomeModal] = useState(() => {
     return !localStorage.getItem('hasSeenWelcome')
   })
@@ -116,6 +118,21 @@ const Home = () => {
     }
     if (tab === 'watched') {
       setWatchedThreads(JSON.parse(localStorage.getItem('watchedThreads') || '[]'))
+    }
+    if (tab === 'feed' && feed.length === 0) {
+      loadFeed()
+    }
+  }
+
+  const loadFeed = async () => {
+    setFeedLoading(true)
+    try {
+      const res = await axios.get(`${API_BASE_URL}/feed`, { params: { limit: 30 } })
+      setFeed(res.data)
+    } catch (err) {
+      console.error('Feed error:', err)
+    } finally {
+      setFeedLoading(false)
     }
   }
 
@@ -157,6 +174,12 @@ const Home = () => {
       setLoading(false)
     }
     loadCommunities()
+    // Load feed on mount if feed tab is active
+    if (localStorage.getItem('homeTab') === 'feed' || !localStorage.getItem('homeTab')) {
+      axios.get(`${API_BASE_URL}/feed`, { params: { limit: 30 } })
+        .then(res => setFeed(res.data))
+        .catch(() => {})
+    }
   }, [])
 
   useEffect(() => {
@@ -164,6 +187,7 @@ const Home = () => {
   }, [])
 
   const tabs = [
+    { id: 'feed', label: 'Feed' },
     { id: 'trending', label: 'Trending' },
     { id: 'new', label: 'New' },
     { id: 'bookmarks', label: `Bookmarks${bookmarks.length > 0 ? ` (${bookmarks.length})` : ''}` },
@@ -177,7 +201,7 @@ const Home = () => {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content welcome-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={handleCloseModal}>X</button>
-            <h2>👋 Welcome to Meme Communities</h2>
+            <h2>Welcome to Meme Communities</h2>
             <p className="welcome-subtitle">
               The premium crypto community platform. Discuss any token in real-time.
             </p>
@@ -241,11 +265,11 @@ const Home = () => {
             search for a token, join the community, and start posting.
           </p>
           <div className="feature-pills">
-            <span className="feature-pill">💬 Real-time chat</span>
-            <span className="feature-pill">🖼 Image sharing</span>
-            <span className="feature-pill">🔓 No registration</span>
-            <span className="feature-pill">📌 Thread pinning</span>
-            <span className="feature-pill">🛡 Moderation tools</span>
+            <span className="feature-pill">Real-time chat</span>
+            <span className="feature-pill">Image sharing</span>
+            <span className="feature-pill">No registration</span>
+            <span className="feature-pill">Thread pinning</span>
+            <span className="feature-pill">Moderation tools</span>
           </div>
         </div>
       </div>
@@ -379,6 +403,47 @@ const Home = () => {
                     ))}
                   </div>
                 </>
+              )}
+            </div>
+          )}
+
+          {/* Feed Tab */}
+          {activeTab === 'feed' && (
+            <div className="tab-content-panel">
+              {feedLoading ? (
+                <div className="loading-container">
+                  <div className="spinner"></div>
+                  <span className="loading-text">Loading feed...</span>
+                </div>
+              ) : feed.length === 0 ? (
+                <div className="empty-tab-state">
+                  <h3>No posts yet</h3>
+                  <p>Be the first to start a thread in a community.</p>
+                </div>
+              ) : (
+                <div className="feed-list">
+                  {feed.map(post => (
+                    <Link key={post.id} to={`/thread/${post.id}`} className="feed-item">
+                      <div className="feed-item-header">
+                        <span className="feed-community-badge">
+                          {post.community?.ticker || '???'}
+                        </span>
+                        <span className="feed-author">{post.author || 'Anonymous'}</span>
+                        <span className="feed-time">{timeAgo(post.lastReplyAt || post.createdAt)}</span>
+                      </div>
+                      <div className="feed-item-subject">{post.subject}</div>
+                      {post.content && (
+                        <div className="feed-item-preview">
+                          {post.content.length > 180 ? post.content.slice(0, 180) + '...' : post.content}
+                        </div>
+                      )}
+                      <div className="feed-item-stats">
+                        <span>{post.replyCount || 0} replies</span>
+                        <span>{post.likeCount || 0} likes</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               )}
             </div>
           )}

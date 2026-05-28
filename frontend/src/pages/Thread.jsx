@@ -570,7 +570,7 @@ const Thread = () => {
     return (
       <div className="thread-page">
         <div className="no-threads" style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🔍</div>
+          <div style={{ fontSize: 36, fontWeight: 800, marginBottom: 12, color: '#71767b' }}>404</div>
           <p style={{ fontSize: 16, marginBottom: 16, color: '#71767b' }}>Thread not found or has been deleted</p>
           <Link to="/" className="back-link" style={{ fontSize: 14 }}>← Back to Home</Link>
         </div>

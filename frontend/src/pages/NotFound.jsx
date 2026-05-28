@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 const NotFound = () => {
   return (
     <div className="not-found">
-      <div style={{ fontSize: 64, marginBottom: 10 }}>🔍</div>
       <h1>404</h1>
       <h2>Page Not Found</h2>
       <p>The page you're looking for doesn't exist or has been moved.</p>
@@ -18,7 +17,7 @@ const NotFound = () => {
           fontWeight: 700,
           fontSize: 14,
         }}>
-          ← Back to Home
+          Back to Home
         </Link>
         <Link to="/create-community" style={{
           display: 'inline-block',

@@ -242,6 +242,50 @@ const checkSpam = (socketId, content) => {
   return { spam: false }
 }
 
+// Global feed — recent threads across all communities
+app.get('/api/feed', async (req, res) => {
+  try {
+    const db = getDb()
+    const limit = Math.min(parseInt(req.query.limit) || 20, 50)
+
+    // Get recent threads across all communities, sorted by last activity
+    const threadsSnap = await db.collection('threads')
+      .orderBy('lastReplyAt', 'desc')
+      .limit(limit)
+      .get()
+
+    if (threadsSnap.empty) {
+      return res.json([])
+    }
+
+    // Get community info for each thread
+    const communityIds = [...new Set(threadsSnap.docs.map(d => d.data().communityId))]
+    const communityDocs = await Promise.all(
+      communityIds.map(id => db.collection('communities').doc(id).get())
+    )
+    const communityMap = {}
+    communityDocs.forEach(doc => {
+      if (doc.exists) communityMap[doc.id] = { id: doc.id, ticker: doc.data().ticker, coinName: doc.data().coinName, imageUrl: doc.data().imageUrl }
+    })
+
+    const feed = threadsSnap.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        ...data,
+        community: communityMap[data.communityId] || null,
+        createdAt: data.createdAt?.toDate?.() || data.createdAt,
+        lastReplyAt: data.lastReplyAt?.toDate?.() || data.lastReplyAt,
+      }
+    }).filter(t => t.community) // only include threads whose community still exists
+
+    res.json(feed)
+  } catch (error) {
+    console.error('Feed error:', error.message)
+    res.status(500).json({ error: 'Failed to load feed' })
+  }
+})
+
 // WebSocket connection handling
 io.on('connection', (socket) => {
   console.log(' User connected:', socket.id)
