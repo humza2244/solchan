@@ -160,7 +160,7 @@ const Home = () => {
   }, [])
 
   useEffect(() => {
-    document.title = 'CoinTalk -- memecoin community boards'
+    document.title = 'Meme Communities'
   }, [])
 
   const tabs = [
@@ -177,10 +177,9 @@ const Home = () => {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content welcome-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={handleCloseModal}>X</button>
-            <img src="/mascot.png" alt="CoinTalk mascot" style={{ width: 80, height: 'auto', margin: '0 auto 10px', display: 'block' }} />
-            <h2> Welcome to CoinTalk</h2>
+            <h2>👋 Welcome to Meme Communities</h2>
             <p className="welcome-subtitle">
-              The anonymous imageboard for memecoin communities.
+              The premium crypto community platform. Discuss any token in real-time.
             </p>
             <div className="welcome-steps">
               <div className="welcome-step">
@@ -214,8 +213,7 @@ const Home = () => {
 
       {/* Logo */}
       <div className="home-logo">
-        <img src="/mascot.png" alt="CoinTalk mascot" className="home-mascot" />
-        <h1>CoinTalk</h1>
+        <h1>Meme Communities</h1>
       </div>
 
       {/* Live Stats */}
@@ -231,17 +229,24 @@ const Home = () => {
         </div>
       </div>
 
-      {/* What is CoinTalk? */}
+      {/* About */}
       <div className="what-is-cointalk">
         <div className="what-is-header">
-          <h2>What is CoinTalk?</h2>
+          <h2>What is Meme Communities?</h2>
         </div>
         <div className="what-is-content">
           <p>
-            An anonymous imageboard for memecoin communities -- like 4chan but for crypto.
-            Every coin gets its own board. <strong>No sign up required</strong> -- just search for a
-            coin, click a community, and start posting.
+            A premium community platform for crypto tokens. Every coin gets its own space
+            to discuss, share alpha, and vibe. <strong>No sign up required</strong> — just
+            search for a token, join the community, and start posting.
           </p>
+          <div className="feature-pills">
+            <span className="feature-pill">💬 Real-time chat</span>
+            <span className="feature-pill">🖼 Image sharing</span>
+            <span className="feature-pill">🔓 No registration</span>
+            <span className="feature-pill">📌 Thread pinning</span>
+            <span className="feature-pill">🛡 Moderation tools</span>
+          </div>
         </div>
       </div>
 
@@ -294,9 +299,9 @@ const Home = () => {
       {/* Tab Content */}
       {loading ? (
         <div className="loading-container">
-          <img src="/mascot.png" alt="loading" style={{ width: 60, height: 'auto', marginBottom: 12, opacity: 0.7 }} />
           <div className="spinner"></div>
           <span className="loading-text">Loading communities...</span>
+          <span className="loading-hint">First load may take a moment while the server wakes up</span>
         </div>
       ) : (
         <>
@@ -312,9 +317,9 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="empty-home-state">
-                  <img src="/mascot.png" alt="CoinTalk mascot" className="empty-state-mascot" />
+                  
                   <h3>No communities yet</h3>
-                  <p>Be the first to create a board for your favorite memecoin.</p>
+                  <p>Be the first to create a community for your favorite token.</p>
                   <Link to="/create-community" className="empty-state-cta">Create the First Community</Link>
                 </div>
               )}
@@ -326,14 +331,14 @@ const Home = () => {
             <>
               {newCommunities.length > 0 ? (
                 <div className="recent-communities">
-                  <p className="communities-subtitle">Recently created boards</p>
+                  <p className="communities-subtitle">Recently created communities</p>
                   <div className="communities-list">
                     {newCommunities.map(c => <CommunityCard key={c.id} community={c} />)}
                   </div>
                 </div>
               ) : (
                 <div className="empty-home-state">
-                  <img src="/mascot.png" alt="CoinTalk mascot" className="empty-state-mascot" />
+                  
                   <h3>No new communities</h3>
                   <p>Check back soon or create one!</p>
                   <Link to="/create-community" className="empty-state-cta">Create Community</Link>

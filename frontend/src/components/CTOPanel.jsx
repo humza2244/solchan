@@ -140,7 +140,7 @@ const CTOPanel = ({ community, onCTOApproved }) => {
           </div>
 
           {memberCount > 0 && (
-            <div style={{ fontSize: 11, color: '#666', marginBottom: 8, padding: '0 4px' }}>
+            <div style={{ fontSize: 11, color: '#71767b', marginBottom: 8, padding: '0 4px' }}>
               Approval requires {threshold} votes (35% of {memberCount} members)
             </div>
           )}

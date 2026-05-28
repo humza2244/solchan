@@ -9,13 +9,7 @@ const Layout = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [showScrollTop, setShowScrollTop] = useState(false)
 
-  // Ensure dark mode is always off
-  useEffect(() => {
-    document.body.classList.remove('dark')
-    localStorage.removeItem('darkMode')
-  }, [])
-
-  // Scroll listener for scroll-to-top button
+  // Scroll listener
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 400)
@@ -49,19 +43,18 @@ const Layout = ({ children }) => {
       <header className="header">
         <div className="container">
           <nav className="nav">
-            <Link to="/" onClick={handleHomeClick} style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
-              <img src="/mascot.png" alt="CoinTalk" style={{ width: 28, height: 28, borderRadius: '50%' }} />
-              <span style={{ fontSize: 20, fontWeight: 700, color: '#2a2a2a' }}>CoinTalk</span>
+            <Link to="/" onClick={handleHomeClick} style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.5px' }}>
+              Meme Communities
             </Link>
             <span className="nav-divider">·</span>
-            <Link to="/create-community" className="nav-link">+ New Board</Link>
+            <Link to="/create-community" className="nav-link">+ New</Link>
             <span className="nav-divider">·</span>
             <form onSubmit={handleNavSearch} className="nav-search">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search..."
+                placeholder="Search tokens..."
                 className="nav-search-input"
               />
             </form>
@@ -84,26 +77,19 @@ const Layout = ({ children }) => {
           </nav>
         </div>
       </header>
-
-      <main className="main page-fade-in">
+      <main className="main">
         <div className="container">
           {children}
         </div>
       </main>
       <footer className="footer">
         <div className="container">
-          <div className="footer-brand">
-            <img src="/mascot.png" alt="CoinTalk" className="footer-mascot" />
-            <div>
-              <strong>CoinTalk</strong>
-              <span className="footer-tagline">where degens talk coins</span>
-            </div>
-          </div>
           <div className="footer-links">
             <Link to="/">Home</Link>
-            <Link to="/create-community">Create Board</Link>
+            <Link to="/create-community">Create Community</Link>
+            <a href="https://github.com/humza2244/solchan" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
-          <p className="footer-copy">&copy; {new Date().getFullYear()} CoinTalk. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Meme Communities</p>
         </div>
       </footer>
 

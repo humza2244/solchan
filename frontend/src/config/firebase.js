@@ -1,4 +1,4 @@
-// Firebase client config for CoinTalk frontend
+// Firebase client config for Meme Communities frontend
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 

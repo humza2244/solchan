@@ -1,7 +1,7 @@
 {
-  "name": "chan-app-backend",
+  "name": "meme-communities-backend",
   "version": "1.0.0",
-  "description": "CoinTalk backend API",
+  "description": "Meme Communities backend API",
   "type": "module",
   "main": "src/server.js",
   "scripts": {

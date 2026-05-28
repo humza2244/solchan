@@ -1,4 +1,4 @@
-// Community model - represents a memecoin community
+// Community model - represents a community
 export class Community {
   constructor(data) {
     this.id = data.id

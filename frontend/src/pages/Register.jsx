@@ -112,7 +112,7 @@ const Register = () => {
     <div className="thread-page">
       <div className="create-community">
         <h2>Create Account</h2>
-        <p style={{ fontSize: '12px', color: '#666', marginBottom: '15px' }}>
+        <p style={{ fontSize: '12px', color: '#71767b', marginBottom: '15px' }}>
           You don't need an account to post. Registration is optional -- only needed to post with a persistent username or create communities.
         </p>
 

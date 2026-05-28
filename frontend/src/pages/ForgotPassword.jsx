@@ -40,7 +40,7 @@ const ForgotPassword = () => {
         {sent ? (
           <div className="auth-success">
             <p>OK Password reset email sent to <strong>{email}</strong></p>
-            <p style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
+            <p style={{ marginTop: 8, fontSize: 12, color: '#71767b' }}>
               Check your inbox and follow the link to reset your password.
             </p>
             <Link to="/login" className="auth-link" style={{ marginTop: 16, display: 'inline-block' }}>
@@ -49,7 +49,7 @@ const ForgotPassword = () => {
           </div>
         ) : (
           <>
-            <p style={{ fontSize: 12, color: '#666', marginBottom: 14 }}>
+            <p style={{ fontSize: 12, color: '#71767b', marginBottom: 14 }}>
               Enter your email and we'll send you a link to reset your password.
             </p>
 

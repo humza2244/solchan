@@ -1,5 +1,5 @@
 /**
- * Auto-moderator middleware for CoinTalk
+ * Auto-moderator middleware for Meme Communities
  * Detects and blocks common crypto scam patterns
  */
 

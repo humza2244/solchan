@@ -1,7 +1,7 @@
 {
-  "name": "chan-app",
+  "name": "meme-communities",
   "version": "1.0.0",
-  "description": "CoinTalk - memecoin community boards",
+  "description": "Meme Communities - crypto community platform",
   "private": true,
   "workspaces": [
     "frontend",

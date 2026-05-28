@@ -1,5 +1,5 @@
 /**
- * Firebase configuration for CoinTalk
+ * Firebase configuration for Meme Communities
  * 
  * If serviceAccountKey.json exists in backend/ → uses real Cloud Firestore
  * If FIREBASE_SERVICE_ACCOUNT env var is set → uses real Cloud Firestore

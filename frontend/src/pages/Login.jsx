@@ -67,7 +67,7 @@ const Login = () => {
     <div className="thread-page">
       <div className="create-community">
         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <img src="/mascot.png" alt="CoinTalk" style={{ width: 60, height: 'auto', marginBottom: 8 }} />
+          
           <h2 style={{ fontSize: '24px', fontWeight: 700 }}>Login</h2>
         </div>
         <p style={{ fontSize: '12px', color: '#888', marginBottom: '18px', textAlign: 'center' }}>
