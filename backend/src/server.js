@@ -248,11 +248,19 @@ app.get('/api/feed', async (req, res) => {
     const db = getDb()
     const limit = Math.min(parseInt(req.query.limit) || 20, 50)
 
-    // Get recent threads across all communities, sorted by last activity
-    const threadsSnap = await db.collection('threads')
+    // Try lastReplyAt first, then fall back to createdAt for older threads
+    let threadsSnap = await db.collection('threads')
       .orderBy('lastReplyAt', 'desc')
       .limit(limit)
       .get()
+
+    // If no threads with lastReplyAt, try createdAt
+    if (threadsSnap.empty) {
+      threadsSnap = await db.collection('threads')
+        .orderBy('createdAt', 'desc')
+        .limit(limit)
+        .get()
+    }
 
     if (threadsSnap.empty) {
       return res.json([])
@@ -275,7 +283,7 @@ app.get('/api/feed', async (req, res) => {
         ...data,
         community: communityMap[data.communityId] || null,
         createdAt: data.createdAt?.toDate?.() || data.createdAt,
-        lastReplyAt: data.lastReplyAt?.toDate?.() || data.lastReplyAt,
+        lastReplyAt: data.lastReplyAt?.toDate?.() || data.lastReplyAt || data.createdAt?.toDate?.() || data.createdAt,
       }
     }).filter(t => t.community) // only include threads whose community still exists
 
