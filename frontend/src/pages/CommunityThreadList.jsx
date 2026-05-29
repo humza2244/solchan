@@ -357,7 +357,7 @@ const CommunityThreadList = () => {
           <span className="thread-ca">{community.contractAddress}</span>
           <CopyCA address={community.contractAddress} />
         </div>
-        {community.description && <p style={{ fontSize: 13, color: '#4a4a6a', marginTop: 6 }}>{community.description}</p>}
+        {community.description && <p style={{ fontSize: 13, color: '#71767b', marginTop: 6 }}>{community.description}</p>}
         <div className="community-header-stats">
           <span>{community.messageCount || 0} messages</span>
           <span>{threads.length} threads</span>
@@ -445,7 +445,7 @@ const CommunityThreadList = () => {
                 <p key={i}>{line}</p>
               ))
             ) : (
-              <p style={{ color: '#999', fontStyle: 'italic' }}>No rules set yet.</p>
+              <p style={{ color: '#536471', fontStyle: 'italic' }}>No rules set yet.</p>
             )}
             {isMod && (
               <div className="rules-editor" style={{ marginTop: 10 }}>
@@ -453,7 +453,7 @@ const CommunityThreadList = () => {
                   id="rules-textarea"
                   defaultValue={community.rules || ''}
                   rows={4}
-                  style={{ width: '100%', padding: 8, fontFamily: 'inherit', fontSize: 12, borderRadius: 3, border: '1px solid #b7c5d9' }}
+                  style={{ width: '100%', padding: 8, fontFamily: 'inherit', fontSize: 12, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
                   placeholder="Enter community rules (one per line)..."
                 />
                 <button

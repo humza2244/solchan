@@ -109,7 +109,7 @@ const SearchResults = () => {
                   <div className="community-ca">
                     {community.contractAddress
                       ? <>{community.contractAddress.slice(0, 10)}...{community.contractAddress.slice(-6)}<CopyCA address={community.contractAddress} /></>
-                      : <span style={{ color: '#aaa', fontStyle: 'italic' }}>No CA yet</span>
+                      : <span style={{ color: '#536471', fontStyle: 'italic' }}>No CA yet</span>
                     }
                   </div>
                   <div className="community-stats">

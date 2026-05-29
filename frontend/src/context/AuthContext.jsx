@@ -255,6 +255,24 @@ export const AuthProvider = ({ children }) => {
     await sendPasswordResetEmail(auth, email)
   }
 
+  /**
+   * Register a new profile with a chosen username (for Twitter/X OAuth users).
+   * Uses the already-authenticated Firebase user's token.
+   */
+  const registerWithX = async (username) => {
+    if (!user) throw new Error('Not authenticated')
+    const token = await user.getIdToken()
+    const res = await axios.post(`${API_BASE_URL}/auth/register`, {
+      username,
+      avatarUrl: user.photoURL || null,
+      isTwitterUser: true,
+      twitterHandle: user.displayName || username,
+    }, { headers: { Authorization: `Bearer ${token}` } })
+    setProfile(res.data.profile)
+    setAuthToken(token)
+    return res.data.profile
+  }
+
   const getToken = async () => {
     if (!user) return null
     try {
@@ -282,6 +300,7 @@ export const AuthProvider = ({ children }) => {
       loginWithTwitter,
       linkTwitter,
       register,
+      registerWithX,
       logout,
       resetPassword,
       getToken,

@@ -105,7 +105,7 @@ const NewThread = () => {
       </div>
 
       {error && (
-        <div className="error-message" style={{ background: '#ffeeee', padding: '10px', margin: '10px 0', border: '1px solid #ff0000' }}>
+        <div className="error-message" style={{ background: 'rgba(244, 33, 46, 0.1)', padding: '10px', margin: '10px 0', border: '1px solid rgba(244, 33, 46, 0.3)', borderRadius: '12px', color: '#f4212e' }}>
           {error}
         </div>
       )}
